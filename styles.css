@@ -831,9 +831,20 @@ section > .wrap + .wrap.two-col { margin-top: 0; }
   gap: 1.25rem; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,.12);
 }
 .footer-logo { width: 200px; height: auto; max-height: 72px; object-fit: contain; }
-.footer-marks { display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; }
+.footer-marks { display: flex; flex-wrap: wrap; gap: .55rem; align-items: center; }
 .footer-marks .badge-ph {
   background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.18); color: #c5ced8; min-width: 72px; height: 42px;
+}
+.footer-marks .footer-badge {
+  width: 64px; height: 64px; object-fit: contain;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 8px; padding: 4px;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,.35));
+}
+.footer-marks .footer-badge:hover {
+  background: rgba(255,255,255,.1);
+  border-color: rgba(212,175,55,.35);
 }
 .footer-grid {
   display: grid; grid-template-columns: 1.35fr 1fr 1fr 1fr; gap: 1.5rem;
