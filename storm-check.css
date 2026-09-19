@@ -1,17 +1,17 @@
 /* Storm activity checker — separate file so visual polish on styles.css can land cleanly */
 .storm-check {
   padding: var(--section-pad) 0;
-  background: linear-gradient(180deg, var(--cream, #faf7f2) 0%, var(--white) 55%);
+  background: linear-gradient(180deg, var(--cream, #383D45) 0%, var(--panel, #4A4F57) 55%);
   border-top: 1px solid var(--gray-border);
   border-bottom: 1px solid var(--gray-border);
 }
 .storm-check--teaser {
-  background: var(--cream, var(--gray-light));
+  background: var(--gray-light, #3E434B);
   padding: 3rem 0;
 }
 .storm-check .section-head { margin-bottom: 1.5rem; }
 .storm-check-panel {
-  background: var(--white);
+  background: var(--panel, #4A4F57);
   border: 1px solid var(--gray-border);
   border-radius: calc(var(--radius) + 2px);
   box-shadow: var(--shadow);
@@ -43,7 +43,7 @@
   border-radius: var(--radius);
   font: inherit;
   color: var(--charcoal);
-  background: var(--white);
+  background: var(--panel, #4A4F57);
   transition: border-color .2s ease, box-shadow .2s ease;
 }
 .storm-check-form input[type="text"]:focus,
@@ -106,7 +106,7 @@
 .storm-card {
   border: 1px solid var(--gray-border);
   border-radius: var(--radius);
-  background: var(--white);
+  background: var(--panel, #4A4F57);
   padding: 1rem 1.05rem 1.05rem;
   box-shadow: var(--shadow);
   display: flex;
@@ -138,27 +138,27 @@
   border: 1px solid transparent;
 }
 .storm-badge--hail {
-  background: #fff1f2;
+  background: #4A383C;
   color: var(--red-dark);
-  border-color: #f0c8cd;
+  border-color: rgba(168,72,80,.45);
 }
 .storm-badge--wind {
-  background: #eef3fb;
+  background: #3A4250;
   color: #1e3a5f;
   border-color: #c9d7ea;
 }
 .storm-badge--tornado {
-  background: #f4eef8;
+  background: #423A4A;
   color: #5b2a86;
   border-color: #d9c4ea;
 }
 .storm-badge--flood {
-  background: #eaf6f3;
+  background: #3A4844;
   color: #0f5c4c;
   border-color: #b9ddd4;
 }
 .storm-badge--alert {
-  background: #fff8e8;
+  background: #454038;
   color: #8a5a00;
   border-color: #efd59a;
 }
