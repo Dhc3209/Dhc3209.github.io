@@ -1335,25 +1335,30 @@ form.lead-form.form-grid .full { grid-column: 1 / -1; }
   text-decoration: none !important;
 }
 
-/* Homepage service cards — clickable photo thumbnails */
+/* Homepage service cards — clickable photo thumbnails
+   Style D: raised panel #5A6068 + gold top edge 3px #B8975F */
 a.card.card-thumb {
   padding: 0;
   overflow: hidden;
   text-decoration: none !important;
   color: inherit;
-  background: var(--white);
+  background: #5A6068;
+  border: 1px solid #6A7078;
+  border-top: 3px solid #B8975F;
+  box-shadow: var(--shadow);
 }
 a.card.card-thumb::after { display: none; }
 a.card.card-thumb:hover {
   text-decoration: none !important;
   border-color: #6A7078;
+  border-top-color: #B8975F;
 }
 .card-thumb .card-media {
   display: block;
   aspect-ratio: 16 / 10;
   overflow: hidden;
   background: linear-gradient(145deg, var(--gray-light), var(--gold-wash));
-  border-bottom: 1px solid var(--gray-border);
+  border-bottom: 1px solid #6A7078;
 }
 .card-thumb .card-media img {
   width: 100%;
@@ -1856,6 +1861,7 @@ a.roofing-link:hover {
 a.card.card-thumb[href="/roofing"],
 a.card.card-thumb[href="/roofing/"] {
   border-color: rgba(var(--red-rgb), .32);
+  border-top-color: #B8975F;
   box-shadow: 0 4px 22px rgba(var(--red-rgb), .09), var(--shadow);
 }
 a.card.card-thumb[href="/roofing"] .card-body h3,
@@ -2333,6 +2339,26 @@ a.card-link[href="/roofing/"] {
 }
 
 /* Area / service card thumb body text already uses vars */
+
+/* Style D — photo thumbs stay raised + gold top (override any later .card panel rules) */
+a.card.card-thumb {
+  background: #5A6068;
+  border-top: 3px solid #B8975F;
+}
+.card-thumb .card-media {
+  border-bottom-color: #6A7078;
+}
+.card-thumb .card-body h3 {
+  color: var(--heading);
+}
+.card-thumb .card-body p {
+  color: var(--gray);
+}
+/* Keep gold top when roofing emphasis retints side borders */
+a.card.card-thumb[href="/roofing"],
+a.card.card-thumb[href="/roofing/"] {
+  border-top-color: #B8975F;
+}
 
 /* Ensure logo text readable */
 .logo { color: var(--heading); }
