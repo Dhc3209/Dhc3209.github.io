@@ -379,6 +379,22 @@ textarea { min-height: 120px; resize: vertical; }
   font-size: .85rem; color: #666; border-top: 1px solid var(--gray-border);
   padding-top: 1rem; margin-top: 2rem;
 }
+.carrier-grid {
+  list-style: none; padding: 0; margin: 1rem 0 1.25rem;
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: .55rem .9rem;
+}
+.carrier-grid li {
+  background: var(--gray-light); border: 1px solid var(--gray-border);
+  border-radius: var(--radius); padding: .65rem .85rem;
+  color: var(--charcoal-soft); font-weight: 650; font-size: .95rem;
+}
+.carrier-grid .carrier-note {
+  display: block; font-weight: 500; font-size: .8rem; color: var(--gray); margin-top: .15rem;
+}
+.carrier-footnote { font-size: .95rem; color: var(--gray); margin: 0 0 1.5rem; }
+@media (max-width: 560px) {
+  .carrier-grid { grid-template-columns: 1fr; }
+}
 
 /* FAQ */
 .faq-item { border-bottom: 1px solid var(--gray-border); padding: 1.15rem 0; }
