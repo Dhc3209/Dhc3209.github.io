@@ -23,6 +23,8 @@ Static staging build of the CPR redesign mock. **Do not change DNS for cprhomepr
 | `/commercial-roofing` | `commercial.html` |
 | `/metal-roofing` | `metal.html` |
 | `/designer-shingles` | `designer-shingles.html` |
+| `/timberline-hdz` | `timberline-hdz.html` |
+| `/timberline-uhdz` | `timberline-hdz.html` (alias) |
 | `/gutters` | `gutters.html` |
 | `/skylights` | `skylights.html` |
 | `/portfolio` | `portfolio.html` |

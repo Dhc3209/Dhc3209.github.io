@@ -47,6 +47,14 @@
       "destination": "/designer-shingles.html"
     },
     {
+      "source": "/timberline-uhdz",
+      "destination": "/timberline-hdz.html"
+    },
+    {
+      "source": "/timberline-hdz",
+      "destination": "/timberline-hdz.html"
+    },
+    {
       "source": "/gutters",
       "destination": "/gutters.html"
     },
