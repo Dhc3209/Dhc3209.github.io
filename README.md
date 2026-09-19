@@ -60,3 +60,13 @@ Or connect this private GitHub repo to Vercel / Cloudflare Pages / GitHub Pages.
 ## Cutover
 
 See `CUTOVER-CHECKLIST.md` and `REDIRECT-MAP.md`. Do not cancel Townsquare until DNS cutover is complete and tested.
+
+## Storm activity checker
+
+Client-side widget on `/storm-damage-insurance-claims` (full) and homepage (teaser).
+
+- Files: `storm-check.js`, `storm-check.css`
+- Sources: IEM LSR CSV (Iowa Mesonet), SPC today/yesterday reports, NWS `api.weather.gov` alerts
+- Geocode: Photon (primary), Nominatim fallback — address stays in the browser
+- No API keys; CORS-friendly public feeds only
+

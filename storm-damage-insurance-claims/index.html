@@ -7,6 +7,7 @@
   <title>Storm Damage & Insurance Claims | Campbells Precision Roofing</title>
   <meta name="description" content="Free storm damage inspection in Denver & Lake Norman. We document damage and work the claim with your adjuster.">
   <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/storm-check.css">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 </head>
@@ -93,7 +94,64 @@
     <div class="callout">
       <p><strong>Compliant promise:</strong> We document storm damage and support the claim process with you and your adjuster. We do <em>not</em> waive deductibles. We do <em>not</em> “handle the claim so you don’t talk to insurance.”</p>
     </div>
+  </div>
+</section>
 
+<section class="storm-check-wrap">
+  <div class="wrap">
+    <section class="storm-check" id="storm-check" aria-labelledby="storm-check-heading" data-storm-check data-mode="full">
+      <div class="storm-check-panel">
+        <div class="section-head" style="margin-bottom:1.1rem">
+          <p class="eyebrow">Public storm reports</p>
+          <h2 id="storm-check-heading">Check storm activity near your home</h2>
+          <p>Enter your street address to see recent hail, wind, and severe weather <strong>reports near your location</strong> from multiple public sources (NWS / IEM local storm reports, SPC, and NWS alerts). Reports nearby are not proof that hail hit your house.</p>
+        </div>
+        <form class="storm-check-form" action="#" method="get">
+          <div>
+            <label for="sc-address">Street address *</label>
+            <input id="sc-address" name="address" type="text" required autocomplete="street-address" placeholder="e.g. 3910 N NC-16 Business, Denver, NC 28037">
+          </div>
+          <div>
+            <label for="sc-radius">Radius</label>
+            <select id="sc-radius" name="radius">
+              <option value="10">10 miles</option>
+              <option value="15" selected>15 miles</option>
+              <option value="25">25 miles</option>
+              <option value="50">50 miles</option>
+            </select>
+          </div>
+          <div class="sc-actions">
+            <button class="btn" type="submit">Check nearby storms</button>
+          </div>
+        </form>
+        <p class="storm-check-hint">Address stays in your browser — we don’t store it on a server. Times shown in Eastern Time.</p>
+        <div class="storm-check-status" role="status" aria-live="polite"></div>
+        <div class="storm-check-meta" aria-live="polite"></div>
+        <div class="storm-check-results"></div>
+        <div class="storm-check-cta">
+          <h3>Want a free inspection?</h3>
+          <p>We’ll document roof condition and work with you and your adjuster. We do not waive deductibles or claim insurance approval.</p>
+          <div class="contact-strip" role="group" aria-label="Call, text, or email">
+            <span class="cs-label">Reach us:</span>
+            <a href="tel:+17042805996" aria-label="Call (704) 280-5996">Call</a>
+            <span class="cs-sep" aria-hidden="true">·</span>
+            <a href="sms:+17042805996" aria-label="Text (704) 280-5996">Text</a>
+            <span class="cs-sep" aria-hidden="true">·</span>
+            <a href="mailto:Daniel@cprhomepros.com" aria-label="Email Daniel@cprhomepros.com">Email</a>
+          </div>
+          <div class="hero-actions">
+            <a class="btn btn-white" href="/contact-us">Schedule free storm inspection</a>
+            <a class="btn btn-outline btn-on-dark" href="tel:+17042805996">Call (704) 280-5996</a>
+          </div>
+        </div>
+        <p class="storm-check-disclaimer">Data from public feeds (Iowa Environmental Mesonet LSR, NOAA/NWS Storm Prediction Center reports, and api.weather.gov alerts). Empty results mean no matching public reports in range — not that “no storm happened.” Always verify with a professional inspection.</p>
+      </div>
+    </section>
+  </div>
+</section>
+
+<section>
+  <div class="wrap prose-wide">
     <h2>Homeowners carriers we commonly work with</h2>
     <p>Common homeowners carriers we help with storm claims in the Denver / Lake Norman area (among others).</p>
     <ul class="carrier-grid">
@@ -247,6 +305,8 @@
   </div>
 </footer>
 <script src="/nav.js"></script>
+<script src="/storm-check.js" defer></script>
+
 
 </body>
 </html>
