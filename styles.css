@@ -1502,3 +1502,148 @@ a.card.card-thumb:hover {
   .photo-frame.tall .content-img,
   .photo-frame.tall img { height: 240px; }
 }
+
+/* === polish-pass-2026-09-19 === */
+/* Spacing rhythm */
+:root { --section-pad: 4.25rem; }
+.section-head { margin-bottom: 2.45rem; }
+.section-head h2 {
+  letter-spacing: -0.02em;
+  line-height: 1.18;
+}
+.section-head > p:not(.eyebrow) {
+  max-width: 38rem;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+/* Hero — quieter premium */
+.hero.dual-hero h1,
+.dual-hero h1 {
+  letter-spacing: -0.025em;
+  max-width: 18ch;
+}
+.hero .lead,
+.dual-hero .lead {
+  max-width: 36rem;
+  line-height: 1.55;
+  font-size: clamp(1.02rem, 1.6vw, 1.12rem);
+}
+.hero-actions .btn { box-shadow: none; }
+.hero-phone { letter-spacing: -0.015em; }
+
+/* Soft bottom CTA */
+.cta-band { padding: 2.85rem 0; }
+.cta-band h2 { letter-spacing: -0.02em; margin-bottom: .45em; }
+.cta-band > .wrap > p { margin-bottom: 1.15rem; }
+
+/* Card thumbs — crop + body consistency */
+a.card.card-thumb { height: 100%; }
+.card-thumb .card-media {
+  aspect-ratio: 16 / 10;
+  background: linear-gradient(145deg, #ebe5db, #f4efe6);
+}
+.card-thumb .card-media img {
+  object-fit: cover;
+  object-position: center 42%;
+}
+.card-thumb .card-media img[src*="dji_fly"],
+.card-thumb .card-media img[src*="image4"],
+.card-thumb .card-media img[src*="20170818_183"] {
+  object-position: center 32%;
+}
+.card-thumb .card-media img[src*="roof-plate"],
+.card-thumb .card-media img[src*="image1"],
+.card-thumb .card-media img[src*="image6"],
+.card-thumb .card-media img[src*="image8"],
+.card-thumb .card-media img[src*="image7"] {
+  object-position: center center;
+}
+.card-thumb .card-media img[src*="IMG_20170818_201511"],
+.card-thumb .card-media img[src*="IMG_4733"] {
+  object-position: center 28%;
+}
+.card-thumb .card-body {
+  padding: 1.15rem 1.2rem 1.3rem;
+  gap: .2rem;
+  min-height: 9.25rem;
+}
+.card-thumb .card-body h3 {
+  font-size: 1.02rem;
+  letter-spacing: -0.012em;
+  line-height: 1.25;
+  margin: 0 0 .3rem;
+}
+.card-thumb .card-body p {
+  font-size: .875rem;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.grid-4, .grid-3, .grid-5 { align-items: stretch; }
+
+/* Portfolio grid — even crops */
+.photo-grid .photo-frame img,
+.photo-grid .content-img {
+  object-position: center 40%;
+}
+.photo-grid .photo-frame img[src*="dji_fly"],
+.photo-grid .content-img[src*="dji_fly"] {
+  object-position: center 30%;
+}
+
+/* Google placeholder — intentional, not dashed stub */
+.google-widget {
+  border: 1px solid var(--gray-border);
+  background: linear-gradient(180deg, #fff 0%, var(--cream) 100%);
+  box-shadow: var(--shadow);
+  max-width: 26rem;
+}
+.google-widget .gw-note {
+  color: var(--gray);
+  font-size: .8rem;
+}
+
+/* Reach Out step — subtle gold warmth */
+.step-reach {
+  border-color: rgba(var(--gold-rgb), .42);
+  background: linear-gradient(180deg, #fff 0%, var(--gold-soft) 100%);
+  box-shadow: var(--shadow);
+}
+.steps { align-items: stretch; }
+.step { height: 100%; }
+
+/* Why CPR breathing room */
+.why-lead { line-height: 1.7; }
+.why-bullets li { padding-top: .5rem; padding-bottom: .5rem; }
+
+/* Quick request card */
+.quick-request {
+  border-color: rgba(var(--navy-rgb), .08);
+  background: linear-gradient(180deg, #fff 0%, #fbfaf7 100%);
+}
+
+/* Compact service heroes — slightly calmer */
+.dual-hero.compact {
+  padding: 2rem 0 1.7rem;
+}
+.dual-hero.compact h1 {
+  letter-spacing: -0.022em;
+  line-height: 1.15;
+}
+.dual-hero.compact .lead {
+  opacity: .93;
+}
+
+/* About / thin service pages — prose comfort */
+.service-intro { max-width: 40rem; }
+.service-intro .list-check { margin-top: .25rem; }
+
+@media (max-width: 720px) {
+  .card-thumb .card-body { min-height: 0; }
+  .hero.dual-hero h1,
+  .dual-hero h1 { max-width: none; }
+}
