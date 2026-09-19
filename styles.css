@@ -392,20 +392,132 @@ textarea { min-height: 120px; resize: vertical; }
 .two-col { display: grid; grid-template-columns: 1.35fr 1fr; gap: 2rem; align-items: start; }
 .two-col-equal { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
 
-/* Google widget placeholder */
-.google-widget {
-  border: 2px dashed #c5c5c5;
-  background: linear-gradient(180deg, #fafafa, #f0f0f0);
-  border-radius: 12px;
-  padding: 2rem 1.5rem;
-  text-align: center;
-  max-width: 420px;
-  margin: 0 auto 2rem;
+/* Google Business reviews embed */
+.google-reviews {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 1.25rem 1.5rem;
+  align-items: stretch;
+  max-width: 920px;
+  margin: 0 auto 1.75rem;
 }
-.google-widget .gw-stars { color: #f4b400; font-size: 1.4rem; letter-spacing: .08em; }
-.google-widget .gw-rating { font-size: 1.75rem; font-weight: 800; color: var(--charcoal); margin: .35rem 0; }
-.google-widget .gw-count { color: var(--gray); font-size: .95rem; }
-.google-widget .gw-note { font-size: .78rem; color: #888; margin: .85rem 0 0; }
+.google-reviews--wide { max-width: 980px; }
+.google-reviews-card {
+  background: linear-gradient(180deg, #fff 0%, var(--cream) 100%);
+  border: 1px solid rgba(var(--navy-rgb), .10);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.35rem 1.35rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.gr-top {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: .85rem;
+}
+.gr-gmark {
+  flex-shrink: 0;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid rgba(var(--navy-rgb), .08);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 4px rgba(27, 43, 69, .06);
+}
+.gr-gmark svg { display: block; }
+.gr-label {
+  margin: 0;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.gr-name {
+  margin: .1rem 0 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--charcoal);
+  line-height: 1.25;
+}
+.gr-score-row {
+  display: flex;
+  align-items: baseline;
+  gap: .55rem;
+  margin: .15rem 0 .35rem;
+}
+.gr-score {
+  font-family: Fraunces, Georgia, serif;
+  font-size: 2.35rem;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1;
+}
+.gr-stars {
+  color: #f4b400;
+  font-size: 1.25rem;
+  letter-spacing: .06em;
+  text-shadow: 0 1px 0 rgba(184, 151, 95, .25);
+}
+.gr-count {
+  margin: 0 0 1.1rem;
+  color: var(--charcoal-soft);
+  font-size: .95rem;
+}
+.gr-count strong { color: var(--charcoal); font-weight: 700; }
+.gr-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .55rem .65rem;
+}
+.gr-actions .btn {
+  flex: 1 1 auto;
+  text-align: center;
+  min-width: 9.5rem;
+  font-size: .88rem;
+  padding: .65rem 1rem;
+}
+.gr-source {
+  margin: .95rem 0 0;
+  font-size: .8rem;
+  color: var(--gray);
+}
+.gr-source a {
+  color: var(--navy);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.gr-source a:hover { color: var(--red); }
+.google-reviews-map {
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid rgba(var(--navy-rgb), .10);
+  box-shadow: var(--shadow);
+  background: #e8e4dc;
+  min-height: 280px;
+}
+.google-reviews-map iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  border: 0;
+}
+@media (max-width: 760px) {
+  .google-reviews {
+    grid-template-columns: 1fr;
+    max-width: 32rem;
+  }
+  .google-reviews-map iframe { min-height: 280px; }
+  .gr-actions .btn { width: 100%; }
+}
 
 /* Reviews — no invented quotes on reviews page; homepage may link only */
 .review-card { border-left: 3px solid var(--red); }
@@ -1595,17 +1707,8 @@ a.card.card-thumb { height: 100%; }
   object-position: center 30%;
 }
 
-/* Google placeholder — intentional, not dashed stub */
-.google-widget {
-  border: 1px solid var(--gray-border);
-  background: linear-gradient(180deg, #fff 0%, var(--cream) 100%);
-  box-shadow: var(--shadow);
-  max-width: 26rem;
-}
-.google-widget .gw-note {
-  color: var(--gray);
-  font-size: .8rem;
-}
+/* Google reviews — warm card already defined above; keep map height on wide layout */
+.google-reviews--wide .google-reviews-map iframe { min-height: 380px; }
 
 /* Reach Out step — subtle gold warmth */
 .step-reach {
