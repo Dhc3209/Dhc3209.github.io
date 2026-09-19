@@ -497,16 +497,103 @@ section > .wrap + .wrap.two-col { margin-top: 0; }
   .contact-methods { grid-template-columns: 1fr; }
 }
 
-/* CTA band */
+/* CTA band — soft cream / light navy wash (not funeral black) */
 .cta-band {
   background:
-    linear-gradient(135deg, #1a2433 0%, #243044 55%, #2c2530 100%);
-  color: var(--white); padding: 2.75rem 0; text-align: center;
-  border-top: 3px solid var(--gold);
+    linear-gradient(160deg, #f8f5ef 0%, #f1efe9 42%, #e9eef4 100%);
+  color: var(--charcoal);
+  padding: 2.75rem 0;
+  text-align: center;
+  border-top: 1px solid var(--gray-border);
+  box-shadow: inset 0 1px 0 rgba(196, 164, 108, .28);
 }
-.cta-band h2 { color: var(--white); }
-.cta-band p { color: #d8dde5; max-width: 34rem; margin: 0 auto 1.25rem; }
-.cta-band .hero-actions { justify-content: center; }
+.cta-band h2 { color: var(--charcoal); }
+.cta-band p { color: var(--gray); max-width: 34rem; margin: 0 auto 1.1rem; }
+.cta-band .hero-actions { justify-content: center; gap: .65rem 1rem; }
+
+/* Primary estimate: outline / softer visual weight */
+.cta-band .btn:not(.btn-ghost):not(.btn-on-dark),
+.cta-band .btn-white {
+  background: transparent;
+  color: var(--red) !important;
+  border: 1.5px solid rgba(183, 28, 44, .48);
+  box-shadow: none;
+  font-weight: 650;
+  font-size: .88rem;
+  padding: .62rem 1.15rem;
+  min-height: 44px;
+}
+.cta-band .btn:not(.btn-ghost):not(.btn-on-dark):hover,
+.cta-band .btn-white:hover {
+  background: var(--red-soft);
+  border-color: var(--red);
+  color: var(--red-dark) !important;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Secondary CTA: quiet text link (not a competing pill) */
+.cta-band .btn-ghost,
+.cta-band .btn-on-dark,
+.cta-band .btn-outline.btn-on-dark {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: var(--charcoal-soft) !important;
+  font-weight: 600;
+  font-size: .9rem;
+  text-decoration: underline !important;
+  text-underline-offset: 3px;
+  box-shadow: none;
+  padding: .5rem .65rem;
+  transform: none;
+}
+.cta-band .btn-ghost:hover,
+.cta-band .btn-on-dark:hover,
+.cta-band .btn-outline.btn-on-dark:hover {
+  background: transparent !important;
+  color: var(--red) !important;
+  border-color: transparent !important;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Call / Text / Email: subtle chips, not loud dark pills */
+.cta-band .contact-strip {
+  background: transparent !important;
+  border: none !important;
+  justify-content: center;
+  max-width: 28rem;
+  margin: .15rem auto 1rem !important;
+  padding: .2rem 0;
+  gap: .4rem .5rem;
+}
+.cta-band .contact-strip .cs-label {
+  color: var(--charcoal-soft) !important;
+  font-weight: 650;
+  font-size: .75rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  width: 100%;
+  text-align: center;
+  margin: 0 0 .2rem;
+}
+.cta-band .contact-strip a {
+  color: var(--charcoal-soft) !important;
+  font-weight: 600;
+  font-size: .86rem;
+  padding: .38rem .85rem;
+  min-height: 40px;
+  background: rgba(26, 36, 51, .035);
+  border: 1px solid var(--gray-border);
+  border-radius: 999px;
+}
+.cta-band .contact-strip a:hover {
+  color: var(--red) !important;
+  border-color: rgba(183, 28, 44, .3);
+  background: var(--red-soft);
+  text-decoration: none !important;
+}
+.cta-band .contact-strip .cs-sep { display: none; }
 
 /* Storm / long-form */
 .prose { max-width: 42rem; }
@@ -737,8 +824,9 @@ a.social-ph:hover { color: #fff; border-color: #999; text-decoration: none; }
     box-sizing: border-box;
   }
   .cta-band .hero-phone {
-    border-color: rgba(255,255,255,.55);
-    background: rgba(0,0,0,.12);
+    border-color: var(--gray-border);
+    background: rgba(26, 36, 51, .04);
+    color: var(--charcoal);
   }
   .topbar { font-size: .72rem; }
   .wrap { width: min(100% - 1.5rem, var(--max)); max-width: 100%; box-sizing: border-box; }
@@ -871,10 +959,9 @@ body.nav-is-open .nav-row.nav-open .nav-links {
 }
 .cta-band {
   background:
-    radial-gradient(ellipse at 90% 0%, rgba(183,28,44,.22), transparent 45%),
-    linear-gradient(135deg, #1a2433 0%, #243044 58%, #2a2836 100%);
+    linear-gradient(160deg, #f8f5ef 0%, #f1efe9 42%, #e9eef4 100%);
 }
-.cta-band p { color: #d8dde5; }
+.cta-band p { color: var(--gray); }
 
 /* Form polish on contact */
 form.form-grid,
