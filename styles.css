@@ -609,3 +609,63 @@ body.nav-is-open .site-header {
 body.nav-is-open .nav-row.nav-open .nav-links {
   background: #fff;
 }
+
+/* Live project photos */
+.content-img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  object-fit: cover;
+}
+.photo-frame {
+  margin: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #ececec;
+  border: 1px solid var(--gray-border);
+}
+.photo-frame.tall .content-img,
+.photo-frame.tall img {
+  width: 100%;
+  max-width: 100%;
+  height: 280px;
+  object-fit: cover;
+}
+.photo-grid .photo-frame {
+  min-height: 0;
+}
+.photo-grid .content-img,
+.photo-grid img {
+  width: 100%;
+  max-width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+}
+.photo-grid figcaption {
+  font-size: .8rem;
+  color: var(--gray);
+  padding: .55rem .75rem .7rem;
+  margin: 0;
+}
+@media (max-width: 800px) {
+  .photo-grid { grid-template-columns: repeat(2, 1fr); }
+  .photo-grid .content-img, .photo-grid img { height: 180px; }
+}
+@media (max-width: 520px) {
+  .photo-grid { grid-template-columns: 1fr; }
+}
+.hero-with-bg {
+  background:
+    linear-gradient(145deg, rgba(20,20,20,.78) 0%, rgba(28,28,28,.72) 45%, rgba(42,18,22,.8) 100%),
+    url("/images/from-live/dji_fly_20250505.JPG") center/cover no-repeat;
+}
+.trust-badges {
+  display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: center;
+  margin-top: 1rem;
+}
+.trust-badges img {
+  max-height: 56px; width: auto; max-width: 140px; height: auto;
+}
