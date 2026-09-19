@@ -229,8 +229,6 @@ p { margin: 0 0 1.05em; color: var(--gray); }
 .dual-hero.compact .hero-actions { margin-bottom: .5rem; gap: .55rem; }
 .dual-hero.compact .hero-phone { font-size: clamp(1.15rem, 3vw, 1.45rem); margin: .15rem 0 .35rem; padding: .25rem 0; }
 .dual-hero.compact .hero-note { font-size: .78rem; }
-.dual-hero.compact .hero-contact-links { margin: .2rem 0 .4rem; }
-.dual-hero.compact .hero-contact-links a { font-size: clamp(.95rem, 2.4vw, 1.15rem); }
 
 /* Trust bar */
 .trust-bar {
@@ -474,24 +472,6 @@ section > .wrap + .wrap.two-col { margin-top: 0; }
 }
 .contact-strip a:hover { text-decoration: underline !important; }
 .contact-strip .cs-sep { color: #bbb; user-select: none; }
-.hero-contact-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .35rem .75rem;
-  align-items: center;
-  margin: .35rem 0 .55rem;
-}
-.hero-contact-links a {
-  color: #fff !important;
-  font-weight: 800;
-  font-size: clamp(1.05rem, 2.8vw, 1.35rem);
-  text-decoration: none !important;
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-}
-.hero-contact-links a:hover { color: #ffc9d0 !important; }
-.hero-contact-links .hcl-sep { color: rgba(255,255,255,.45); font-weight: 600; user-select: none; }
 .footer-contact-links a { font-weight: 600; }
 @media (max-width: 700px) {
   .contact-methods { grid-template-columns: 1fr; }
@@ -563,7 +543,7 @@ section > .wrap + .wrap.two-col { margin-top: 0; }
   border: none !important;
   justify-content: center;
   max-width: 28rem;
-  margin: .15rem auto 1rem !important;
+  margin: 1rem auto 0 !important;
   padding: .2rem 0;
   gap: .4rem .5rem;
 }
@@ -984,18 +964,6 @@ form.form-grid button.btn {
 }
 @media (max-width: 700px) {
   .contact-method { min-height: 64px; align-items: stretch; }
-  .hero-contact-links {
-    flex-direction: column; align-items: stretch; gap: .5rem;
-  }
-  .hero-contact-links .hcl-sep { display: none; }
-  .hero-contact-links a {
-    justify-content: center;
-    padding: .65rem .75rem;
-    border: 2px solid rgba(255,255,255,.35);
-    border-radius: var(--radius);
-    background: rgba(255,255,255,.08);
-    font-size: 1.05rem !important;
-  }
 }
 
 
@@ -1022,7 +990,6 @@ form.lead-form.form-grid .full { grid-column: 1 / -1; }
 .topbar a,
 .site-footer a,
 .hero-phone,
-.hero-contact-links a,
 .contact-strip a,
 .card .card-link {
   transition: color var(--dur) var(--ease-out), opacity var(--dur) var(--ease-out);
