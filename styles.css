@@ -349,6 +349,7 @@ textarea { min-height: 120px; resize: vertical; }
 }
 
 /* Contact methods: Call | Text | Email */
+/* Contact methods: Call | Text | Email */
 section > .wrap + .wrap.two-col { margin-top: 0; }
 .contact-methods {
   display: grid;
