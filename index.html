@@ -7,6 +7,7 @@
   <title>Home | Campbells Precision Roofing</title>
   <meta name="description" content="GAF Master Elite roofing in Denver and Lake Norman, NC. Free storm damage inspections and roof estimates.">
   <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/storm-check.css">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 </head>
@@ -94,18 +95,21 @@
     <div>
       <p class="eyebrow">Quick request</p>
       <h2>Get a Free Roof Estimate</h2>
-      <p>Ready for a free inspection? Head to our contact page to share details — optional photos help us prepare.</p>
-      <div class="contact-strip" role="group" aria-label="Call, text, or email">
-        <span class="cs-label">Prefer to reach us directly?</span>
-        <a href="tel:+17042805996" aria-label="Call (704) 280-5996">Call</a>
-        <span class="cs-sep" aria-hidden="true">·</span>
-        <a href="sms:+17042805996" aria-label="Text (704) 280-5996">Text</a>
-        <span class="cs-sep" aria-hidden="true">·</span>
-        <a href="mailto:Daniel@cprhomepros.com" aria-label="Email Daniel@cprhomepros.com">Email</a>
+      <div class="quick-request">
+        <p>Ready for a free inspection? Tell us a little about your roof on our contact page — we’ll follow up to schedule. Optional photos help us prepare.</p>
+        <div class="contact-strip" role="group" aria-label="Call, text, or email">
+          <span class="cs-label">Prefer to reach us directly?</span>
+          <a href="tel:+17042805996" aria-label="Call (704) 280-5996">Call</a>
+          <span class="cs-sep" aria-hidden="true">·</span>
+          <a href="sms:+17042805996" aria-label="Text (704) 280-5996">Text</a>
+          <span class="cs-sep" aria-hidden="true">·</span>
+          <a href="mailto:Daniel@cprhomepros.com" aria-label="Email Daniel@cprhomepros.com">Email</a>
+        </div>
+        <div class="hero-actions">
+          <a class="btn" href="/contact-us">Request a free estimate</a>
+          <a class="btn btn-outline" href="/storm-damage-insurance-claims">Storm / insurance help</a>
+        </div>
       </div>
-      <p style="margin-top:1.25rem">
-        <a class="btn" href="/contact-us">Quick request</a>
-      </p>
     </div>
     <div>
       <p class="eyebrow">Why CPR</p>
@@ -146,7 +150,7 @@
 </section>
 
 
-<section class="section-alt">
+<section>
   <div class="wrap">
     <div class="section-head">
       <p class="eyebrow">Portfolio</p>
@@ -177,7 +181,7 @@
   </div>
 </section>
 
-<section>
+<section class="section-alt">
   <div class="wrap">
     <div class="section-head">
       <p class="eyebrow">What to expect</p>
@@ -227,6 +231,39 @@
     <p class="text-center" style="margin-top:1.5rem"><a class="btn btn-outline" href="/areas-we-serve">See all cities we serve</a></p>
   </div>
 </section>
+
+<section class="storm-check storm-check--teaser" aria-labelledby="storm-teaser-heading" data-storm-check data-mode="teaser">
+  <div class="wrap">
+    <div class="storm-check-panel">
+      <div class="section-head" style="margin-bottom:1rem;text-align:center">
+        <p class="eyebrow">Storm activity</p>
+        <h2 id="storm-teaser-heading">Check storm activity near your home</h2>
+        <p>See public hail and severe weather reports near your address — then schedule a free inspection if you want the roof documented.</p>
+      </div>
+      <form class="storm-check-form" action="/storm-damage-insurance-claims/#storm-check" method="get">
+        <div>
+          <label for="sc-home-address">Street address *</label>
+          <input id="sc-home-address" name="address" type="text" required autocomplete="street-address" placeholder="City &amp; street, e.g. Denver, NC 28037">
+        </div>
+        <div>
+          <label for="sc-home-radius">Radius</label>
+          <select id="sc-home-radius" name="radius">
+            <option value="10">10 miles</option>
+            <option value="15" selected>15 miles</option>
+            <option value="25">25 miles</option>
+          </select>
+        </div>
+        <div class="sc-actions">
+          <button class="btn" type="submit">Check storms</button>
+        </div>
+      </form>
+      <div class="storm-check-status" role="status" aria-live="polite"></div>
+      <p class="storm-check-teaser-link"><a href="/storm-damage-insurance-claims/#storm-check">Open full storm checker with sources &amp; report cards →</a></p>
+      <p class="storm-check-disclaimer" style="text-align:center">Multi-source public reports near your address — not a claim that hail hit your house.</p>
+    </div>
+  </div>
+</section>
+
 <section class="cta-band">
   <div class="wrap">
     <h2>Ready for an honest look at your roof?</h2>
@@ -317,6 +354,8 @@
   </div>
 </footer>
 <script src="/nav.js"></script>
+<script src="/storm-check.js" defer></script>
+
 
 </body>
 </html>
