@@ -13,9 +13,9 @@
   --gold: #B8975F;
   --gold-soft: #F2EAD9;
   --gold-rgb: 184, 151, 95;
-  --charcoal: #2F3540;
-  --charcoal-soft: #4A5160;
-  --gray: #5F5B57;
+  --charcoal: #2A303A;
+  --charcoal-soft: #3F4652;
+  --gray: #4E4A46;
   --gray-light: #F4F0E9;
   --gray-border: #E5DFD5;
   --cream: #F8F5F0;
@@ -88,7 +88,7 @@ h4 {
 }
 p { margin: 0 0 1.05em; color: var(--gray); }
 .wrap { width: min(100% - 2.25rem, var(--max)); margin-inline: auto; }
-.muted { color: #8a837c; }
+.muted { color: #6E6862; }
 .sr-only {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0,0,0,0); border: 0;
@@ -97,7 +97,7 @@ p { margin: 0 0 1.05em; color: var(--gray); }
 /* Top bar */
 .topbar {
   background: linear-gradient(90deg, var(--navy-deep) 0%, var(--navy) 55%, var(--navy-mid) 100%);
-  color: #c9d2de;
+  color: #D5DCE6;
   font-size: .8rem;
   padding: .55rem 0;
 }
@@ -150,7 +150,7 @@ p { margin: 0 0 1.05em; color: var(--gray); }
 .nav-links > li { position: relative; }
 .nav-links a, .nav-links button.nav-drop {
   display: inline-block; padding: .5rem .55rem;
-  color: var(--charcoal); font-size: .875rem; font-weight: 500;
+  color: var(--charcoal); font-size: .875rem; font-weight: 550;
   background: none; border: none; cursor: pointer; font-family: inherit;
   white-space: nowrap;
   border-radius: 6px;
@@ -237,7 +237,7 @@ p { margin: 0 0 1.05em; color: var(--gray); }
 }
 .hero h1, .dual-hero h1 { color: var(--white); margin-bottom: .7rem; max-width: 20ch; font-weight: 600; }
 .hero .lead, .dual-hero .lead {
-  color: #dce3ec; font-size: 1.125rem; max-width: 36rem; margin-bottom: 1.65rem; line-height: 1.65;
+  color: #E8EDF4; font-size: 1.125rem; max-width: 36rem; margin-bottom: 1.65rem; line-height: 1.65;
 }
 .hero-eyebrow { color: #E8D4B0 !important; letter-spacing: .14em; }
 .hero-actions {
@@ -255,7 +255,7 @@ p { margin: 0 0 1.05em; color: var(--gray); }
   padding: .35rem 0;
 }
 .hero-phone:hover { color: var(--gold-soft) !important; }
-.hero-note { color: #b8c0cc; font-size: .875rem; margin: 0; }
+.hero-note { color: #C8D0DC; font-size: .875rem; margin: 0; }
 
 /* Compact dual strip for inner pages after page-hero alternative:
    We use full dual-hero on every page per requirements */
@@ -528,7 +528,7 @@ textarea { min-height: 120px; resize: vertical; }
 .photo-ph {
   background: #ececec; border: 2px dashed #b0b0b0; border-radius: var(--radius);
   min-height: 180px; display: flex; align-items: center; justify-content: center;
-  color: #777; font-size: .9rem; font-weight: 700; text-align: center; padding: 1rem;
+  color: var(--charcoal-soft); font-size: .9rem; font-weight: 700; text-align: center; padding: 1rem;
 }
 .photo-ph.tall { min-height: 280px; }
 .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
@@ -537,7 +537,7 @@ textarea { min-height: 120px; resize: vertical; }
   display: inline-flex; align-items: center; justify-content: center;
   min-width: 88px; height: 48px; padding: .4rem .6rem;
   border: 1px dashed #999; border-radius: 4px; background: #fafafa;
-  font-size: .65rem; font-weight: 700; color: #666; text-align: center;
+  font-size: .65rem; font-weight: 700; color: var(--charcoal-soft); text-align: center;
 }
 
 /* Contact methods: quiet Call | Text | Email chips (cream / navy / gold) */
@@ -703,8 +703,8 @@ section > .wrap + .wrap.two-col { margin-top: 0; }
 .cta-band .btn-outline.btn-on-dark {
   background: transparent !important;
   border-color: transparent !important;
-  color: var(--charcoal-soft) !important;
-  font-weight: 600;
+  color: var(--charcoal) !important;
+  font-weight: 650;
   font-size: .9rem;
   text-decoration: underline !important;
   text-underline-offset: 3px;
@@ -733,8 +733,8 @@ section > .wrap + .wrap.two-col { margin-top: 0; }
   gap: .4rem .5rem;
 }
 .cta-band .contact-strip .cs-label {
-  color: var(--charcoal-soft) !important;
-  font-weight: 600;
+  color: var(--charcoal) !important;
+  font-weight: 700;
   font-size: .75rem;
   letter-spacing: .04em;
   text-transform: uppercase;
@@ -743,8 +743,8 @@ section > .wrap + .wrap.two-col { margin-top: 0; }
   margin: 0 0 .2rem;
 }
 .cta-band .contact-strip a {
-  color: var(--charcoal-soft) !important;
-  font-weight: 600;
+  color: var(--charcoal) !important;
+  font-weight: 650;
   font-size: .86rem;
   padding: .38rem .85rem;
   min-height: 40px;
@@ -779,7 +779,7 @@ section > .wrap + .wrap.two-col { margin-top: 0; }
 }
 .callout p { margin: 0; color: var(--charcoal-soft); }
 .compliance-note {
-  font-size: .85rem; color: #666; border-top: 1px solid var(--gray-border);
+  font-size: .85rem; color: var(--charcoal-soft); border-top: 1px solid var(--gray-border);
   padding-top: 1rem; margin-top: 2rem;
 }
 .carrier-grid {
@@ -811,20 +811,20 @@ section > .wrap + .wrap.two-col { margin-top: 0; }
 .chip {
   background: var(--white); border: 1px solid var(--gray-border);
   border-radius: 999px; padding: .35rem .85rem; font-size: .8rem; font-weight: 650;
-  color: var(--charcoal-soft);
+  color: var(--charcoal);
 }
 
 /* Footer */
 .site-footer {
   background: linear-gradient(165deg, var(--navy) 0%, var(--navy-mid) 55%, #2C3D56 100%);
-  color: #c5ced8; padding: 3.25rem 0 1.75rem; font-size: .9rem;
+  color: #D0D7E0; padding: 3.25rem 0 1.75rem; font-size: .9rem;
 }
 .site-footer h4 {
   font-family: var(--font-sans);
   color: var(--white); font-size: .8rem; font-weight: 700;
   letter-spacing: .08em; text-transform: uppercase; margin-bottom: .75rem;
 }
-.site-footer a { color: #d5dbe3; }
+.site-footer a { color: #E0E5EC; }
 .site-footer a:hover { color: var(--gold-soft); }
 .footer-brand-row {
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
@@ -833,7 +833,7 @@ section > .wrap + .wrap.two-col { margin-top: 0; }
 .footer-logo { width: 200px; height: auto; max-height: 72px; object-fit: contain; }
 .footer-marks { display: flex; flex-wrap: wrap; gap: .55rem; align-items: center; }
 .footer-marks .badge-ph {
-  background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.18); color: #c5ced8; min-width: 72px; height: 42px;
+  background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.18); color: #D0D7E0; min-width: 72px; height: 42px;
 }
 .footer-marks .footer-badge {
   width: 64px; height: 64px; object-fit: contain;
@@ -855,19 +855,19 @@ section > .wrap + .wrap.two-col { margin-top: 0; }
 .footer-creds {
   background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
   border-radius: var(--radius); padding: 1.25rem 1.35rem;
-  margin-bottom: 1.35rem; font-size: .82rem; line-height: 1.6; color: #b0b8c4;
+  margin-bottom: 1.35rem; font-size: .82rem; line-height: 1.6; color: #C4CBD5;
 }
-.footer-creds p { color: #b8bfc8; margin: 0 0 .65rem; }
+.footer-creds p { color: #C8CFD8; margin: 0 0 .65rem; }
 .footer-creds p:last-child { margin-bottom: 0; }
 .footer-creds strong { color: #eee; font-weight: 700; }
 .footer-bottom {
   border-top: 1px solid rgba(255,255,255,.12); padding-top: 1rem;
   display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; align-items: center;
-  font-size: .78rem; color: #888;
+  font-size: .78rem; color: #A8B0BC;
 }
 .social-ph {
-  display: inline-block; padding: .35rem .65rem; border: 1px dashed #666;
-  border-radius: 4px; font-size: .75rem; color: #bbb; margin-right: .35rem;
+  display: inline-block; padding: .35rem .65rem; border: 1px dashed #8A939F;
+  border-radius: 4px; font-size: .75rem; color: #C8CFD8; margin-right: .35rem;
 }
 a.social-ph:hover { color: #fff; border-color: #999; text-decoration: none; }
 
@@ -1513,7 +1513,7 @@ a.card.card-thumb:hover {
   color: #e6eaef;
 }
 .dual-hero.compact .hero-actions { margin-bottom: .55rem; gap: .65rem; }
-.dual-hero.compact .hero-note { font-size: .8rem; color: #c8ced6; }
+.dual-hero.compact .hero-note { font-size: .8rem; color: #C8D0DC; }
 
 .section-alt {
   background:
@@ -1933,7 +1933,7 @@ a.card-link[href="/roofing/"] {
 }
 .credential-card p {
   margin: 0;
-  color: rgba(255,255,255,.92);
+  color: #fff;
   font-size: .82rem;
   letter-spacing: .04em;
   text-transform: uppercase;
@@ -2044,7 +2044,7 @@ a.card-link[href="/roofing/"] {
   margin: 0 0 1rem;
   font-weight: 600;
 }
-.military-rebate p { color: #c9d2de; margin: 0 auto 1.35rem; max-width: 40rem; }
+.military-rebate p { color: #D5DCE6; margin: 0 auto 1.35rem; max-width: 40rem; }
 .military-rebate strong { color: #fff; }
 .military-rebate .btn-on-dark {
   border-color: rgba(255,255,255,.85);
