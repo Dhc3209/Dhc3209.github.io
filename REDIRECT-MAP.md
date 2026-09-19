@@ -65,9 +65,9 @@ These are the HTML mock pages currently in `/workspace/cpr-redesign/`. The recom
 | `/key-steps-in-commercial-roofing-projects-in-huntersville-nc` | `commercial.html` | `/commercial-roofing` | **301**; article has no new equivalent. |
 | `/which-designer-shingles-enhance-cornelius-nc-homes` | `designer-shingles.html` | `/designer-shingles` | **301**; article has no new equivalent. |
 | `/understanding-skylight-installation-services-in-denver-nc` | `skylights.html` | `/skylights` | **301**; article has no new equivalent. |
-| `/brava-slate-roofing-tile` | `designer-shingles.html` | `/designer-shingles` | **301**; no separate BRAVA mock page. |
-| `/brava-spanish-roofing-tile` | `designer-shingles.html` | `/designer-shingles` | **301**; no separate BRAVA mock page. |
-| `/brava-cedar-shake-roofing-tile` | `designer-shingles.html` | `/designer-shingles` | **301**; no separate BRAVA mock page. |
+| `/brava-slate-roofing-tile` | `brava-slate-roofing-tile/index.html` | `/brava-slate-roofing-tile` | **Serve in place** (materials page). |
+| `/brava-spanish-roofing-tile` | `brava-spanish-roofing-tile/index.html` | `/brava-spanish-roofing-tile` | **Serve in place** (materials page). |
+| `/brava-cedar-shake-roofing-tile` | `brava-cedar-shake-roofing-tile/index.html` | `/brava-cedar-shake-roofing-tile` | **Serve in place** (materials page). |
 | `/reliable-gutter-repair-solutions-in-concord-nc` | `gutters.html` | `/gutters` | **301**; article has no new equivalent. |
 | `/comprehensive-new-construction-roofing-in-davidson-nc` | `new-construction.html` | `/new-construction-roofing` | **301**; article has no new equivalent. |
 | `/complete-gutter-installation-services-in-mooresville-nc` | `gutters.html` | `/gutters` | **301**; article has no new equivalent. |

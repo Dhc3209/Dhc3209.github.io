@@ -2,61 +2,218 @@
   "cleanUrls": false,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/", "destination": "/index.html" },
-    { "source": "/about-us", "destination": "/about.html" },
-    { "source": "/contact-us", "destination": "/contact.html" },
-    { "source": "/areas-we-serve", "destination": "/areas.html" },
-    { "source": "/services", "destination": "/services.html" },
-    { "source": "/roofing", "destination": "/roofing.html" },
-    { "source": "/roof-repair-and-replacement", "destination": "/repair.html" },
-    { "source": "/new-construction-roofing", "destination": "/new-construction.html" },
-    { "source": "/commercial-roofing", "destination": "/commercial.html" },
-    { "source": "/metal-roofing", "destination": "/metal.html" },
-    { "source": "/designer-shingles", "destination": "/designer-shingles.html" },
-    { "source": "/gutters", "destination": "/gutters.html" },
-    { "source": "/skylights", "destination": "/skylights.html" },
-    { "source": "/portfolio", "destination": "/portfolio.html" },
-    { "source": "/reviews", "destination": "/reviews.html" },
-    { "source": "/faq", "destination": "/faq.html" },
-    { "source": "/velux-products", "destination": "/velux.html" },
-    { "source": "/financing", "destination": "/financing.html" },
-    { "source": "/storm-damage-insurance-claims", "destination": "/storm-damage-insurance-claims.html" }
+    {
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/about-us",
+      "destination": "/about.html"
+    },
+    {
+      "source": "/contact-us",
+      "destination": "/contact.html"
+    },
+    {
+      "source": "/areas-we-serve",
+      "destination": "/areas.html"
+    },
+    {
+      "source": "/services",
+      "destination": "/services.html"
+    },
+    {
+      "source": "/roofing",
+      "destination": "/roofing.html"
+    },
+    {
+      "source": "/roof-repair-and-replacement",
+      "destination": "/repair.html"
+    },
+    {
+      "source": "/new-construction-roofing",
+      "destination": "/new-construction.html"
+    },
+    {
+      "source": "/commercial-roofing",
+      "destination": "/commercial.html"
+    },
+    {
+      "source": "/metal-roofing",
+      "destination": "/metal.html"
+    },
+    {
+      "source": "/designer-shingles",
+      "destination": "/designer-shingles.html"
+    },
+    {
+      "source": "/gutters",
+      "destination": "/gutters.html"
+    },
+    {
+      "source": "/skylights",
+      "destination": "/skylights.html"
+    },
+    {
+      "source": "/portfolio",
+      "destination": "/portfolio.html"
+    },
+    {
+      "source": "/reviews",
+      "destination": "/reviews.html"
+    },
+    {
+      "source": "/faq",
+      "destination": "/faq.html"
+    },
+    {
+      "source": "/velux-products",
+      "destination": "/velux.html"
+    },
+    {
+      "source": "/financing",
+      "destination": "/financing.html"
+    },
+    {
+      "source": "/storm-damage-insurance-claims",
+      "destination": "/storm-damage-insurance-claims.html"
+    }
   ],
   "redirects": [
-    { "source": "/about", "destination": "/about-us", "permanent": true },
-    { "source": "/areas", "destination": "/areas-we-serve", "permanent": true },
-    { "source": "/resources", "destination": "/faq", "permanent": true },
-    { "source": "/service-area/denver-nc", "destination": "/areas-we-serve", "permanent": true },
-    { "source": "/service-area/cornelius-nc", "destination": "/areas-we-serve", "permanent": true },
-    { "source": "/service-area/huntersville-nc", "destination": "/areas-we-serve", "permanent": true },
-    { "source": "/service-area/mooresville-nc", "destination": "/areas-we-serve", "permanent": true },
-    { "source": "/service-area/davidson-nc", "destination": "/areas-we-serve", "permanent": true },
-    { "source": "/service-area/concord-nc", "destination": "/areas-we-serve", "permanent": true },
-    { "source": "/roof-repair-vs-full-replacement-in-denver-nc-how-to-decide", "destination": "/roof-repair-and-replacement", "permanent": true },
-    { "source": "/planning-gutter-systems-for-concord-nc-properties", "destination": "/gutters", "permanent": true },
-    { "source": "/comparing-metal-roofing-benefits-in-davidson-nc", "destination": "/metal-roofing", "permanent": true },
-    { "source": "/navigating-insurance-claims-for-hail-damage-in-mooresville-nc", "destination": "/storm-damage-insurance-claims", "permanent": true },
-    { "source": "/key-steps-in-commercial-roofing-projects-in-huntersville-nc", "destination": "/commercial-roofing", "permanent": true },
-    { "source": "/which-designer-shingles-enhance-cornelius-nc-homes", "destination": "/designer-shingles", "permanent": true },
-    { "source": "/understanding-skylight-installation-services-in-denver-nc", "destination": "/skylights", "permanent": true },
-    { "source": "/brava-slate-roofing-tile", "destination": "/designer-shingles", "permanent": true },
-    { "source": "/brava-spanish-roofing-tile", "destination": "/designer-shingles", "permanent": true },
-    { "source": "/brava-cedar-shake-roofing-tile", "destination": "/designer-shingles", "permanent": true },
-    { "source": "/reliable-gutter-repair-solutions-in-concord-nc", "destination": "/gutters", "permanent": true },
-    { "source": "/comprehensive-new-construction-roofing-in-davidson-nc", "destination": "/new-construction-roofing", "permanent": true },
-    { "source": "/complete-gutter-installation-services-in-mooresville-nc", "destination": "/gutters", "permanent": true },
-    { "source": "/expert-roof-repair-solutions-in-huntersville-nc", "destination": "/roof-repair-and-replacement", "permanent": true },
-    { "source": "/how-metal-roofing-protects-homes-in-cornelius-nc", "destination": "/metal-roofing", "permanent": true },
-    { "source": "/professional-roof-replacement-services-in-denver-nc", "destination": "/roof-repair-and-replacement", "permanent": true },
-    { "source": "/bathroom-remodels", "destination": "/services", "permanent": true },
-    { "source": "/handyman-services", "destination": "/services", "permanent": true },
-    { "source": "/painting_drywall", "destination": "/services", "permanent": true }
+    {
+      "source": "/about",
+      "destination": "/about-us",
+      "permanent": true
+    },
+    {
+      "source": "/areas",
+      "destination": "/areas-we-serve",
+      "permanent": true
+    },
+    {
+      "source": "/resources",
+      "destination": "/faq",
+      "permanent": true
+    },
+    {
+      "source": "/service-area/denver-nc",
+      "destination": "/areas-we-serve",
+      "permanent": true
+    },
+    {
+      "source": "/service-area/cornelius-nc",
+      "destination": "/areas-we-serve",
+      "permanent": true
+    },
+    {
+      "source": "/service-area/huntersville-nc",
+      "destination": "/areas-we-serve",
+      "permanent": true
+    },
+    {
+      "source": "/service-area/mooresville-nc",
+      "destination": "/areas-we-serve",
+      "permanent": true
+    },
+    {
+      "source": "/service-area/davidson-nc",
+      "destination": "/areas-we-serve",
+      "permanent": true
+    },
+    {
+      "source": "/service-area/concord-nc",
+      "destination": "/areas-we-serve",
+      "permanent": true
+    },
+    {
+      "source": "/roof-repair-vs-full-replacement-in-denver-nc-how-to-decide",
+      "destination": "/roof-repair-and-replacement",
+      "permanent": true
+    },
+    {
+      "source": "/planning-gutter-systems-for-concord-nc-properties",
+      "destination": "/gutters",
+      "permanent": true
+    },
+    {
+      "source": "/comparing-metal-roofing-benefits-in-davidson-nc",
+      "destination": "/metal-roofing",
+      "permanent": true
+    },
+    {
+      "source": "/navigating-insurance-claims-for-hail-damage-in-mooresville-nc",
+      "destination": "/storm-damage-insurance-claims",
+      "permanent": true
+    },
+    {
+      "source": "/key-steps-in-commercial-roofing-projects-in-huntersville-nc",
+      "destination": "/commercial-roofing",
+      "permanent": true
+    },
+    {
+      "source": "/which-designer-shingles-enhance-cornelius-nc-homes",
+      "destination": "/designer-shingles",
+      "permanent": true
+    },
+    {
+      "source": "/understanding-skylight-installation-services-in-denver-nc",
+      "destination": "/skylights",
+      "permanent": true
+    },
+    {
+      "source": "/reliable-gutter-repair-solutions-in-concord-nc",
+      "destination": "/gutters",
+      "permanent": true
+    },
+    {
+      "source": "/comprehensive-new-construction-roofing-in-davidson-nc",
+      "destination": "/new-construction-roofing",
+      "permanent": true
+    },
+    {
+      "source": "/complete-gutter-installation-services-in-mooresville-nc",
+      "destination": "/gutters",
+      "permanent": true
+    },
+    {
+      "source": "/expert-roof-repair-solutions-in-huntersville-nc",
+      "destination": "/roof-repair-and-replacement",
+      "permanent": true
+    },
+    {
+      "source": "/how-metal-roofing-protects-homes-in-cornelius-nc",
+      "destination": "/metal-roofing",
+      "permanent": true
+    },
+    {
+      "source": "/professional-roof-replacement-services-in-denver-nc",
+      "destination": "/roof-repair-and-replacement",
+      "permanent": true
+    },
+    {
+      "source": "/bathroom-remodels",
+      "destination": "/services",
+      "permanent": true
+    },
+    {
+      "source": "/handyman-services",
+      "destination": "/services",
+      "permanent": true
+    },
+    {
+      "source": "/painting_drywall",
+      "destination": "/services",
+      "permanent": true
+    }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
       ]
     }
   ]
