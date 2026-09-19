@@ -1871,3 +1871,237 @@ a.card-link[href="/roofing/"] {
   font-weight: 800;
   font-size: .92rem;
 }
+
+/* —— Live-layout reshape: credentials, pride+reviews, explore, military, process —— */
+.hero-precision {
+  border-bottom: 4px solid var(--red);
+  min-height: min(72vh, 640px);
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 3.5rem;
+}
+.hero-precision h1 {
+  max-width: 14ch;
+  font-size: clamp(2.4rem, 6vw, 3.75rem);
+  letter-spacing: -0.03em;
+}
+.hero-precision .lead { max-width: 38rem; }
+
+.credential-strip {
+  background: linear-gradient(180deg, #fff 0%, var(--cream) 100%);
+  padding: 2.75rem 0 2.25rem;
+  border-bottom: 1px solid var(--gray-border);
+}
+.credential-strip::before {
+  content: "";
+  display: block;
+  height: 3px;
+  background: var(--red);
+  margin: -2.75rem 0 2.25rem;
+}
+.credential-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+.credential-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+  background: linear-gradient(160deg, var(--red) 0%, var(--red-dark) 100%);
+  color: #fff;
+  border-radius: calc(var(--radius) + 4px);
+  padding: 2rem 1.5rem 1.85rem;
+  box-shadow: var(--shadow-lg);
+}
+.credential-card img {
+  width: auto;
+  height: 96px;
+  object-fit: contain;
+  background: #fff;
+  border-radius: 12px;
+  padding: .55rem .75rem;
+}
+.credential-card h2 {
+  color: #fff;
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-size: clamp(1.2rem, 2vw, 1.45rem);
+  margin: 0;
+}
+.credential-card p {
+  margin: 0;
+  color: rgba(255,255,255,.92);
+  font-size: .82rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  line-height: 1.55;
+  max-width: 34ch;
+}
+.credential-badges {
+  list-style: none;
+  margin: 1.35rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .5rem .85rem;
+}
+.credential-badges li {
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--navy);
+  background: #fff;
+  border: 1px solid var(--gray-border);
+  border-radius: 999px;
+  padding: .45rem .9rem;
+}
+
+.pride-reviews {
+  padding: var(--section-pad) 0;
+  background: #fff;
+}
+.pride-reviews-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, .95fr);
+  gap: 2.5rem 2.75rem;
+  align-items: start;
+}
+.pride-reviews .why-cpr-copy .section-head { margin-bottom: 1rem; }
+.pride-reviews .why-lead { margin-bottom: 1.1rem; }
+.google-reviews--stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: none;
+}
+.google-reviews--stack .google-reviews-map iframe { min-height: 240px; height: 240px; }
+
+.commitment-explore { padding: var(--section-pad) 0; }
+.commitment-kicker {
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  font-size: .78rem;
+  font-weight: 700;
+  color: var(--charcoal-soft);
+  max-width: 52rem;
+  margin: 0 auto 2.25rem;
+  line-height: 1.7;
+}
+.explore-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
+  gap: 2rem 2.5rem;
+  align-items: center;
+}
+.explore-perks {
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  display: grid;
+  gap: .95rem;
+}
+.explore-perks li {
+  display: grid;
+  gap: .2rem;
+  padding: .95rem 1.05rem;
+  background: #fff;
+  border: 1px solid var(--gray-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.explore-perks strong {
+  color: var(--navy);
+  font-size: 1rem;
+}
+.explore-perks span {
+  color: var(--gray);
+  font-size: .92rem;
+}
+.explore-photo { margin: 0; }
+
+.military-rebate {
+  background: linear-gradient(135deg, var(--navy-deep) 0%, var(--charcoal) 55%, #1a1f27 100%);
+  color: #e8edf4;
+  padding: 3.25rem 0;
+  text-align: center;
+}
+.military-rebate .wrap { max-width: 46rem; }
+.military-eyebrow { color: var(--gold-soft) !important; }
+.military-rebate h2 {
+  color: #fff;
+  font-style: italic;
+  margin-bottom: .5rem;
+}
+.military-thanks {
+  font-size: 1.15rem;
+  color: #fff;
+  margin: 0 0 1rem;
+  font-weight: 600;
+}
+.military-rebate p { color: #c9d2de; margin: 0 auto 1.35rem; max-width: 40rem; }
+.military-rebate strong { color: #fff; }
+.military-rebate .btn-on-dark {
+  border-color: rgba(255,255,255,.85);
+  color: #fff !important;
+}
+.military-rebate .btn-on-dark:hover {
+  background: #fff;
+  color: var(--navy) !important;
+}
+
+.what-to-expect {
+  background: #fff;
+  padding: var(--section-pad) 0;
+  border-top: 6px solid var(--navy-deep);
+}
+.what-to-expect .section-head h2 {
+  color: var(--red);
+  font-style: italic;
+  font-family: var(--font-display);
+}
+
+.dropdown-sep {
+  height: 1px;
+  margin: .45rem .85rem;
+  padding: 0 !important;
+  background: var(--gray-border);
+  list-style: none;
+  pointer-events: none;
+}
+
+/* Longer live-like nav: allow wrap + slightly tighter links */
+@media (min-width: 1181px) {
+  .nav-links {
+    flex-wrap: wrap;
+    row-gap: .15rem;
+    max-width: 52rem;
+  }
+  .nav-links a, .nav-links button.nav-drop {
+    padding: .4rem .42rem;
+    font-size: .8rem;
+  }
+  /* keep estimate CTA + live-like phone pill */
+  .nav-phone {
+    background: #fff;
+    border: 1px solid var(--gray-border);
+    border-radius: 8px;
+    padding: .45rem .85rem;
+    font-size: .88rem;
+    box-shadow: var(--shadow);
+  }
+}
+
+@media (max-width: 900px) {
+  .credential-grid,
+  .pride-reviews-layout,
+  .explore-grid {
+    grid-template-columns: 1fr;
+  }
+  .hero-precision { min-height: 0; align-items: center; padding: 3.5rem 0 2.75rem; }
+}
