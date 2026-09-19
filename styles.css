@@ -1761,3 +1761,113 @@ a.card.card-thumb { height: 100%; }
   .hero.dual-hero h1,
   .dual-hero h1 { max-width: none; }
 }
+
+
+/* —— Featured Roofing Services links (sitewide visual weight) —— */
+/* Nav dropdown */
+.dropdown a[href="/roofing"],
+.dropdown a[href="/roofing/"] {
+  font-weight: 700;
+  color: var(--navy);
+  font-size: .95rem;
+  background: linear-gradient(90deg, var(--gold-soft) 0%, transparent 78%);
+  border-left: 3px solid var(--gold);
+  margin: .15rem 0;
+  padding-left: calc(1.15rem - 3px);
+}
+.dropdown a[href="/roofing"]:hover,
+.dropdown a[href="/roofing/"]:hover {
+  background: var(--red-soft);
+  color: var(--red);
+  border-left-color: var(--red);
+}
+
+/* Footer Services list — warm gold on navy, not washed gray */
+.site-footer .footer-grid a[href="/roofing"],
+.site-footer .footer-grid a[href="/roofing/"] {
+  color: var(--gold-soft);
+  font-weight: 700;
+  font-size: .95rem;
+  letter-spacing: .01em;
+}
+.site-footer .footer-grid a[href="/roofing"]:hover,
+.site-footer .footer-grid a[href="/roofing/"]:hover {
+  color: #fff;
+}
+
+/* Utility for hero / inline */
+a.roofing-link {
+  display: inline-block;
+  color: var(--red);
+  font-weight: 700;
+  font-size: 1.02rem;
+  letter-spacing: .01em;
+  text-decoration: none !important;
+  border-bottom: 2px solid rgba(var(--red-rgb), .4);
+  padding: .15rem 0 .2rem;
+  transition: color .25s cubic-bezier(.22,1,.36,1), border-color .25s cubic-bezier(.22,1,.36,1);
+}
+a.roofing-link:hover {
+  color: var(--red-dark);
+  border-bottom-color: var(--red);
+}
+.hero a.roofing-link,
+.dual-hero a.roofing-link {
+  color: var(--gold-soft);
+  border-bottom-color: rgba(var(--gold-rgb), .55);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+.hero a.roofing-link:hover,
+.dual-hero a.roofing-link:hover {
+  color: #fff;
+  border-bottom-color: var(--gold);
+}
+.hero-roofing-link {
+  margin: .85rem 0 0;
+}
+.hero-roofing-link a.roofing-link {
+  /* slightly button-like chip on dark hero */
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .55rem 1.05rem;
+  border: 1.5px solid rgba(var(--gold-rgb), .65);
+  border-radius: var(--radius);
+  background: rgba(var(--gold-rgb), .12);
+  border-bottom-width: 1.5px;
+  color: var(--gold-soft);
+  font-size: .95rem;
+}
+.hero-roofing-link a.roofing-link:hover {
+  background: rgba(var(--gold-rgb), .22);
+  border-color: var(--gold);
+  color: #fff;
+}
+
+/* Homepage / services card emphasis */
+a.card.card-thumb[href="/roofing"],
+a.card.card-thumb[href="/roofing/"] {
+  border-color: rgba(var(--red-rgb), .32);
+  box-shadow: 0 4px 22px rgba(var(--red-rgb), .09), var(--shadow);
+}
+a.card.card-thumb[href="/roofing"] .card-body h3,
+a.card.card-thumb[href="/roofing/"] .card-body h3 {
+  color: var(--navy);
+  font-weight: 700;
+  font-size: 1.12rem;
+}
+a.card.card-thumb[href="/roofing"] .card-link,
+a.card.card-thumb[href="/roofing/"] .card-link {
+  font-weight: 800;
+}
+.card:has(> a.card-link[href="/roofing"]) h3,
+.card:has(> a.card-link[href="/roofing/"]) h3 {
+  color: var(--navy);
+  font-weight: 700;
+}
+a.card-link[href="/roofing"],
+a.card-link[href="/roofing/"] {
+  font-weight: 800;
+  font-size: .92rem;
+}

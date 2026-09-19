@@ -55,6 +55,10 @@
       "destination": "/timberline-hdz.html"
     },
     {
+      "source": "/brava-systems",
+      "destination": "/brava-systems.html"
+    },
+    {
       "source": "/gutters",
       "destination": "/gutters.html"
     },
@@ -92,6 +96,11 @@
     }
   ],
   "redirects": [
+    {
+      "source": "/brava",
+      "destination": "/brava-systems",
+      "permanent": true
+    },
     {
       "source": "/about",
       "destination": "/about-us",
