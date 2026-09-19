@@ -32,6 +32,7 @@ Static staging build of the CPR redesign mock. **Do not change DNS for cprhomepr
 | `/faq` | `faq.html` |
 | `/velux-products` | `velux.html` |
 | `/financing` | `financing.html` |
+| `/warranties` | `warranties.html` |
 | `/storm-damage-insurance-claims` | `storm-damage-insurance-claims.html` |
 
 Legacy article / city / BRAVA URLs 301 via `vercel.json` (see `REDIRECT-MAP.md`). Optional short `/about` → `/about-us`.

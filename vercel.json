@@ -83,6 +83,10 @@
       "destination": "/financing.html"
     },
     {
+      "source": "/warranties",
+      "destination": "/warranties.html"
+    },
+    {
       "source": "/storm-damage-insurance-claims",
       "destination": "/storm-damage-insurance-claims.html"
     }
