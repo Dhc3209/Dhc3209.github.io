@@ -15,7 +15,6 @@
   --shadow: 0 4px 18px rgba(0,0,0,.07);
   --shadow-lg: 0 12px 40px rgba(0,0,0,.12);
   --font: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
-  --sticky-h: 96px;
 }
 *, *::before, *::after { box-sizing: border-box; }
 html {
@@ -436,25 +435,6 @@ textarea { min-height: 120px; resize: vertical; }
 }
 a.social-ph:hover { color: #fff; border-color: #999; text-decoration: none; }
 
-/* Sticky mobile click-to-call */
-.sticky-call {
-  display: none;
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 300;
-  background: var(--red);
-  color: #fff !important;
-  text-decoration: none !important;
-  padding: .75rem 1rem calc(.75rem + env(safe-area-inset-bottom, 0px));
-  min-height: 56px;
-  text-align: center;
-  box-shadow: 0 -4px 20px rgba(0,0,0,.25);
-  font-weight: 800;
-  box-sizing: border-box;
-}
-.sticky-call-label {
-  display: block; font-size: .7rem; text-transform: uppercase; letter-spacing: .08em;
-  opacity: .9; font-weight: 700;
-}
-.sticky-call-num { font-size: 1.35rem; letter-spacing: .02em; }
 
 .text-center { text-align: center; }
 .mt-0 { margin-top: 0; }
@@ -558,27 +538,6 @@ a.social-ph:hover { color: #fff; border-color: #999; text-decoration: none; }
 }
 
 @media (max-width: 720px) {
-  /* Clear sticky call bar + iOS home indicator so forms/footer/trust stay tappable */
-  body {
-    padding-bottom: calc(var(--sticky-h) + env(safe-area-inset-bottom, 0px));
-  }
-  .site-footer {
-    padding-bottom: calc(1.5rem + 0.5rem);
-  }
-  .cta-band {
-    padding-bottom: calc(2.75rem + 0.75rem);
-  }
-  .trust-bar {
-    padding-bottom: calc(1rem + 0.25rem);
-  }
-  .lead-form {
-    margin-bottom: .5rem;
-    padding-bottom: 1.75rem;
-  }
-  .sticky-call {
-    display: block;
-    min-height: 64px;
-  }
   .grid-2, .grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr; }
   .steps { grid-template-columns: 1fr; }
   .form-grid { grid-template-columns: 1fr; }
@@ -586,8 +545,6 @@ a.social-ph:hover { color: #fff; border-color: #999; text-decoration: none; }
   .photo-grid { grid-template-columns: 1fr; }
   .hero, .dual-hero { padding: 2.4rem 0 2rem; }
   .dual-hero.compact { padding: 1.35rem 0 1.15rem; }
-  /* Sticky bar owns phone CTA — free header row for estimate button */
-  .nav-cta .nav-phone { display: none; }
   .nav-cta .btn {
     width: 100%; flex: 1 1 100%; max-width: 100%;
     white-space: normal;
@@ -628,11 +585,6 @@ a.social-ph:hover { color: #fff; border-color: #999; text-decoration: none; }
   .btn { font-size: .88rem; }
   .nav-cta .btn { font-size: .8rem; padding: .55rem .7rem; }
 }
-
-@media (min-width: 721px) {
-  .sticky-call { display: none !important; }
-}
-
 
 /* Mobile menu open: keep panel opaque over hero CTAs */
 body.nav-is-open .site-header {
