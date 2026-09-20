@@ -1,11 +1,11 @@
 /**
- * CPR Quick Estimate — ballpark asphalt replacement ranges for Lake Norman / Charlotte metro.
+ * CPR Quick Estimate — ballpark GAF Timberline HDZ® replacement ranges for Lake Norman / Charlotte metro.
  * Not a binding quote. Final price after free on-site inspection.
  *
- * Pricing model (architectural asphalt / GAF-class systems, NC metro):
+ * Pricing model (GAF Timberline HDZ® architectural baseline, NC metro):
  *   - $/square (100 sq ft of roof): LOW $425 · HIGH $650 installed
  *   - Stories multiplier: 1 → 1.00 · 1.5 → 1.08 · 2+ → 1.18
- *   - Material: asphalt 1.00 · designer asphalt 1.22 · metal 1.85
+ *   - Material: GAF Timberline HDZ (asphalt) 1.00 · GAF Designer 1.22 · MRS metal 1.85
  *   - Home-size presets map to typical roof squares for the area
  * Ranges rounded to nearest $500. Notify: FormSubmit AJAX → Daniel@cprhomepros.com
  */
@@ -72,10 +72,17 @@
       out.textContent = formatMoney(result.low) + " – " + formatMoney(result.high);
     }
     if (meta) {
+      var matLabel = {
+        asphalt: "GAF Timberline HDZ® architectural",
+        designer: "GAF Designer Collection",
+        metal: "MRS standing-seam metal"
+      }[material] || "GAF Timberline HDZ® architectural";
       meta.textContent =
         "Based on ~" +
         result.squares +
-        " squares · architectural asphalt ranges for Denver / Lake Norman / Charlotte metro · rough estimate only";
+        " squares · " +
+        matLabel +
+        " ranges for Denver / Lake Norman / Charlotte metro · rough estimate only";
     }
     form.dataset.qeLow = String(result.low);
     form.dataset.qeHigh = String(result.high);

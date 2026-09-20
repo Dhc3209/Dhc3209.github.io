@@ -1962,6 +1962,17 @@ a.card-link[href="/roofing/"] {
   justify-content: center;
   gap: .5rem .85rem;
 }
+
+.credential-also {
+  margin: 0.85rem 0 0;
+  text-align: center;
+  font-size: 0.92rem;
+  color: var(--muted, #5a6068);
+  max-width: 52rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .credential-badges li {
   font-size: .78rem;
   font-weight: 700;
