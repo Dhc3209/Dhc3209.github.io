@@ -259,7 +259,7 @@
           <!-- Step 1: Address -->
           <div class="qe-step" data-qe-step="1">
             <h3 class="qe-step-title">Where’s the roof?</h3>
-            <p class="qe-step-lead">Enter the property address. We’ll place a pin so you can confirm it’s right.</p>
+            <p class="qe-step-lead">Enter the property address. We’ll place a pin and estimate roof squares from the nearby building footprint.</p>
             <div class="qe-field">
               <label for="qe-address">Property address *</label>
               <input id="qe-address" name="qe-address" type="text" required autocomplete="street-address" placeholder="Street, Denver NC 28037">
@@ -326,7 +326,7 @@
           <!-- Step 4: Size + stories -->
           <div class="qe-step" data-qe-step="4" hidden>
             <h3 class="qe-step-title">Roof size &amp; stories</h3>
-            <p class="qe-step-lead">Use a home-size preset or enter approximate squares (1 square = 100 sq ft of roof).</p>
+            <p class="qe-step-lead">We’ll estimate squares from the address when map data is available. Review the estimate below and adjust it if needed (1 square = 100 sq ft of roof).</p>
             <div class="qe-grid">
               <div class="full qe-mode">
                 <span class="qe-label">Roof size</span>
@@ -346,6 +346,7 @@
                 <label for="qe-squares">Roof squares (1 square = 100 sq ft) *</label>
                 <input id="qe-squares" name="qe-squares" type="number" min="10" max="100" step="1" value="25" inputmode="numeric">
               </div>
+              <p class="full qe-step-lead" data-qe-building-note>Address-based roof-square estimate will appear after map confirmation; you can adjust it.</p>
               <div class="full">
                 <label for="qe-stories">Stories *</label>
                 <select id="qe-stories" name="qe-stories">
@@ -366,7 +367,7 @@
             <h3 class="qe-step-title">Your rough estimate</h3>
             <div class="qe-result" data-qe-result>
               <p class="qe-result-label">Ballpark range</p>
-              <p class="qe-range" data-qe-range>$10,500 – $16,500</p>
+              <p class="qe-range" data-qe-range>Complete the contact form to unlock your range</p>
               <p class="qe-meta" data-qe-meta></p>
               <p class="qe-disclaimer"><strong>Rough estimate — final after free inspection.</strong> Not a contract and not insurance approval.</p>
             </div>
