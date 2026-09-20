@@ -3,7 +3,7 @@
  * Steps: Address → Map confirm → GAF product → Roof size → Contact + range
  *
  * Pricing (GAF Timberline HDZ® architectural baseline, NC metro):
- *   - $/square: LOW $425 · HIGH $650 installed
+ *   - $/square: LOW $500 · HIGH $650 installed
  *   - Stories: 1 → 1.00 · 1.5 → 1.08 · 2+ → 1.18
  *   - Product: HDZ/UHDZ 1.00 · Designer 1.22 · MRS metal 1.85
  * Ranges rounded to nearest $500.
@@ -14,7 +14,7 @@
 (function () {
   "use strict";
 
-  var RATE_LOW = 425;
+  var RATE_LOW = 500;
   var RATE_HIGH = 650;
   var SIZE_SQUARES = { small: 18, medium: 25, large: 33, estate: 42 };
   var STORY_MULT = { "1": 1.0, "1.5": 1.08, "2": 1.18 };
@@ -53,7 +53,7 @@
     if (mode === "squares") {
       var raw = parseFloat(form.querySelector('[name="qe-squares"]').value);
       if (!isFinite(raw) || raw < 10) raw = 10;
-      if (raw > 80) raw = 80;
+      if (raw > 100) raw = 100;
       return Math.round(raw);
     }
     var preset = form.querySelector('[name="qe-home-size"]').value || "medium";
