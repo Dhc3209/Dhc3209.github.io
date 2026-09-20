@@ -2546,8 +2546,11 @@ a.card.card-thumb[href="/roofing/"] {
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: .35rem;
+}
+.qe-prog-steps--4 {
+  grid-template-columns: repeat(4, 1fr);
 }
 .qe-prog-steps li {
   position: relative;
@@ -2810,6 +2813,68 @@ a.card.card-thumb[href="/roofing/"] {
 .qe-status--ok { color: #9BE7B0; font-weight: 650; }
 .qe-status--err { color: #FFB4B4; font-weight: 650; }
 .qe-status--pending { color: var(--gold-soft); }
+
+.qe-trust {
+  margin: 0 0 1.1rem;
+  padding: .85rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid rgba(184,151,95,.35);
+  background: rgba(0,0,0,.18);
+}
+.qe-trust-line {
+  margin: 0;
+  font-size: .86rem;
+  color: var(--charcoal-soft);
+  line-height: 1.45;
+}
+.qe-trust-line + .qe-trust-line { margin-top: .35rem; }
+.qe-trust-line a { font-weight: 700; }
+.qe-cta-pair {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .65rem;
+  margin: 0 0 1rem;
+}
+.qe-cta-pair .btn { flex: 1 1 180px; text-align: center; }
+.qe-squares-note {
+  margin: 0;
+  font-size: .88rem;
+  color: var(--gold-soft);
+  line-height: 1.45;
+}
+.qe-pre-disclaimer {
+  margin: 0 0 .85rem;
+  padding: .75rem .9rem;
+  border-radius: var(--radius);
+  border: 1px solid rgba(184,151,95,.4);
+  background: rgba(184,151,95,.1);
+  font-size: .9rem;
+  color: #FFF8EC;
+  line-height: 1.45;
+}
+.qe-mini-note {
+  margin: 0 0 1rem;
+  font-size: .82rem;
+  color: var(--gray);
+  line-height: 1.4;
+}
+.qe-card-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem .75rem;
+  margin-top: 1rem;
+  padding-top: .85rem;
+  border-top: 1px solid rgba(255,255,255,.08);
+  font-size: .72rem;
+  font-weight: 650;
+  letter-spacing: .02em;
+  color: var(--gray);
+}
+.qe-card-trust span {
+  white-space: nowrap;
+}
+.qe-card-trust a { color: var(--gold-soft); font-weight: 700; }
+
 @media (max-width: 900px) {
   .qe-layout { grid-template-columns: 1fr; }
 }
@@ -2820,6 +2885,8 @@ a.card.card-thumb[href="/roofing/"] {
   .qe-prog-steps li span { font-size: .62rem; }
   .qe-map { height: 200px; }
   .qe-nav--split { flex-direction: column; }
+  .qe-cta-pair { flex-direction: column; }
+  .qe-card-trust { font-size: .68rem; gap: .3rem .55rem; }
 }
 
 /* END competitive polish Sep 2026 */

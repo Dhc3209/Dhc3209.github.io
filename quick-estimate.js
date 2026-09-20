@@ -1,21 +1,21 @@
 /**
- * CPR Instant Quote — Roofle-like multi-step ballpark for GAF products.
- * Steps: Address → Map confirm → GAF product → Roof size → Contact + range
+ * CPR Instant Quote — 4-step preliminary GAF ballpark.
+ * Steps: 1 Address → 2 Confirm squares → 3 Your info → 4 Estimate (ONLY after contact)
  *
  * Pricing (GAF Timberline HDZ® architectural baseline, NC metro):
- *   - $/square: LOW $500 · HIGH $650 installed
+ *   - $/square: LOW $500 · HIGH $750 installed (floor ≥ $500/sq)
+ *   - Cap: max 100 roof squares
  *   - Stories: 1 → 1.00 · 1.5 → 1.08 · 2+ → 1.18
  *   - Product: HDZ/UHDZ 1.00 · Designer 1.22 · MRS metal 1.85
- * Ranges rounded to nearest $500.
+ * Ranges rounded to nearest $500. No $ shown until step 4 (after full contact).
  * Notify: FormSubmit AJAX → Daniel@cprhomepros.com · subject CPR Instant Quote Lead
- * Geocode: Photon (primary) + Nominatim (fallback) — same pattern as storm-check.js
- * Map: Leaflet + OSM tiles (no API key)
+ * Geocode: Photon + Nominatim · Map: Leaflet/OSM · Footprint: OSM Overpass
  */
 (function () {
   "use strict";
 
   var RATE_LOW = 500;
-  var RATE_HIGH = 650;
+  var RATE_HIGH = 750;
   var SIZE_SQUARES = { small: 18, medium: 25, large: 33, estate: 42 };
   var STORY_MULT = { "1": 1.0, "1.5": 1.08, "2": 1.18 };
   var MAT_MULT = { hdz: 1.0, uhdz: 1.0, designer: 1.22, metal: 1.85 };
@@ -25,16 +25,19 @@
     designer: "GAF Designer Collection",
     metal: "MRS standing-seam metal"
   };
-  var TOTAL_STEPS = 5;
+  var TOTAL_STEPS = 4;
   var LEAFLET_CSS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
   var LEAFLET_JS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
   var OVERPASS_ENDPOINTS = [
     "https://overpass-api.de/api/interpreter",
-    "https://overpass.kumi.systems/api/interpreter"
+    "https://overpass.kumi.systems/api/interpreter",
+    "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
   ];
-  var ROOF_SURFACE_FACTOR = 1.25;
+  var ROOF_SURFACE_FACTOR = 1.2;
   var SQ_METERS_TO_SQ_FEET = 10.7639;
-  var MIN_SQUARES = 10;
+  var FOOTPRINT_MIN_SQ = 5;
+  var FOOTPRINT_MAX_SQ = 100;
+  var MANUAL_MIN_SQ = 5;
   var MAX_SQUARES = 100;
   var leafletPromise = null;
 
@@ -46,8 +49,8 @@
     return "$" + n.toLocaleString("en-US");
   }
 
-  function clampSquares(n) {
-    return Math.max(MIN_SQUARES, Math.min(MAX_SQUARES, Math.round(n)));
+  function clampManualSquares(n) {
+    return Math.max(MANUAL_MIN_SQ, Math.min(MAX_SQUARES, Math.round(n)));
   }
 
   function polygonAreaSqMeters(geometry) {
@@ -97,6 +100,26 @@
     return inside;
   }
 
+  function haversineMeters(a, b) {
+    var R = 6371000;
+    var dLat = ((b.lat - a.lat) * Math.PI) / 180;
+    var dLon = ((b.lon - a.lon) * Math.PI) / 180;
+    var lat1 = (a.lat * Math.PI) / 180;
+    var lat2 = (b.lat * Math.PI) / 180;
+    var h =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    return 2 * R * Math.asin(Math.sqrt(h));
+  }
+
+  function squaresDisclaimer(squares) {
+    return (
+      "Approx. " +
+      squares +
+      " squares from aerial/satellite data for this address — not a final measurement. Pitch, layers, waste, and extras change the number."
+    );
+  }
+
   function buildingEstimateFromData(data, geo) {
     var buildings = ((data && data.elements) || [])
       .filter(function (element) {
@@ -107,11 +130,13 @@
           return { lat: parseFloat(point.lat), lon: parseFloat(point.lon) };
         });
         var area = polygonAreaSqMeters(geometry);
+        var center = polygonCentroid(geometry);
         return {
           geometry: geometry,
           area: area,
-          center: polygonCentroid(geometry),
-          contains: pointInPolygon(geo, geometry)
+          center: center,
+          contains: pointInPolygon(geo, geometry),
+          distance: haversineMeters(geo, center)
         };
       })
       .filter(function (building) {
@@ -122,23 +147,29 @@
     var containing = buildings.filter(function (building) {
       return building.contains;
     });
-    var candidates = containing.length ? containing : buildings;
+    var candidates = containing.length ? containing : buildings.slice();
     candidates.sort(function (a, b) {
       if (containing.length) return b.area - a.area;
-      var aDistance = Math.pow(a.center.lat - geo.lat, 2) + Math.pow(a.center.lon - geo.lon, 2);
-      var bDistance = Math.pow(b.center.lat - geo.lat, 2) + Math.pow(b.center.lon - geo.lon, 2);
-      return aDistance - bDistance;
+      return a.distance - b.distance;
     });
+
     var selected = candidates[0];
     var footprintSqFt = selected.area * SQ_METERS_TO_SQ_FEET;
     var roofSqFt = footprintSqFt * ROOF_SURFACE_FACTOR;
-    var squares = clampSquares(roofSqFt / 100);
+    var rawSquares = roofSqFt / 100;
+    var squares = Math.round(rawSquares);
+
+    if (squares < FOOTPRINT_MIN_SQ || squares > FOOTPRINT_MAX_SQ) {
+      throw new Error("Footprint squares outside 5–100 validation (" + squares + ")");
+    }
+
     return {
       squares: squares,
       footprintSqFt: Math.round(footprintSqFt),
       roofSqFt: Math.round(roofSqFt),
-      source: "OSM Overpass building footprint",
-      note: "Estimated ~" + squares + " roof squares from the nearby OSM building footprint (includes pitch/waste); adjust if needed."
+      source: "footprint",
+      sourceLabel: "OSM building footprint (aerial/satellite-derived)",
+      note: squaresDisclaimer(squares)
     };
   }
 
@@ -146,11 +177,18 @@
     var controller = window.AbortController ? new AbortController() : null;
     var timeout = setTimeout(function () {
       if (controller) controller.abort();
-    }, 9000);
-    var options = { headers: { Accept: "application/json" } };
+    }, 8000);
+    var options = {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+      },
+      body: "data=" + encodeURIComponent(query)
+    };
     if (controller) options.signal = controller.signal;
     try {
-      var res = await fetch(endpoint + "?data=" + encodeURIComponent(query), options);
+      var res = await fetch(endpoint, options);
       if (!res.ok) throw new Error("Overpass " + res.status);
       return await res.json();
     } finally {
@@ -160,19 +198,24 @@
 
   async function estimateBuildingSquares(geo) {
     if (!geo || !isFinite(geo.lat) || !isFinite(geo.lon)) throw new Error("Missing coordinates");
-    var query =
-      "[out:json][timeout:10];way[\"building\"](around:75," +
-      geo.lat +
-      "," +
-      geo.lon +
-      ");out tags geom;";
+    var radii = [60, 100, 150];
     var lastError = null;
-    for (var i = 0; i < OVERPASS_ENDPOINTS.length; i++) {
-      try {
-        var data = await requestOverpass(OVERPASS_ENDPOINTS[i], query);
-        return buildingEstimateFromData(data, geo);
-      } catch (err) {
-        lastError = err;
+    for (var r = 0; r < radii.length; r++) {
+      var query =
+        '[out:json][timeout:8];way["building"](around:' +
+        radii[r] +
+        "," +
+        geo.lat +
+        "," +
+        geo.lon +
+        ");out tags geom;";
+      for (var i = 0; i < OVERPASS_ENDPOINTS.length; i++) {
+        try {
+          var data = await requestOverpass(OVERPASS_ENDPOINTS[i], query);
+          return buildingEstimateFromData(data, geo);
+        } catch (err) {
+          lastError = err;
+        }
       }
     }
     throw lastError || new Error("Building footprint unavailable");
@@ -183,7 +226,7 @@
     var mm = MAT_MULT[material] || 1.0;
     var low = round500(squares * RATE_LOW * sm * mm);
     var high = round500(squares * RATE_HIGH * sm * mm);
-    if (high <= low) high = low + 1500;
+    if (high <= low) high = low + 2500;
     return { low: low, high: high, squares: squares };
   }
 
@@ -192,12 +235,28 @@
     mode = mode ? mode.value : "preset";
     if (mode === "squares") {
       var raw = parseFloat(form.querySelector('[name="qe-squares"]').value);
-      if (!isFinite(raw) || raw < 10) raw = 10;
-      if (raw > 100) raw = 100;
-      return Math.round(raw);
+      if (!isFinite(raw)) raw = 25;
+      return clampManualSquares(raw);
     }
     var preset = form.querySelector('[name="qe-home-size"]').value || "medium";
     return SIZE_SQUARES[preset] || 25;
+  }
+
+  function resolveSquareSource(root, form) {
+    var mode = (form.querySelector('[name="qe-size-mode"]:checked') || {}).value || "preset";
+    var est = root._qeBuildingEstimate;
+    if (mode === "preset") return "manual_preset";
+    if (!est) return "manual";
+    var current = resolveSquares(form);
+    if (current === est.squares) return "footprint";
+    return "manual_adjusted";
+  }
+
+  function squareSourceLabel(key) {
+    if (key === "footprint") return "Aerial/satellite footprint estimate";
+    if (key === "manual_adjusted") return "Manual override (adjusted from footprint)";
+    if (key === "manual_preset") return "Home size preset (manual)";
+    return "Manual square entry";
   }
 
   function selectedMaterial(form) {
@@ -261,6 +320,7 @@
         lat: coords[1],
         lon: coords[0],
         label: parts.join(", ") || address,
+        city: props.city || props.district || props.county || "",
         provider: "Photon/OSM"
       };
     }
@@ -280,10 +340,12 @@
     var data = await res.json();
     if (!data || !data.length) throw new Error("No match");
     var hit = data[0];
+    var addr = hit.address || {};
     return {
       lat: parseFloat(hit.lat),
       lon: parseFloat(hit.lon),
       label: hit.display_name || address,
+      city: addr.city || addr.town || addr.village || addr.county || "",
       provider: "Nominatim/OSM"
     };
   }
@@ -319,7 +381,10 @@
       if (squares) squares.value = String(estimate.squares);
       toggleSizeMode(root);
     } else {
-      if (note) note.textContent = "We couldn’t estimate the footprint from map data. Choose a home-size preset or enter 10–100 squares.";
+      if (note) {
+        note.textContent =
+          "We couldn’t pull an aerial footprint for this pin. Choose a home-size preset or enter approximate squares (5–100). Not a final measurement.";
+      }
       var preset = form.querySelector('[name="qe-size-mode"][value="preset"]');
       if (preset) preset.checked = true;
       toggleSizeMode(root);
@@ -347,16 +412,17 @@
     });
     updateProgress(root, step);
     setStatus(root, "", "");
-    if (step === 2) ensureMap(root);
-    if (step === 4 || step === 5) updatePreview(root);
+    if (step === 2) {
+      ensureMap(root);
+      if (root._qeBuildingEstimate) applyBuildingEstimate(root, root._qeBuildingEstimate);
+    }
+    if (step === 4) updatePreview(root, true);
     var focusSel =
       step === 1
         ? '[name="qe-address"]'
         : step === 3
-          ? '[name="qe-material"]:checked'
-          : step === 5
-            ? '[name="qe-name"]'
-            : null;
+          ? '[name="qe-name"]'
+          : null;
     if (focusSel) {
       var focusEl = root.querySelector(focusSel);
       if (focusEl && typeof focusEl.focus === "function") {
@@ -369,7 +435,7 @@
     }
   }
 
-  function updatePreview(root) {
+  function updatePreview(root, unlocked) {
     var form = root.querySelector(".qe-form");
     if (!form) return null;
     var squares = resolveSquares(form);
@@ -378,19 +444,20 @@
     var result = calc(squares, stories, material);
     var out = root.querySelector("[data-qe-range]");
     var meta = root.querySelector("[data-qe-meta]");
-    var unlocked = root._qeContactUnlocked === true;
+    var showMoney = unlocked === true || root._qeContactUnlocked === true;
     if (out) {
-      out.textContent = unlocked
+      out.textContent = showMoney
         ? formatMoney(result.low) + " – " + formatMoney(result.high)
-        : "Complete the contact form to unlock your range";
+        : "Complete your info to unlock the preliminary range";
     }
     if (meta) {
-      meta.textContent =
-        (unlocked ? "Based on ~" : "Your range will be based on ~") +
-        result.squares +
-        " squares · " +
-        (MAT_LABEL[material] || MAT_LABEL.hdz) +
-        " · Denver / Lake Norman / Charlotte metro · rough estimate only";
+      meta.textContent = showMoney
+        ? "~" +
+          result.squares +
+          " squares · " +
+          (MAT_LABEL[material] || MAT_LABEL.hdz) +
+          " · Denver / Lake Norman / Charlotte metro · preliminary only"
+        : "Range unlocks after name, phone, email, and property address.";
     }
     form.dataset.qeLow = String(result.low);
     form.dataset.qeHigh = String(result.high);
@@ -407,7 +474,18 @@
     var squaresWrap = root.querySelector("[data-qe-squares-wrap]");
     if (presetWrap) presetWrap.hidden = mode !== "preset";
     if (squaresWrap) squaresWrap.hidden = mode !== "squares";
-    updatePreview(root);
+    var note = root.querySelector("[data-qe-building-note]");
+    if (mode === "squares" && root._qeBuildingEstimate && note) {
+      var sq = resolveSquares(form);
+      if (sq === root._qeBuildingEstimate.squares) {
+        note.textContent = root._qeBuildingEstimate.note;
+      } else {
+        note.textContent =
+          "Approx. " +
+          sq +
+          " squares (adjusted). Aerial/satellite data is a starting point only — not a final measurement. Pitch, layers, waste, and extras change the number.";
+      }
+    }
   }
 
   function ensureMap(root) {
@@ -452,8 +530,7 @@
       .catch(function () {
         setStatus(
           root,
-          "Map couldn’t load — you can still continue. Address: " +
-            (geo.label || ""),
+          "Map couldn’t load — you can still continue. Address: " + (geo.label || ""),
           "err"
         );
       });
@@ -463,6 +540,7 @@
     var now = new Date();
     var material = selectedMaterial(form);
     var geo = root._qeGeo || {};
+    var sourceKey = resolveSquareSource(root, form);
     return {
       _subject: "CPR Instant Quote Lead",
       _template: "table",
@@ -471,6 +549,9 @@
       Phone: form.querySelector('[name="qe-phone"]').value.trim(),
       Email: form.querySelector('[name="qe-email"]').value.trim(),
       Address: (root._qeAddress || form.querySelector('[name="qe-address"]').value).trim(),
+      City: (form.querySelector('[name="qe-city"]') || {}).value
+        ? form.querySelector('[name="qe-city"]').value.trim()
+        : geo.city || "",
       GeocodedLabel: geo.label || "",
       Latitude: geo.lat != null ? String(geo.lat) : "",
       Longitude: geo.lon != null ? String(geo.lon) : "",
@@ -478,16 +559,24 @@
       HomeSize: form.querySelector('[name="qe-home-size"]').value,
       SizeMode: (form.querySelector('[name="qe-size-mode"]:checked') || {}).value || "preset",
       RoofSquares: String(result.squares),
-      RoofSquareSource: root._qeBuildingEstimate ? root._qeBuildingEstimate.source : "Home size preset",
-      BuildingFootprintSqFt: root._qeBuildingEstimate ? String(root._qeBuildingEstimate.footprintSqFt) : "",
-      EstimatedRoofAreaSqFt: root._qeBuildingEstimate ? String(root._qeBuildingEstimate.roofSqFt) : "",
+      RoofSquareSource: squareSourceLabel(sourceKey),
+      RoofSquareSourceKey: sourceKey,
+      BuildingFootprintSqFt: root._qeBuildingEstimate
+        ? String(root._qeBuildingEstimate.footprintSqFt)
+        : "",
+      EstimatedRoofAreaSqFt: root._qeBuildingEstimate
+        ? String(root._qeBuildingEstimate.roofSqFt)
+        : "",
       Stories: form.querySelector('[name="qe-stories"]').value,
       Product: MAT_LABEL[material] || material,
       ProductKey: material,
       BallparkLow: formatMoney(result.low),
       BallparkHigh: formatMoney(result.high),
       BallparkShown: formatMoney(result.low) + " – " + formatMoney(result.high),
-      Disclaimer: "Rough estimate — final after free inspection. Not a binding quote.",
+      RateFloorPerSquare: "$" + RATE_LOW,
+      RateHighPerSquare: "$" + RATE_HIGH,
+      Disclaimer:
+        "This is a preliminary estimate only — not a final price. Final cost requires an on-site inspection. Not an insurance quote. We don’t waive deductibles.",
       SourcePage: location.pathname + location.hash,
       Timestamp: now.toLocaleString("en-US", { timeZone: "America/New_York" }) + " ET"
     };
@@ -516,6 +605,10 @@
         root._qeGeo = geo;
         root._qeAddress = address;
         if (addrInput) addrInput.value = geo.label || address;
+        var cityInput = form.querySelector('[name="qe-city"]');
+        if (cityInput && !cityInput.value.trim() && geo.city) {
+          cityInput.value = geo.city;
+        }
         root._qeEstimatePromise = estimateBuildingSquares(geo)
           .then(function (estimate) {
             applyBuildingEstimate(root, estimate);
@@ -548,143 +641,136 @@
         showStep(root, 1);
         return;
       }
+      if (!form.querySelector('[name="qe-material"]:checked')) {
+        setStatus(root, "Pick a GAF product to continue.", "err");
+        return;
+      }
       var estimateBtn = root.querySelector('[data-qe-step="2"] [data-qe-next]');
       if (root._qeEstimatePromise) {
         if (estimateBtn) {
           estimateBtn.disabled = true;
           estimateBtn.dataset.label = estimateBtn.textContent;
-          estimateBtn.textContent = "Estimating roof size…";
+          estimateBtn.textContent = "Confirming square estimate…";
         }
-        setStatus(root, "Estimating roof squares from the nearby building footprint…", "pending");
+        setStatus(root, "Pulling approximate squares from map data…", "pending");
         await root._qeEstimatePromise;
         if (estimateBtn) {
           estimateBtn.disabled = false;
-          estimateBtn.textContent = estimateBtn.dataset.label || "Looks right →";
+          estimateBtn.textContent = estimateBtn.dataset.label || "Confirm squares →";
         }
+      }
+      var sq = resolveSquares(form);
+      if (sq < MANUAL_MIN_SQ || sq > MAX_SQUARES) {
+        setStatus(root, "Enter between " + MANUAL_MIN_SQ + " and " + MAX_SQUARES + " squares.", "err");
+        return;
       }
       showStep(root, 3);
       return;
     }
 
     if (step === 3) {
-      if (!form.querySelector('[name="qe-material"]:checked')) {
-        setStatus(root, "Pick a GAF product to continue.", "err");
+      var name = form.querySelector('[name="qe-name"]');
+      var phone = form.querySelector('[name="qe-phone"]');
+      var email = form.querySelector('[name="qe-email"]');
+      var city = form.querySelector('[name="qe-city"]');
+      if (!name.value.trim() || !phone.value.trim() || !email.value.trim() || !city.value.trim()) {
+        form.reportValidity();
+        setStatus(root, "Name, phone, email, and city are required before any dollar range.", "err");
         return;
       }
-      showStep(root, 4);
-      return;
-    }
+      if (!email.checkValidity()) {
+        email.reportValidity();
+        return;
+      }
+      if (!(root._qeAddress || form.querySelector('[name="qe-address"]').value || "").trim()) {
+        setStatus(root, "Property address is required.", "err");
+        showStep(root, 1);
+        return;
+      }
 
-    if (step === 4) {
-      updatePreview(root);
-      showStep(root, 5);
+      root._qeContactUnlocked = true;
+      var result = updatePreview(root, true);
+      var btn = root.querySelector('[data-qe-step="3"] [data-qe-next]');
+      if (btn) {
+        btn.disabled = true;
+        btn.dataset.label = btn.textContent;
+        btn.textContent = "Sending…";
+      }
+      setStatus(root, "Saving your info and preparing the preliminary range…", "pending");
+
+      var body = payloadFrom(form, result, root);
+      try {
+        var res = await fetch("https://formsubmit.co/ajax/Daniel@cprhomepros.com", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json"
+          },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error("notify failed");
+        await res.json().catch(function () {
+          return {};
+        });
+        root._qeLeadBody = body;
+        setStatus(root, "", "");
+        showStep(root, 4);
+        var doneRange = root.querySelector("[data-qe-done-range]");
+        if (doneRange) doneRange.textContent = body.BallparkShown;
+      } catch (err) {
+        root._qeLeadBody = body;
+        setStatus(
+          root,
+          "We couldn’t email automatically — call/text (704) 280-5996. Showing your preliminary range anyway.",
+          "err"
+        );
+        showStep(root, 4);
+        var doneRange2 = root.querySelector("[data-qe-done-range]");
+        if (doneRange2) doneRange2.textContent = body.BallparkShown;
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = btn.dataset.label || "See preliminary range →";
+        }
+      }
       return;
     }
   }
 
   function goBack(root) {
     var step = root._qeStep || 1;
+    if (step === 4) {
+      // Don't re-lock if they already unlocked; just navigate
+      showStep(root, 3);
+      return;
+    }
     if (step > 1) showStep(root, step - 1);
   }
 
   function onSubmit(e, root) {
     e.preventDefault();
-    var form = root.querySelector(".qe-form");
-    if (root._qeStep !== 5) {
+    if (root._qeStep !== 4) {
       goNext(root);
       return;
     }
-
-    var name = form.querySelector('[name="qe-name"]');
-    var phone = form.querySelector('[name="qe-phone"]');
-    var email = form.querySelector('[name="qe-email"]');
-    if (!name.value.trim() || !phone.value.trim() || !email.value.trim()) {
-      form.reportValidity();
-      setStatus(root, "Name, phone, and email are required.", "err");
-      return;
-    }
-    if (!email.checkValidity()) {
-      email.reportValidity();
-      return;
-    }
-
-    root._qeContactUnlocked = true;
-    var result = updatePreview(root);
-    var btn = form.querySelector('[type="submit"]');
-    if (btn) {
-      btn.disabled = true;
-      btn.dataset.label = btn.textContent;
-      btn.textContent = "Sending…";
-    }
-    setStatus(root, "Sending your ballpark to our team…", "pending");
-
-    var body = payloadFrom(form, result, root);
-
-    fetch("https://formsubmit.co/ajax/Daniel@cprhomepros.com", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json"
-      },
-      body: JSON.stringify(body)
-    })
-      .then(function (res) {
-        if (!res.ok) throw new Error("notify failed");
-        return res.json().catch(function () {
-          return {};
-        });
-      })
-      .then(function () {
-        setStatus(
-          root,
-          "Got it — your rough range is " +
-            body.BallparkShown +
-            ". We’ll follow up to schedule a free inspection. This is not a binding quote.",
-          "ok"
-        );
-        var panel = root.querySelector("[data-qe-result]");
-        if (panel) panel.classList.add("qe-result--locked");
-        var done = root.querySelector("[data-qe-done]");
-        if (done) {
-          done.hidden = false;
-          done.querySelector("[data-qe-done-range]").textContent = body.BallparkShown;
-        }
-        var fields = root.querySelector("[data-qe-contact-fields]");
-        if (fields) fields.hidden = true;
-        if (btn) btn.hidden = true;
-      })
-      .catch(function () {
-        setStatus(
-          root,
-          "We couldn’t email the lead automatically. Please call or text (704) 280-5996 — your ballpark was " +
-            body.BallparkShown +
-            ".",
-          "err"
-        );
-      })
-      .finally(function () {
-        if (btn && !btn.hidden) {
-          btn.disabled = false;
-          btn.textContent = btn.dataset.label || "Get my rough estimate";
-        }
-      });
   }
 
   function init(root) {
     if (!root || root.dataset.qeReady) return;
     root.dataset.qeReady = "1";
     root._qeStep = 1;
+    root._qeContactUnlocked = false;
     var form = root.querySelector(".qe-form");
     if (!form) return;
 
-    form.addEventListener("input", function (e) {
-      if (root._qeStep === 4 || root._qeStep === 5) updatePreview(root);
-    });
     form.addEventListener("change", function (e) {
       if (e.target && e.target.name === "qe-size-mode") toggleSizeMode(root);
-      else if (root._qeStep === 3 || root._qeStep === 4 || root._qeStep === 5) {
-        updatePreview(root);
+      if (e.target && (e.target.name === "qe-squares" || e.target.name === "qe-home-size")) {
+        toggleSizeMode(root);
       }
+    });
+    form.addEventListener("input", function (e) {
+      if (e.target && e.target.name === "qe-squares") toggleSizeMode(root);
     });
     form.addEventListener("submit", function (e) {
       onSubmit(e, root);
@@ -701,7 +787,6 @@
       });
     });
 
-    // Enter on address field advances
     var addr = form.querySelector('[name="qe-address"]');
     if (addr) {
       addr.addEventListener("keydown", function (e) {
@@ -712,21 +797,16 @@
       });
     }
 
-    // Product card click selects radio
     root.querySelectorAll(".qe-product").forEach(function (card) {
       card.addEventListener("click", function (e) {
         if (e.target && e.target.tagName === "INPUT") return;
         var radio = card.querySelector('input[type="radio"]');
-        if (radio) {
-          radio.checked = true;
-          updatePreview(root);
-        }
+        if (radio) radio.checked = true;
       });
     });
 
     toggleSizeMode(root);
     showStep(root, 1);
-    updatePreview(root);
   }
 
   function boot() {
