@@ -2494,7 +2494,7 @@ a.card.card-thumb[href="/roofing/"] {
 
 
 
-/* —— Quick Estimate widget (instant ballpark / Roofle-style) —— */
+/* —— Quick Estimate widget (instant ballpark / multi-step) —— */
 .quick-estimate {
   padding: var(--section-pad) 0;
   background:
@@ -2890,3 +2890,82 @@ a.card.card-thumb[href="/roofing/"] {
 }
 
 /* END competitive polish Sep 2026 */
+
+/* —— Overnight P0 polish (Sep 19–20, 2026) —— */
+.dropdown-label {
+  display: block;
+  padding: .55rem 1.15rem .25rem;
+  font-size: .68rem;
+  font-weight: 750;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--gold-soft);
+  pointer-events: none;
+}
+.dropdown-grouped {
+  min-width: 292px;
+  max-height: min(72vh, 540px);
+}
+.nav-links > li.active-section > .nav-drop,
+.nav-links > li.has-dropdown.active-section > .nav-drop {
+  color: var(--red);
+}
+.why-opener {
+  margin: 0 0 1rem;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--charcoal-soft);
+  max-width: 40rem;
+}
+.proof-card figcaption,
+.photo-frame.proof-card figcaption {
+  padding: .75rem 0.15rem 0;
+}
+.proof-card figcaption strong {
+  display: block;
+  color: var(--heading);
+  font-size: .92rem;
+}
+.proof-card figcaption span {
+  display: block;
+  color: var(--gray);
+  font-size: .82rem;
+  margin-top: .15rem;
+}
+@media (max-width: 1180px) {
+  body.nav-is-open { overflow: hidden; }
+  .nav-row.nav-open .nav-links {
+    max-height: min(78vh, 640px);
+    padding-bottom: 1.25rem;
+    overscroll-behavior: contain;
+  }
+  .nav-row.nav-open .dropdown-grouped {
+    max-height: none;
+  }
+  .nav-row.nav-open .dropdown-label {
+    padding-top: .75rem;
+  }
+  /* Keep hero CTAs clear of sticky header */
+  .hero.dual-hero { scroll-margin-top: 5.5rem; }
+}
+@media (max-width: 420px) {
+  .hero-actions .btn { width: 100%; }
+  .nav-cta .btn { font-size: .78rem; padding: .55rem .7rem; }
+}
+/* QE progress labels readable on mobile */
+.qe-prog-steps li { font-size: .75rem; }
+
+
+/* Class aliases for overnight nav labels */
+.dropdown-label, .dropdown-label { }
+.dropdown .dropdown-label,
+.dropdown .dropdown-label {
+  display: block;
+  padding: .55rem 1.15rem .25rem;
+  font-size: .68rem;
+  font-weight: 750;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--gold-soft, #E8D4B0);
+  pointer-events: none;
+}
