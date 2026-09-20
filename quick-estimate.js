@@ -11,7 +11,7 @@
  *   - Stories: 1 → 1.00 · 1.5 → 1.08 · 2+ → 1.18
  * Ranges rounded to nearest $500. No $ shown until step 4 (after full contact).
  * Notify: FormSubmit AJAX → Daniel@cprhomepros.com · subject CPR Instant Quote Lead
- * Geocode: US Census → Photon variants → Nominatim · Map: Leaflet/OSM · Footprint: OSM Overpass
+ * Geocode: US Census → Photon variants → Nominatim · Map: Leaflet + Esri satellite · Footprint: OSM Overpass
  */
 (function () {
   "use strict";
@@ -900,11 +900,22 @@
             attributionControl: true,
             scrollWheelZoom: false
           });
-          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            maxZoom: 19,
-            attribution:
-              '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          }).addTo(root._qeMap);
+          L.tileLayer(
+            "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+            {
+              maxZoom: 19,
+              attribution:
+                'Tiles &copy; <a href="https://www.esri.com/">Esri</a> — Maxar, Earthstar Geographics'
+            }
+          ).addTo(root._qeMap);
+          L.tileLayer(
+            "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+            {
+              maxZoom: 19,
+              opacity: 0.85,
+              attribution: ""
+            }
+          ).addTo(root._qeMap);
           root._qeMarker = L.marker([geo.lat, geo.lon]).addTo(root._qeMap);
         } else {
           root._qeMarker.setLatLng([geo.lat, geo.lon]);
