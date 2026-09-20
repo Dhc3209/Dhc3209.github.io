@@ -2494,7 +2494,7 @@ a.card.card-thumb[href="/roofing/"] {
 
 
 
-/* —— Quick Estimate widget (instant ballpark) —— */
+/* —— Quick Estimate widget (instant ballpark / Roofle-style) —— */
 .quick-estimate {
   padding: var(--section-pad) 0;
   background:
@@ -2527,6 +2527,96 @@ a.card.card-thumb[href="/roofing/"] {
   padding: 1.5rem 1.55rem 1.35rem;
   box-shadow: var(--shadow-lg);
 }
+.qe-progress {
+  margin: 0 0 1.15rem;
+  padding-bottom: .95rem;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.qe-prog-label {
+  display: block;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--gold-soft);
+  margin-bottom: .55rem;
+}
+.qe-prog-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: .35rem;
+}
+.qe-prog-steps li {
+  position: relative;
+  text-align: center;
+  font-size: .68rem;
+  font-weight: 650;
+  color: var(--gray);
+  padding-top: .55rem;
+}
+.qe-prog-steps li::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 8%;
+  right: 8%;
+  height: 4px;
+  border-radius: 99px;
+  background: rgba(255,255,255,.12);
+}
+.qe-prog-steps li.is-done::before {
+  background: rgba(var(--gold-rgb), .55);
+}
+.qe-prog-steps li.is-active {
+  color: var(--gold-soft);
+}
+.qe-prog-steps li.is-active::before {
+  background: var(--gold);
+}
+.qe-prog-steps li span { display: block; line-height: 1.2; }
+.qe-step-title {
+  margin: 0 0 .35rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 2.8vw, 1.45rem);
+  color: var(--heading);
+}
+.qe-step-lead {
+  margin: 0 0 1rem;
+  font-size: .92rem;
+  color: var(--charcoal-soft);
+  line-height: 1.45;
+}
+.qe-field { margin-bottom: 1rem; }
+.qe-field label,
+.qe-grid label {
+  display: block;
+  font-size: .8rem;
+  font-weight: 700;
+  color: var(--charcoal);
+  margin-bottom: .35rem;
+}
+.qe-field input,
+.qe-grid input,
+.qe-grid select {
+  width: 100%;
+  min-height: 46px;
+  border-radius: 10px;
+  border: 1px solid var(--gray-border);
+  background: var(--panel-raised);
+  color: var(--charcoal);
+  padding: .55rem .75rem;
+  font: inherit;
+}
+.qe-field input:focus,
+.qe-grid input:focus,
+.qe-grid select:focus {
+  outline: 2px solid rgba(var(--gold-rgb), .55);
+  outline-offset: 1px;
+  border-color: var(--gold);
+}
 .qe-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -2555,7 +2645,105 @@ a.card.card-thumb[href="/roofing/"] {
   color: var(--charcoal-soft);
   cursor: pointer;
 }
-.qe-radio input { width: auto; margin: 0; accent-color: var(--red); }
+.qe-radio input { width: auto; margin: 0; accent-color: var(--red); min-height: auto; }
+.qe-geolabel {
+  margin: 0 0 .65rem;
+  font-size: .88rem;
+  font-weight: 650;
+  color: var(--gold-soft);
+  line-height: 1.4;
+}
+.qe-map {
+  height: 220px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid rgba(184,151,95,.35);
+  margin-bottom: 1rem;
+  background: var(--navy-deep);
+  z-index: 0;
+}
+.qe-map .leaflet-container {
+  width: 100%;
+  height: 100%;
+  font: inherit;
+  background: #1a2332;
+}
+.qe-products {
+  display: grid;
+  gap: .65rem;
+  margin: 0 0 1rem;
+}
+.qe-product {
+  display: block;
+  cursor: pointer;
+  margin: 0;
+}
+.qe-product input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.qe-product-body {
+  display: block;
+  position: relative;
+  padding: .9rem 1rem .85rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--gray-border);
+  background: var(--panel-raised);
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.qe-product:hover .qe-product-body {
+  border-color: rgba(var(--gold-rgb), .55);
+}
+.qe-product input:checked + .qe-product-body {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px rgba(var(--gold-rgb), .45), var(--shadow);
+  background: linear-gradient(165deg, rgba(var(--navy-rgb), .55), rgba(74, 79, 87, .95));
+}
+.qe-product-badge {
+  display: inline-block;
+  font-size: .65rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--navy-deep);
+  background: var(--gold);
+  padding: .18rem .45rem;
+  border-radius: 999px;
+  margin-bottom: .35rem;
+}
+.qe-product-badge--alt {
+  background: rgba(255,255,255,.14);
+  color: var(--charcoal-soft);
+}
+.qe-product-name {
+  display: block;
+  font-weight: 750;
+  font-size: .98rem;
+  color: var(--heading);
+  margin-bottom: .2rem;
+}
+.qe-product-desc {
+  display: block;
+  font-size: .8rem;
+  color: var(--gray);
+  line-height: 1.4;
+}
+.qe-product--secondary .qe-product-body {
+  opacity: .92;
+}
+.qe-nav {
+  display: flex;
+  flex-direction: column;
+  gap: .65rem;
+  margin-top: .25rem;
+}
+.qe-nav--split {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+.qe-nav--split .btn { flex: 1 1 140px; }
 .qe-result {
   background: linear-gradient(165deg, var(--navy-deep) 0%, var(--navy) 55%, var(--navy-mid) 100%);
   border: 1px solid rgba(184,151,95,.4);
@@ -2594,6 +2782,19 @@ a.card.card-thumb[href="/roofing/"] {
   line-height: 1.45;
 }
 .qe-disclaimer strong { color: #FFF8EC; }
+.qe-done {
+  background: rgba(155, 231, 176, .08);
+  border: 1px solid rgba(155, 231, 176, .35);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  margin: 0 0 1rem;
+}
+.qe-done-title {
+  margin: 0 0 .35rem;
+  font-weight: 750;
+  color: #9BE7B0;
+}
+.qe-done p { margin: 0; color: var(--charcoal-soft); font-size: .92rem; }
 .qe-submit {
   width: 100%;
   min-height: 52px;
@@ -2616,7 +2817,9 @@ a.card.card-thumb[href="/roofing/"] {
   .qe-grid { grid-template-columns: 1fr; }
   .qe-card { padding: 1.25rem 1.1rem 1.15rem; }
   .qe-submit { min-height: 52px; }
+  .qe-prog-steps li span { font-size: .62rem; }
+  .qe-map { height: 200px; }
+  .qe-nav--split { flex-direction: column; }
 }
-
 
 /* END competitive polish Sep 2026 */
