@@ -2,11 +2,13 @@
  * CPR Instant Quote — 4-step preliminary GAF ballpark.
  * Steps: 1 Address → 2 Confirm squares → 3 Your info → 4 Estimate (ONLY after contact)
  *
- * Pricing (GAF Timberline HDZ® architectural baseline, NC metro):
- *   - $/square: LOW $500 · HIGH $750 installed (floor ≥ $500/sq)
+ * Pricing (product-specific installed ballparks, NC metro):
+ *   - GAF Timberline HDZ®: $550–$750/sq
+ *   - GAF Timberline UHDZ®: $700–$950/sq
+ *   - GAF Designer Collection: $900–$1,250/sq
+ *   - MRS standing-seam metal: $1,000–$1,400/sq (secondary; ≈1.85× HDZ midpoint)
  *   - Cap: max 100 roof squares
  *   - Stories: 1 → 1.00 · 1.5 → 1.08 · 2+ → 1.18
- *   - Product: HDZ/UHDZ 1.00 · Designer 1.22 · MRS metal 1.85
  * Ranges rounded to nearest $500. No $ shown until step 4 (after full contact).
  * Notify: FormSubmit AJAX → Daniel@cprhomepros.com · subject CPR Instant Quote Lead
  * Geocode: Photon + Nominatim · Map: Leaflet/OSM · Footprint: OSM Overpass
@@ -14,11 +16,14 @@
 (function () {
   "use strict";
 
-  var RATE_LOW = 500;
-  var RATE_HIGH = 750;
+  var MAT_RATES = {
+    hdz: { low: 550, high: 750 },
+    uhdz: { low: 700, high: 950 },
+    designer: { low: 900, high: 1250 },
+    metal: { low: 1000, high: 1400 }
+  };
   var SIZE_SQUARES = { small: 18, medium: 25, large: 33, estate: 42 };
   var STORY_MULT = { "1": 1.0, "1.5": 1.08, "2": 1.18 };
-  var MAT_MULT = { hdz: 1.0, uhdz: 1.0, designer: 1.22, metal: 1.85 };
   var MAT_LABEL = {
     hdz: "GAF Timberline HDZ® architectural",
     uhdz: "GAF Timberline UHDZ®",
@@ -223,11 +228,11 @@
 
   function calc(squares, stories, material) {
     var sm = STORY_MULT[stories] || 1.0;
-    var mm = MAT_MULT[material] || 1.0;
-    var low = round500(squares * RATE_LOW * sm * mm);
-    var high = round500(squares * RATE_HIGH * sm * mm);
+    var rates = MAT_RATES[material] || MAT_RATES.hdz;
+    var low = round500(squares * rates.low * sm);
+    var high = round500(squares * rates.high * sm);
     if (high <= low) high = low + 2500;
-    return { low: low, high: high, squares: squares };
+    return { low: low, high: high, squares: squares, rateLow: rates.low, rateHigh: rates.high };
   }
 
   function resolveSquares(form) {
@@ -573,10 +578,10 @@
       BallparkLow: formatMoney(result.low),
       BallparkHigh: formatMoney(result.high),
       BallparkShown: formatMoney(result.low) + " – " + formatMoney(result.high),
-      RateFloorPerSquare: "$" + RATE_LOW,
-      RateHighPerSquare: "$" + RATE_HIGH,
+      RateFloorPerSquare: "$" + result.rateLow,
+      RateHighPerSquare: "$" + result.rateHigh,
       Disclaimer:
-        "This is a preliminary estimate only — not a final price. Final cost requires an on-site inspection. Not an insurance quote. We don’t waive deductibles.",
+        "Rough web estimate only — actual price depends on measured squares, pitch, stories, tear-off, decking, access, flashings, and options; final pricing after inspection. Not an insurance quote. We don’t waive deductibles.",
       SourcePage: location.pathname + location.hash,
       Timestamp: now.toLocaleString("en-US", { timeZone: "America/New_York" }) + " ET"
     };
