@@ -2367,3 +2367,118 @@ a.card.card-thumb[href="/roofing/"] {
 /* btn-white on dark heroes stays true white */
 .btn-white { background: #fff; border-color: #fff; }
 .btn-white:hover { background: #E8ECF0; color: var(--red-dark) !important; }
+
+
+/* —— Competitive polish (Sep 2026) — no sticky Call Now bar —— */
+.hero-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .55rem .85rem;
+  list-style: none;
+  margin: .85rem 0 0;
+  padding: 0;
+  max-width: 42rem;
+}
+.hero-trust li {
+  font-size: .82rem;
+  font-weight: 650;
+  color: #E8ECF0;
+  background: rgba(0,0,0,.28);
+  border: 1px solid rgba(184,151,95,.45);
+  border-radius: 999px;
+  padding: .35rem .75rem;
+  letter-spacing: .01em;
+}
+.hero-trust strong { color: var(--gold-soft); font-weight: 800; }
+
+.proof-strip .proof-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: .25rem;
+}
+.proof-strip .proof-cta {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .65rem;
+  justify-content: center;
+}
+.proof-strip .photo-frame {
+  border-top: 3px solid var(--gold);
+  box-shadow: var(--shadow);
+}
+@media (max-width: 720px) {
+  .proof-strip .proof-grid { grid-template-columns: 1fr; }
+  .hero-trust { justify-content: center; }
+  .hero-trust li { font-size: .78rem; }
+}
+
+/* Stronger tap-to-call in topbar + header (replaces sticky Call Now) */
+.topbar a[href^="tel:"] {
+  font-weight: 800;
+  font-size: .92rem;
+  letter-spacing: .01em;
+  padding: .15rem .35rem;
+  border-radius: 6px;
+  background: rgba(255,255,255,.08);
+}
+.topbar a[href^="tel:"]:hover {
+  background: rgba(184,151,95,.25);
+  color: var(--gold-soft);
+}
+.nav-phone {
+  font-weight: 800 !important;
+  letter-spacing: .01em;
+}
+.nav-cta .btn {
+  min-height: 44px;
+}
+
+/* Dark-theme contrast: readable body + military cream accents */
+.military-rebate p,
+.military-rebate .military-thanks {
+  color: #F0E6D2; /* cream readable on dark gray */
+}
+.military-rebate p { color: #E8DFC8; }
+.military-rebate strong { color: #FFF8EC; }
+
+/* Storm teaser prominence when near top */
+.storm-check--teaser {
+  border-top: 3px solid var(--gold);
+  background:
+    linear-gradient(180deg, rgba(27,43,69,.22) 0%, transparent 40%),
+    var(--cream);
+}
+.storm-check--teaser .storm-check-panel {
+  box-shadow: var(--shadow-lg);
+}
+
+/* Service soft CTA: primary estimate = filled */
+.cta-band .hero-actions .btn:first-child:not(.btn-outline):not(.btn-ghost) {
+  box-shadow: 0 8px 22px rgba(168,72,80,.35);
+}
+
+/* Mobile tap targets + spacing */
+@media (max-width: 720px) {
+  .btn, .btn-sm, .nav-cta .btn, .contact-strip a, .step-contact a {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .contact-strip a, .step-contact a {
+    padding: .55rem .9rem;
+  }
+  .credential-badges {
+    gap: .45rem;
+  }
+  .credential-badges li {
+    font-size: .78rem;
+    padding: .4rem .65rem;
+  }
+  body { font-size: 1.05rem; }
+  .lead { line-height: 1.55; }
+}
+
+/* END competitive polish Sep 2026 */
