@@ -2481,4 +2481,131 @@ a.card.card-thumb[href="/roofing/"] {
   .lead { line-height: 1.55; }
 }
 
+
+
+/* —— Quick Estimate widget (instant ballpark) —— */
+.quick-estimate {
+  padding: var(--section-pad) 0;
+  background:
+    radial-gradient(ellipse at 12% 0%, rgba(var(--gold-rgb),.16), transparent 42%),
+    radial-gradient(ellipse at 88% 100%, rgba(var(--red-rgb),.10), transparent 40%),
+    var(--gray-light);
+  border-top: 3px solid var(--gold);
+  border-bottom: 1px solid rgba(0,0,0,.22);
+}
+.qe-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 2rem 2.5rem;
+  align-items: start;
+}
+.qe-intro .section-head { margin-bottom: 1rem; max-width: 36rem; }
+.qe-bullets { margin: 0 0 1.25rem; max-width: 34rem; }
+.qe-bullets li { color: var(--charcoal-soft); }
+.qe-alt-path {
+  font-size: .95rem;
+  color: var(--gray);
+  margin: 0;
+}
+.qe-alt-path a { font-weight: 700; }
+.qe-card {
+  background: var(--panel);
+  border: 1px solid var(--gray-border);
+  border-top: 3px solid var(--gold);
+  border-radius: calc(var(--radius) + 2px);
+  padding: 1.5rem 1.55rem 1.35rem;
+  box-shadow: var(--shadow-lg);
+}
+.qe-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .85rem 1rem;
+  margin-bottom: 1rem;
+}
+.qe-grid .full { grid-column: 1 / -1; }
+.qe-mode {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .55rem 1rem;
+  align-items: center;
+}
+.qe-label {
+  font-weight: 700;
+  font-size: .8rem;
+  color: var(--charcoal);
+  width: 100%;
+}
+.qe-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--charcoal-soft);
+  cursor: pointer;
+}
+.qe-radio input { width: auto; margin: 0; accent-color: var(--red); }
+.qe-result {
+  background: linear-gradient(165deg, var(--navy-deep) 0%, var(--navy) 55%, var(--navy-mid) 100%);
+  border: 1px solid rgba(184,151,95,.4);
+  border-radius: var(--radius);
+  padding: 1.15rem 1.2rem 1.05rem;
+  margin: 0 0 1rem;
+  text-align: center;
+}
+.qe-result-label {
+  margin: 0 0 .25rem;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--gold-soft);
+}
+.qe-range {
+  margin: 0 0 .45rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.55rem, 4vw, 2.05rem);
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+.qe-meta {
+  margin: 0 0 .65rem;
+  font-size: .78rem;
+  color: #C5CAD1;
+  line-height: 1.45;
+}
+.qe-disclaimer {
+  margin: 0;
+  font-size: .8rem;
+  color: #E8DFC8;
+  line-height: 1.45;
+}
+.qe-disclaimer strong { color: #FFF8EC; }
+.qe-submit {
+  width: 100%;
+  min-height: 52px;
+  font-size: 1rem;
+}
+.qe-card .form-note { margin-top: .75rem; }
+.qe-status {
+  margin-top: .75rem;
+  font-size: .9rem;
+  min-height: 1.25em;
+  color: var(--charcoal-soft);
+}
+.qe-status--ok { color: #9BE7B0; font-weight: 650; }
+.qe-status--err { color: #FFB4B4; font-weight: 650; }
+.qe-status--pending { color: var(--gold-soft); }
+@media (max-width: 900px) {
+  .qe-layout { grid-template-columns: 1fr; }
+}
+@media (max-width: 720px) {
+  .qe-grid { grid-template-columns: 1fr; }
+  .qe-card { padding: 1.25rem 1.1rem 1.15rem; }
+  .qe-submit { min-height: 52px; }
+}
+
+
 /* END competitive polish Sep 2026 */

@@ -93,6 +93,94 @@
     </ul>
   </div>
 </div>
+
+<section class="quick-estimate" id="quick-estimate" data-quick-estimate aria-labelledby="qe-heading">
+  <div class="wrap">
+    <div class="qe-layout">
+      <div class="qe-intro">
+        <div class="section-head">
+          <p class="eyebrow">Instant ballpark</p>
+          <h2 id="qe-heading">Quick roof estimate for Denver &amp; Lake Norman</h2>
+          <p>Enter a few details for a <strong>rough replacement range</strong> based on typical Lake Norman / Charlotte-metro asphalt pricing. Final number comes after a free on-site inspection — never a binding online quote.</p>
+        </div>
+        <ul class="list-check qe-bullets">
+          <li>Architectural asphalt ballpark — designer &amp; metal options adjust the range</li>
+          <li>We email Daniel on every submit so we can follow up fast</li>
+          <li>Storm path stays separate: free inspection + work <em>with</em> your adjuster — no deductible waivers</li>
+        </ul>
+        <p class="qe-alt-path">Need storm / insurance help instead? <a href="/storm-damage-insurance-claims/">Start a storm inspection →</a></p>
+      </div>
+      <div class="qe-card">
+        <form class="qe-form" novalidate>
+          <div class="qe-grid">
+            <div class="full">
+              <label for="qe-address">Property address *</label>
+              <input id="qe-address" name="qe-address" type="text" required autocomplete="street-address" placeholder="Street, Denver NC 28037">
+            </div>
+            <div class="full qe-mode">
+              <span class="qe-label">Roof size</span>
+              <label class="qe-radio"><input type="radio" name="qe-size-mode" value="preset" checked> Home size preset</label>
+              <label class="qe-radio"><input type="radio" name="qe-size-mode" value="squares"> I know approximate squares</label>
+            </div>
+            <div data-qe-preset>
+              <label for="qe-home-size">Approximate home size *</label>
+              <select id="qe-home-size" name="qe-home-size">
+                <option value="small">Under 1,500 sq ft (~18 squares)</option>
+                <option value="medium" selected>1,500–2,500 sq ft (~25 squares)</option>
+                <option value="large">2,500–3,500 sq ft (~33 squares)</option>
+                <option value="estate">3,500+ sq ft (~42 squares)</option>
+              </select>
+            </div>
+            <div data-qe-squares-wrap hidden>
+              <label for="qe-squares">Roof squares (1 square = 100 sq ft) *</label>
+              <input id="qe-squares" name="qe-squares" type="number" min="10" max="80" step="1" value="25" inputmode="numeric">
+            </div>
+            <div>
+              <label for="qe-stories">Stories *</label>
+              <select id="qe-stories" name="qe-stories">
+                <option value="1" selected>1 story</option>
+                <option value="1.5">1.5 story</option>
+                <option value="2">2+ stories</option>
+              </select>
+            </div>
+            <div>
+              <label for="qe-material">Material interest *</label>
+              <select id="qe-material" name="qe-material">
+                <option value="asphalt" selected>Architectural asphalt (GAF-class)</option>
+                <option value="designer">Designer asphalt</option>
+                <option value="metal">Metal</option>
+              </select>
+            </div>
+            <div>
+              <label for="qe-name">Name *</label>
+              <input id="qe-name" name="qe-name" type="text" required autocomplete="name" placeholder="Your name">
+            </div>
+            <div>
+              <label for="qe-phone">Phone *</label>
+              <input id="qe-phone" name="qe-phone" type="tel" required autocomplete="tel" placeholder="(704) 280-5996">
+            </div>
+            <div class="full">
+              <label for="qe-email">Email *</label>
+              <input id="qe-email" name="qe-email" type="email" required autocomplete="email" placeholder="you@email.com">
+            </div>
+          </div>
+
+          <div class="qe-result" data-qe-result>
+            <p class="qe-result-label">Your rough estimate</p>
+            <p class="qe-range" data-qe-range>$10,500 – $16,500</p>
+            <p class="qe-meta" data-qe-meta></p>
+            <p class="qe-disclaimer"><strong>Rough estimate — final after free inspection.</strong> Not a contract, not insurance approval, and not a deductible waiver.</p>
+          </div>
+
+          <button class="btn qe-submit" type="submit">Get my rough estimate</button>
+          <p class="form-note">Submits to <strong>Daniel@cprhomepros.com</strong> (same FormSubmit recipient as our contact form). Or call / text <a href="tel:+17042805996">(704) 280-5996</a>.</p>
+          <div class="qe-status" data-qe-status role="status" aria-live="polite"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="reach-out-section">
   <div class="wrap">
     <div class="section-head reach-out-head">
@@ -296,6 +384,7 @@
   </div>
 </footer>
 <script src="/nav.js"></script>
+<script src="/quick-estimate.js" defer></script>
 
 </body>
 </html>
