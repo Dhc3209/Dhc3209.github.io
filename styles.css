@@ -2671,7 +2671,7 @@ a.card.card-thumb[href="/roofing/"] {
   background: var(--navy-deep);
   z-index: 0;
   pointer-events: auto;
-  touch-action: manipulation;
+  touch-action: none;
   cursor: crosshair;
 }
 .qe-map .leaflet-container {
@@ -2680,11 +2680,16 @@ a.card.card-thumb[href="/roofing/"] {
   font: inherit;
   background: #1a2332;
   pointer-events: auto;
-  touch-action: pan-x pan-y;
+  /* Prevent page scroll from stealing marker/map drag on mobile */
+  touch-action: none;
+}
+.qe-map .leaflet-marker-pane {
+  z-index: 650;
 }
 .qe-map .leaflet-marker-icon {
   cursor: grab;
   pointer-events: auto;
+  z-index: 650;
 }
 .qe-map .leaflet-marker-dragging,
 .qe-map .leaflet-marker-icon:active {

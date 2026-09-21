@@ -887,6 +887,8 @@
     if (!geo || geo.lat == null || geo.lon == null) return;
     var token = (root._qePinEstimateToken || 0) + 1;
     root._qePinEstimateToken = token;
+    // Drop stale address/pin estimate so step-2 await & apply use the new pin only
+    root._qeEstimatePromise = null;
     setStatus(root, "Updating square estimate…", "pending");
     root._qeEstimatePromise = estimateBuildingSquares(geo)
       .then(function (estimate) {
@@ -908,6 +910,15 @@
     var lat = typeof latlng.lat === "function" ? latlng.lat() : latlng.lat;
     var lon = typeof latlng.lng === "function" ? latlng.lng() : latlng.lng;
     if (lat == null || lon == null) return;
+    // Debounce Leaflet click + mapEl DOM fallback firing together
+    var key = Number(lat).toFixed(6) + "," + Number(lon).toFixed(6);
+    var now = Date.now();
+    if (root._qeLastPinKey === key && now - (root._qeLastPinAt || 0) < 350) return;
+    root._qeLastPinKey = key;
+    root._qeLastPinAt = now;
+    // Invalidate in-flight address estimate immediately
+    root._qePinEstimateToken = (root._qePinEstimateToken || 0) + 1;
+    root._qeEstimatePromise = null;
     var prev = root._qeGeo;
     root._qeGeo = {
       label: prev.label || root._qeAddress || "",
@@ -947,15 +958,22 @@
     loadLeaflet()
       .then(function (L) {
         if (!root._qeMap) {
-          root._qeMap = L.map(mapEl, {
+          var mapOpts = {
             zoomControl: true,
             attributionControl: true,
-            scrollWheelZoom: false
-          });
+            scrollWheelZoom: false,
+            dragging: true
+          };
+          // Leaflet.Browser.tap exists on touch; enable tap so mobile clicks land
+          if (L.Browser && L.Browser.tap) {
+            mapOpts.tap = true;
+          }
+          root._qeMap = L.map(mapEl, mapOpts);
           L.tileLayer(
             "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
             {
               maxZoom: 19,
+              interactive: false,
               attribution:
                 'Tiles &copy; <a href="https://www.esri.com/">Esri</a> — Maxar, Earthstar Geographics'
             }
@@ -965,6 +983,7 @@
             {
               maxZoom: 19,
               opacity: 0.85,
+              interactive: false,
               attribution: ""
             }
           ).addTo(root._qeMap);
@@ -972,6 +991,9 @@
             draggable: true,
             autoPan: true
           }).addTo(root._qeMap);
+          if (root._qeMarker.dragging) {
+            root._qeMarker.dragging.enable();
+          }
           // Wire once when map is first created
           root._qeMap.on("click", function (e) {
             if (!e || !e.latlng) return;
@@ -981,10 +1003,40 @@
             var ll = root._qeMarker.getLatLng();
             movePinTo(root, ll);
           });
+          // Fallback: raw DOM click on map container if Leaflet click is swallowed
+          if (!root._qeMapDomClickBound) {
+            root._qeMapDomClickBound = true;
+            mapEl.addEventListener(
+              "click",
+              function (e) {
+                if (!root._qeMap || !e) return;
+                // Ignore clicks that originated on the marker itself (drag handles those)
+                var t = e.target;
+                if (t && t.classList && t.classList.contains("leaflet-marker-icon")) return;
+                try {
+                  var ll = root._qeMap.mouseEventToLatLng(e);
+                  if (ll) movePinTo(root, ll);
+                } catch (err) {}
+              },
+              false
+            );
+          }
         } else {
-          root._qeMarker.setLatLng([geo.lat, geo.lon]);
+          // If user already adjusted the pin, keep current marker latlng — only recenter view
+          if (!geo.pinAdjusted) {
+            root._qeMarker.setLatLng([geo.lat, geo.lon]);
+          }
         }
-        root._qeMap.setView([geo.lat, geo.lon], 17);
+        var viewLat = geo.lat;
+        var viewLon = geo.lon;
+        if (geo.pinAdjusted && root._qeMarker) {
+          var cur = root._qeMarker.getLatLng();
+          if (cur) {
+            viewLat = cur.lat;
+            viewLon = cur.lng;
+          }
+        }
+        root._qeMap.setView([viewLat, viewLon], 17);
         setTimeout(function () {
           try {
             root._qeMap.invalidateSize();
