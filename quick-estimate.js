@@ -11,7 +11,7 @@
  *   - Stories: 1 → 1.00 · 1.5 → 1.08 · 2+ → 1.18
  * Ranges rounded to nearest $500. No $ shown until step 4 (after full contact).
  * Notify: FormSubmit AJAX → Daniel@cprhomepros.com · subject CPR Instant Quote Lead
- * Geocode: US Census → Photon variants → Nominatim · Map: Leaflet + Esri satellite · Footprint: OSM Overpass
+ * Geocode: US Census → Photon variants → Nominatim · Map: Leaflet + Esri satellite · Footprint: USA Structures → MSBFP2 → OSM Overpass
  */
 (function () {
   "use strict";
@@ -40,6 +40,12 @@
     "https://overpass.openstreetmap.ru/api/interpreter",
     "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
   ];
+  var USA_STRUCTURES_URL =
+    "https://services2.arcgis.com/FiaPA4ga0iQKduv3/arcgis/rest/services/USA_Structures_View/FeatureServer/0/query";
+  var MSBFP2_URL =
+    "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/MSBFP2/FeatureServer/0/query";
+  var ARCGIS_DISTANCE_M = 80;
+  var ARCGIS_FETCH_MS = 15000;
   var ROOF_SURFACE_FACTOR = 1.25;
   var SQ_METERS_TO_SQ_FEET = 10.7639;
   var FOOTPRINT_MIN_SQ = 5;
@@ -47,6 +53,7 @@
   var MANUAL_MIN_SQ = 5;
   var MAX_SQUARES = 100;
   var NEAREST_MAX_METERS = 35;
+  var ARCGIS_NEAREST_MAX_METERS = 50;
   var OVERPASS_FETCH_MS = 20000;
   var OVERPASS_QUERY_TIMEOUT = 20;
   var OVERPASS_RADII = [40, 80, 120];
@@ -174,14 +181,261 @@
     return 0;
   }
 
-  function squaresDisclaimer(squares, footprintSqFt) {
+  function squaresDisclaimer(squares, footprintSqFt, sourcePhrase) {
+    var phrase = sourcePhrase || "footprint";
     return (
       "~" +
       squares +
-      " squares (footprint ~" +
+      " squares (" +
+      phrase +
+      " ~" +
       footprintSqFt +
       " sq ft × pitch factor) — not a final measurement. Pitch, layers, waste, and extras change the number."
     );
+  }
+
+  function finalizeFootprintEstimate(selected, sourceKey, sourceLabel, sourcePhrase) {
+    var footprintSqFt = selected.area * SQ_METERS_TO_SQ_FEET;
+    var roofSqFt = footprintSqFt * ROOF_SURFACE_FACTOR;
+    var squares = Math.round(roofSqFt / 100);
+    if (squares < FOOTPRINT_MIN_SQ || squares > FOOTPRINT_MAX_SQ) {
+      throw new Error("Footprint squares outside 5–100 validation (" + squares + ")");
+    }
+    return {
+      squares: squares,
+      footprintSqFt: Math.round(footprintSqFt),
+      roofSqFt: Math.round(roofSqFt),
+      geometry: selected.geometry,
+      source: sourceKey || "footprint",
+      sourceLabel: sourceLabel,
+      note: squaresDisclaimer(squares, Math.round(footprintSqFt), sourcePhrase)
+    };
+  }
+
+  function ringFromLonLatCoords(ring) {
+    if (!ring || ring.length < 3) return null;
+    var geometry = [];
+    for (var i = 0; i < ring.length; i++) {
+      var pt = ring[i];
+      if (!pt || pt.length < 2) continue;
+      var lon = parseFloat(pt[0]);
+      var lat = parseFloat(pt[1]);
+      if (!isFinite(lat) || !isFinite(lon)) continue;
+      geometry.push({ lat: lat, lon: lon });
+    }
+    // Drop duplicate closing vertex if present
+    if (
+      geometry.length > 3 &&
+      geometry[0].lat === geometry[geometry.length - 1].lat &&
+      geometry[0].lon === geometry[geometry.length - 1].lon
+    ) {
+      geometry.pop();
+    }
+    return geometry.length >= 3 ? geometry : null;
+  }
+
+  function ringsFromGeoJsonGeometry(geometry) {
+    if (!geometry || !geometry.type || !geometry.coordinates) return [];
+    var rings = [];
+    var type = geometry.type;
+    if (type === "Polygon") {
+      var outer = ringFromLonLatCoords(geometry.coordinates[0]);
+      if (outer) rings.push(outer);
+    } else if (type === "MultiPolygon") {
+      for (var i = 0; i < geometry.coordinates.length; i++) {
+        var poly = geometry.coordinates[i];
+        if (!poly || !poly.length) continue;
+        var ring = ringFromLonLatCoords(poly[0]);
+        if (ring) rings.push(ring);
+      }
+    }
+    return rings;
+  }
+
+  var STREET_SUFFIXES = {
+    ROAD: 1,
+    RD: 1,
+    STREET: 1,
+    ST: 1,
+    AVENUE: 1,
+    AVE: 1,
+    DRIVE: 1,
+    DR: 1,
+    LANE: 1,
+    LN: 1,
+    COURT: 1,
+    CT: 1,
+    CIRCLE: 1,
+    CIR: 1,
+    BOULEVARD: 1,
+    BLVD: 1,
+    WAY: 1,
+    PLACE: 1,
+    PL: 1,
+    TERRACE: 1,
+    TER: 1,
+    TRAIL: 1,
+    TRL: 1,
+    PARKWAY: 1,
+    PKWY: 1,
+    HIGHWAY: 1,
+    HWY: 1
+  };
+
+  function normalizeAddressTokens(raw) {
+    var s = String(raw || "")
+      .toUpperCase()
+      .replace(/[#.,]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (!s) return { house: "", street: "" };
+    var parts = s.split(" ");
+    var house = "";
+    var streetParts = [];
+    for (var i = 0; i < parts.length; i++) {
+      var tok = parts[i];
+      if (!tok) continue;
+      if (!house && /^\d+[A-Z]?$/.test(tok)) {
+        house = tok.replace(/[A-Z]$/, "");
+        continue;
+      }
+      if (STREET_SUFFIXES[tok]) continue;
+      // Skip common city/state/zip noise after street
+      if (/^\d{5}(-\d{4})?$/.test(tok)) break;
+      if (tok === "NC" || tok === "SC" || tok === "USA" || tok === "US") break;
+      streetParts.push(tok);
+    }
+    return { house: house, street: streetParts.join(" ") };
+  }
+
+  function addressesFuzzyMatch(a, b) {
+    var na = normalizeAddressTokens(a);
+    var nb = normalizeAddressTokens(b);
+    if (!na.house || !nb.house || na.house !== nb.house) return false;
+    if (!na.street || !nb.street) return false;
+    if (na.street === nb.street) return true;
+    // Compare first significant street token (e.g. CAMPGROUND)
+    var ta = na.street.split(" ")[0];
+    var tb = nb.street.split(" ")[0];
+    return !!(ta && tb && ta === tb);
+  }
+
+  function occupancyBoost(props) {
+    var occ = String((props && props.OCC_CLS) || "").toLowerCase();
+    var prim = String((props && props.PRIM_OCC) || "").toLowerCase();
+    if (prim.indexOf("single family") !== -1) return 4;
+    if (prim.indexOf("manufactured") !== -1) return 2;
+    if (occ === "residential") return 3;
+    if (
+      prim.indexOf("garage") !== -1 ||
+      prim.indexOf("shed") !== -1 ||
+      prim.indexOf("carport") !== -1 ||
+      prim.indexOf("outbuilding") !== -1
+    ) {
+      return 0;
+    }
+    return 1;
+  }
+
+  function candidatesFromGeoJson(fc, geo) {
+    var buildings = [];
+    ((fc && fc.features) || []).forEach(function (feature) {
+      if (!feature) return;
+      var rings = ringsFromGeoJsonGeometry(feature.geometry);
+      if (!rings.length) return;
+      var props = feature.properties || {};
+      var totalArea = 0;
+      var bestRing = null;
+      var containsAny = false;
+      var bestContainsRing = null;
+      for (var i = 0; i < rings.length; i++) {
+        var ring = rings[i];
+        var area = polygonAreaSqMeters(ring);
+        if (area <= 0) continue;
+        totalArea += area;
+        if (!bestRing || area > polygonAreaSqMeters(bestRing)) bestRing = ring;
+        if (pointInPolygon(geo, ring)) {
+          containsAny = true;
+          if (!bestContainsRing || area > polygonAreaSqMeters(bestContainsRing)) {
+            bestContainsRing = ring;
+          }
+        }
+      }
+      // Prefer authoritative SQMETERS when present and plausible
+      var reported = parseFloat(props.SQMETERS);
+      if (isFinite(reported) && reported > 10) {
+        // Use reported area for square calc when within 40% of polygon area, else polygon
+        if (!totalArea || Math.abs(reported - totalArea) / Math.max(reported, totalArea) < 0.4) {
+          totalArea = reported;
+        }
+      }
+      if (!bestRing || totalArea < 20) return;
+      var drawGeom = bestContainsRing || bestRing;
+      var center = polygonCentroid(drawGeom);
+      buildings.push({
+        geometry: drawGeom,
+        area: totalArea,
+        center: center,
+        contains: containsAny,
+        distance: haversineMeters(geo, center),
+        props: props,
+        propAddr: props.PROP_ADDR || "",
+        occBoost: occupancyBoost(props),
+        areaBoost: plausibleAreaBoost(totalArea)
+      });
+    });
+    return buildings;
+  }
+
+  function sortPreferResidentialLargest(a, b) {
+    if (b.occBoost !== a.occBoost) return b.occBoost - a.occBoost;
+    if (b.areaBoost !== a.areaBoost) return b.areaBoost - a.areaBoost;
+    return b.area - a.area;
+  }
+
+  function selectArcGisBuilding(buildings, geo, addressHint) {
+    if (!buildings || !buildings.length) throw new Error("No nearby building footprint");
+    var hint = addressHint || "";
+    var selected = null;
+
+    var containing = buildings.filter(function (b) {
+      return b.contains;
+    });
+    if (containing.length) {
+      containing.sort(sortPreferResidentialLargest);
+      selected = containing[0];
+    }
+
+    if (!selected && hint) {
+      var addrMatches = buildings.filter(function (b) {
+        return b.propAddr && addressesFuzzyMatch(hint, b.propAddr);
+      });
+      if (addrMatches.length) {
+        // Prefer Single Family / Residential; pick largest at that address
+        addrMatches.sort(sortPreferResidentialLargest);
+        selected = addrMatches[0];
+      }
+    }
+
+    if (!selected) {
+      buildings.sort(function (a, b) {
+        return a.distance - b.distance;
+      });
+      if (buildings[0].distance <= ARCGIS_NEAREST_MAX_METERS) {
+        selected = buildings[0];
+      }
+    }
+
+    if (!selected) {
+      throw new Error("No building within " + ARCGIS_NEAREST_MAX_METERS + "m of pin");
+    }
+    return selected;
+  }
+
+  function buildingEstimateFromGeoJson(fc, geo, addressHint, sourceKey, sourceLabel, sourcePhrase) {
+    var buildings = candidatesFromGeoJson(fc, geo);
+    var selected = selectArcGisBuilding(buildings, geo, addressHint);
+    return finalizeFootprintEstimate(selected, sourceKey, sourceLabel, sourcePhrase);
   }
 
   function buildingEstimateFromData(data, geo) {
@@ -232,7 +486,6 @@
       containing.sort(function (a, b) {
         if (b.areaBoost !== a.areaBoost) return b.areaBoost - a.areaBoost;
         if (b.resBoost !== a.resBoost) return b.resBoost - a.resBoost;
-        // Prefer mid-size homes when both are plausible
         var aMid = Math.abs(a.area - 150);
         var bMid = Math.abs(b.area - 150);
         if (a.areaBoost === 2 && b.areaBoost === 2 && aMid !== bMid) return aMid - bMid;
@@ -250,24 +503,52 @@
       }
     }
 
-    var footprintSqFt = selected.area * SQ_METERS_TO_SQ_FEET;
-    var roofSqFt = footprintSqFt * ROOF_SURFACE_FACTOR;
-    var rawSquares = roofSqFt / 100;
-    var squares = Math.round(rawSquares);
+    return finalizeFootprintEstimate(
+      selected,
+      "footprint",
+      "OSM building footprint (aerial/satellite-derived)",
+      "OSM building footprint"
+    );
+  }
 
-    if (squares < FOOTPRINT_MIN_SQ || squares > FOOTPRINT_MAX_SQ) {
-      throw new Error("Footprint squares outside 5–100 validation (" + squares + ")");
+  function arcgisQueryUrl(baseUrl, geo) {
+    var params =
+      "geometry=" +
+      encodeURIComponent(geo.lon + "," + geo.lat) +
+      "&geometryType=esriGeometryPoint" +
+      "&inSR=4326" +
+      "&spatialRel=esriSpatialRelIntersects" +
+      "&distance=" +
+      ARCGIS_DISTANCE_M +
+      "&units=esriSRUnit_Meter" +
+      "&outFields=*" +
+      "&returnGeometry=true" +
+      "&outSR=4326" +
+      "&f=geojson";
+    return baseUrl + "?" + params;
+  }
+
+  async function fetchArcGisGeoJson(baseUrl, geo) {
+    var controller = window.AbortController ? new AbortController() : null;
+    var timeout = setTimeout(function () {
+      if (controller) controller.abort();
+    }, ARCGIS_FETCH_MS);
+    var options = { method: "GET", headers: { Accept: "application/geo+json, application/json" } };
+    if (controller) options.signal = controller.signal;
+    try {
+      var res = await fetch(arcgisQueryUrl(baseUrl, geo), options);
+      if (!res.ok) throw new Error("ArcGIS " + res.status);
+      var data = await res.json();
+      if (!data || data.error) {
+        throw new Error((data && data.error && data.error.message) || "ArcGIS error");
+      }
+      if (!data.features || !data.features.length) {
+        throw new Error("No ArcGIS features nearby");
+      }
+      return data;
+    } finally {
+      clearTimeout(timeout);
     }
-
-    return {
-      squares: squares,
-      footprintSqFt: Math.round(footprintSqFt),
-      roofSqFt: Math.round(roofSqFt),
-      geometry: selected.geometry,
-      source: "footprint",
-      sourceLabel: "OSM building footprint (aerial/satellite-derived)",
-      note: squaresDisclaimer(squares, Math.round(footprintSqFt))
-    };
   }
 
   async function requestOverpass(endpoint, query) {
@@ -313,8 +594,7 @@
     );
   }
 
-  async function estimateBuildingSquares(geo) {
-    if (!geo || !isFinite(geo.lat) || !isFinite(geo.lon)) throw new Error("Missing coordinates");
+  async function estimateFromOverpass(geo) {
     var lastError = null;
     for (var r = 0; r < OVERPASS_RADII.length; r++) {
       var query = overpassQuery(OVERPASS_RADII[r], geo);
@@ -327,17 +607,63 @@
             return buildingEstimateFromData(data, geo);
           } catch (selErr) {
             lastError = selErr;
-            break; // same OSM data across mirrors — try larger radius
+            break;
           }
         } catch (err) {
           lastError = err;
         }
       }
-      if (!gotData) {
-        // All endpoints failed for this radius; still try next radius on another mirror later
-        continue;
-      }
+      if (!gotData) continue;
     }
+    throw lastError || new Error("Building footprint unavailable");
+  }
+
+  function resolveAddressHint(geo, addressHint) {
+    return (addressHint || (geo && geo.label) || "").trim();
+  }
+
+  async function estimateBuildingSquares(geo, addressHint) {
+    if (!geo || !isFinite(geo.lat) || !isFinite(geo.lon)) throw new Error("Missing coordinates");
+    var hint = resolveAddressHint(geo, addressHint);
+    var lastError = null;
+
+    // 1) USA Structures (best — PROP_ADDR)
+    try {
+      var usa = await fetchArcGisGeoJson(USA_STRUCTURES_URL, geo);
+      return buildingEstimateFromGeoJson(
+        usa,
+        geo,
+        hint,
+        "usa_structures",
+        "USA Structures footprint",
+        "USA Structures footprint"
+      );
+    } catch (err) {
+      lastError = err;
+    }
+
+    // 2) Microsoft Building Footprints MSBFP2
+    try {
+      var msb = await fetchArcGisGeoJson(MSBFP2_URL, geo);
+      return buildingEstimateFromGeoJson(
+        msb,
+        geo,
+        hint,
+        "msbfp2",
+        "Microsoft building footprint",
+        "Microsoft building footprint"
+      );
+    } catch (err) {
+      lastError = err;
+    }
+
+    // 3) OSM Overpass fallback
+    try {
+      return await estimateFromOverpass(geo);
+    } catch (err) {
+      lastError = err;
+    }
+
     throw lastError || new Error("Building footprint unavailable");
   }
 
@@ -372,8 +698,11 @@
     return "manual_adjusted";
   }
 
-  function squareSourceLabel(key) {
-    if (key === "footprint") return "Aerial/satellite footprint estimate";
+  function squareSourceLabel(key, estimate) {
+    if (key === "footprint") {
+      if (estimate && estimate.sourceLabel) return estimate.sourceLabel;
+      return "Aerial/satellite footprint estimate";
+    }
     if (key === "manual_adjusted") return "Manual override (adjusted from footprint)";
     if (key === "manual_preset") return "Home size preset (manual)";
     return "Manual square entry";
@@ -1032,7 +1361,7 @@
     // Drop stale address/pin estimate so step-2 await & apply use the new pin only
     root._qeEstimatePromise = null;
     setStatus(root, "Updating square estimate…", "pending");
-    root._qeEstimatePromise = estimateBuildingSquares(geo)
+    root._qeEstimatePromise = estimateBuildingSquares(geo, root._qeAddress || geo.label || "")
       .then(function (estimate) {
         if (root._qePinEstimateToken !== token) return estimate;
         applyBuildingEstimate(root, estimate);
@@ -1229,7 +1558,7 @@
       HomeSize: form.querySelector('[name="qe-home-size"]').value,
       SizeMode: (form.querySelector('[name="qe-size-mode"]:checked') || {}).value || "preset",
       RoofSquares: String(result.squares),
-      RoofSquareSource: squareSourceLabel(sourceKey),
+      RoofSquareSource: squareSourceLabel(sourceKey, root._qeBuildingEstimate),
       RoofSquareSourceKey: sourceKey,
       BuildingFootprintSqFt: root._qeBuildingEstimate
         ? String(root._qeBuildingEstimate.footprintSqFt)
@@ -1281,7 +1610,7 @@
         }
         var lookupToken = (root._qePinEstimateToken || 0) + 1;
         root._qePinEstimateToken = lookupToken;
-        root._qeEstimatePromise = estimateBuildingSquares(geo)
+        root._qeEstimatePromise = estimateBuildingSquares(geo, address || geo.label || "")
           .then(function (estimate) {
             if (root._qePinEstimateToken !== lookupToken) return estimate;
             applyBuildingEstimate(root, estimate);
