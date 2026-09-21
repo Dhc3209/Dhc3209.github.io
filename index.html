@@ -285,7 +285,7 @@
                 <label for="qe-squares">Roof squares (1 square = 100 sq ft) *</label>
                 <input id="qe-squares" name="qe-squares" type="number" min="5" max="100" step="1" value="25" inputmode="numeric">
               </div>
-              <p class="full qe-squares-note" data-qe-building-note>Approx. squares from aerial/satellite data will appear after lookup — not a final measurement. Pitch, layers, waste, and extras change the number.</p>
+              <p class="full qe-squares-note" data-qe-building-note>Approx. squares (footprint × pitch factor) appear after lookup — not a final measurement. Drag the pin onto the roof if the outline looks wrong.</p>
               <div class="full">
                 <label for="qe-stories">Stories *</label>
                 <select id="qe-stories" name="qe-stories">
@@ -735,7 +735,7 @@
 </footer>
 <script src="/nav.js"></script>
 <script src="/storm-check.js" defer></script>
-<script src="/quick-estimate.js?v=pin3" defer></script>
+<script src="/quick-estimate.js?v=sq2" defer></script>
 
 </body>
 </html>

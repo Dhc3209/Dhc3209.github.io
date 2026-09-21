@@ -36,14 +36,22 @@
   var OVERPASS_ENDPOINTS = [
     "https://overpass-api.de/api/interpreter",
     "https://overpass.kumi.systems/api/interpreter",
+    "https://overpass.nchc.org.tw/api/interpreter",
+    "https://overpass.openstreetmap.ru/api/interpreter",
     "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
   ];
-  var ROOF_SURFACE_FACTOR = 1.2;
+  var ROOF_SURFACE_FACTOR = 1.25;
   var SQ_METERS_TO_SQ_FEET = 10.7639;
   var FOOTPRINT_MIN_SQ = 5;
   var FOOTPRINT_MAX_SQ = 100;
   var MANUAL_MIN_SQ = 5;
   var MAX_SQUARES = 100;
+  var NEAREST_MAX_METERS = 35;
+  var OVERPASS_FETCH_MS = 20000;
+  var OVERPASS_QUERY_TIMEOUT = 20;
+  var OVERPASS_RADII = [40, 80, 120];
+  var PLAUSIBLE_AREA_MIN = 40;
+  var PLAUSIBLE_AREA_MAX = 400;
   var leafletPromise = null;
 
   function round500(n) {
@@ -117,48 +125,131 @@
     return 2 * R * Math.asin(Math.sqrt(h));
   }
 
-  function squaresDisclaimer(squares) {
+  function mapPoints(rawGeom) {
+    if (!rawGeom || !rawGeom.length) return null;
+    var geometry = [];
+    for (var i = 0; i < rawGeom.length; i++) {
+      var lat = parseFloat(rawGeom[i].lat);
+      var lon = parseFloat(rawGeom[i].lon);
+      if (!isFinite(lat) || !isFinite(lon)) continue;
+      geometry.push({ lat: lat, lon: lon });
+    }
+    return geometry.length >= 3 ? geometry : null;
+  }
+
+  /** Extract usable outer polygon(s) from way or relation (out geom). */
+  function polygonsFromElement(element) {
+    if (!element || !element.tags || !element.tags.building) return [];
+    if (element.type === "way") {
+      var wayGeom = mapPoints(element.geometry);
+      return wayGeom ? [wayGeom] : [];
+    }
+    if (element.type === "relation" && element.members && element.members.length) {
+      var outers = [];
+      var fallback = [];
+      element.members.forEach(function (member) {
+        if (member.type !== "way") return;
+        var ring = mapPoints(member.geometry);
+        if (!ring) return;
+        var role = String(member.role || "").toLowerCase();
+        if (role === "outer" || role === "") outers.push(ring);
+        else if (role !== "inner") fallback.push(ring);
+      });
+      if (!outers.length) outers = fallback;
+      return outers;
+    }
+    return [];
+  }
+
+  function residentialBoost(tags) {
+    var b = String((tags && tags.building) || "").toLowerCase();
+    if (b === "house" || b === "detached" || b === "residential" || b === "yes") return 2;
+    if (b === "apartments" || b === "garage" || b === "shed" || b === "carport" || b === "roof") return 0;
+    return 1;
+  }
+
+  function plausibleAreaBoost(area) {
+    if (area >= PLAUSIBLE_AREA_MIN && area <= PLAUSIBLE_AREA_MAX) return 2;
+    if (area >= 25 && area <= 600) return 1;
+    return 0;
+  }
+
+  function squaresDisclaimer(squares, footprintSqFt) {
     return (
-      "Approx. " +
+      "~" +
       squares +
-      " squares from aerial/satellite data for this address — not a final measurement. Pitch, layers, waste, and extras change the number."
+      " squares (footprint ~" +
+      footprintSqFt +
+      " sq ft × pitch factor) — not a final measurement. Pitch, layers, waste, and extras change the number."
     );
   }
 
   function buildingEstimateFromData(data, geo) {
-    var buildings = ((data && data.elements) || [])
-      .filter(function (element) {
-        return element.type === "way" && element.tags && element.tags.building && element.geometry;
-      })
-      .map(function (element) {
-        var geometry = element.geometry.map(function (point) {
-          return { lat: parseFloat(point.lat), lon: parseFloat(point.lon) };
-        });
-        var area = polygonAreaSqMeters(geometry);
-        var center = polygonCentroid(geometry);
-        return {
-          geometry: geometry,
-          area: area,
-          center: center,
-          contains: pointInPolygon(geo, geometry),
-          distance: haversineMeters(geo, center)
-        };
-      })
-      .filter(function (building) {
-        return building.area > 20;
+    var buildings = [];
+    ((data && data.elements) || []).forEach(function (element) {
+      var rings = polygonsFromElement(element);
+      if (!rings.length) return;
+      var totalArea = 0;
+      var bestRing = null;
+      var containsAny = false;
+      var bestContainsRing = null;
+      for (var i = 0; i < rings.length; i++) {
+        var ring = rings[i];
+        var area = polygonAreaSqMeters(ring);
+        if (area <= 0) continue;
+        totalArea += area;
+        if (!bestRing || area > polygonAreaSqMeters(bestRing)) bestRing = ring;
+        if (pointInPolygon(geo, ring)) {
+          containsAny = true;
+          if (!bestContainsRing || area > polygonAreaSqMeters(bestContainsRing)) {
+            bestContainsRing = ring;
+          }
+        }
+      }
+      if (!bestRing || totalArea < 20) return;
+      var drawGeom = bestContainsRing || bestRing;
+      var center = polygonCentroid(drawGeom);
+      buildings.push({
+        geometry: drawGeom,
+        area: totalArea,
+        center: center,
+        contains: containsAny,
+        distance: haversineMeters(geo, center),
+        tags: element.tags || {},
+        resBoost: residentialBoost(element.tags),
+        areaBoost: plausibleAreaBoost(totalArea)
       });
+    });
+
     if (!buildings.length) throw new Error("No nearby building footprint");
 
     var containing = buildings.filter(function (building) {
       return building.contains;
     });
-    var candidates = containing.length ? containing : buildings.slice();
-    candidates.sort(function (a, b) {
-      if (containing.length) return b.area - a.area;
-      return a.distance - b.distance;
-    });
+    var selected = null;
 
-    var selected = candidates[0];
+    if (containing.length) {
+      containing.sort(function (a, b) {
+        if (b.areaBoost !== a.areaBoost) return b.areaBoost - a.areaBoost;
+        if (b.resBoost !== a.resBoost) return b.resBoost - a.resBoost;
+        // Prefer mid-size homes when both are plausible
+        var aMid = Math.abs(a.area - 150);
+        var bMid = Math.abs(b.area - 150);
+        if (a.areaBoost === 2 && b.areaBoost === 2 && aMid !== bMid) return aMid - bMid;
+        return b.area - a.area;
+      });
+      selected = containing[0];
+    } else {
+      buildings.sort(function (a, b) {
+        return a.distance - b.distance;
+      });
+      if (buildings[0].distance <= NEAREST_MAX_METERS) {
+        selected = buildings[0];
+      } else {
+        throw new Error("No building within " + NEAREST_MAX_METERS + "m of pin");
+      }
+    }
+
     var footprintSqFt = selected.area * SQ_METERS_TO_SQ_FEET;
     var roofSqFt = footprintSqFt * ROOF_SURFACE_FACTOR;
     var rawSquares = roofSqFt / 100;
@@ -172,9 +263,10 @@
       squares: squares,
       footprintSqFt: Math.round(footprintSqFt),
       roofSqFt: Math.round(roofSqFt),
+      geometry: selected.geometry,
       source: "footprint",
       sourceLabel: "OSM building footprint (aerial/satellite-derived)",
-      note: squaresDisclaimer(squares)
+      note: squaresDisclaimer(squares, Math.round(footprintSqFt))
     };
   }
 
@@ -182,7 +274,7 @@
     var controller = window.AbortController ? new AbortController() : null;
     var timeout = setTimeout(function () {
       if (controller) controller.abort();
-    }, 8000);
+    }, OVERPASS_FETCH_MS);
     var options = {
       method: "POST",
       headers: {
@@ -201,26 +293,49 @@
     }
   }
 
+  function overpassQuery(radius, geo) {
+    return (
+      "[out:json][timeout:" +
+      OVERPASS_QUERY_TIMEOUT +
+      "];\n(\n  way[\"building\"](around:" +
+      radius +
+      "," +
+      geo.lat +
+      "," +
+      geo.lon +
+      ");\n  relation[\"building\"](around:" +
+      radius +
+      "," +
+      geo.lat +
+      "," +
+      geo.lon +
+      ");\n);\nout tags geom;"
+    );
+  }
+
   async function estimateBuildingSquares(geo) {
     if (!geo || !isFinite(geo.lat) || !isFinite(geo.lon)) throw new Error("Missing coordinates");
-    var radii = [60, 100, 150];
     var lastError = null;
-    for (var r = 0; r < radii.length; r++) {
-      var query =
-        '[out:json][timeout:8];way["building"](around:' +
-        radii[r] +
-        "," +
-        geo.lat +
-        "," +
-        geo.lon +
-        ");out tags geom;";
+    for (var r = 0; r < OVERPASS_RADII.length; r++) {
+      var query = overpassQuery(OVERPASS_RADII[r], geo);
+      var gotData = false;
       for (var i = 0; i < OVERPASS_ENDPOINTS.length; i++) {
         try {
           var data = await requestOverpass(OVERPASS_ENDPOINTS[i], query);
-          return buildingEstimateFromData(data, geo);
+          gotData = true;
+          try {
+            return buildingEstimateFromData(data, geo);
+          } catch (selErr) {
+            lastError = selErr;
+            break; // same OSM data across mirrors — try larger radius
+          }
         } catch (err) {
           lastError = err;
         }
+      }
+      if (!gotData) {
+        // All endpoints failed for this radius; still try next radius on another mirror later
+        continue;
       }
     }
     throw lastError || new Error("Building footprint unavailable");
@@ -756,6 +871,34 @@
     }
   }
 
+  function clearFootprintOutline(root) {
+    if (root._qeFootprintLayer && root._qeMap) {
+      try {
+        root._qeMap.removeLayer(root._qeFootprintLayer);
+      } catch (e) {}
+    }
+    root._qeFootprintLayer = null;
+  }
+
+  function drawFootprintOutline(root, geometry) {
+    clearFootprintOutline(root);
+    if (!root._qeMap || !window.L || !geometry || geometry.length < 3) return;
+    var latlngs = geometry.map(function (point) {
+      return [point.lat, point.lon];
+    });
+    root._qeFootprintLayer = window.L.polygon(latlngs, {
+      color: "#e8a317",
+      weight: 2.5,
+      opacity: 0.95,
+      fillColor: "#e8a317",
+      fillOpacity: 0.18,
+      interactive: false
+    }).addTo(root._qeMap);
+  }
+
+  var FOOTPRINT_FAIL_NOTE =
+    "No aerial footprint for this pin. Drag the pin onto the roof, or choose a home-size preset / enter squares manually (5–100). Not a final measurement.";
+
   function setStatus(root, msg, kind) {
     var el = root.querySelector("[data-qe-status]");
     if (!el) return;
@@ -774,11 +917,10 @@
       if (mode) mode.checked = true;
       if (squares) squares.value = String(estimate.squares);
       toggleSizeMode(root);
+      drawFootprintOutline(root, estimate.geometry);
     } else {
-      if (note) {
-        note.textContent =
-          "We couldn’t pull an aerial footprint for this pin. Choose a home-size preset or enter approximate squares (5–100). Not a final measurement.";
-      }
+      clearFootprintOutline(root);
+      if (note) note.textContent = FOOTPRINT_FAIL_NOTE;
       var preset = form.querySelector('[name="qe-size-mode"][value="preset"]');
       if (preset) preset.checked = true;
       toggleSizeMode(root);
@@ -900,7 +1042,11 @@
       .catch(function () {
         if (root._qePinEstimateToken !== token) return null;
         applyBuildingEstimate(root, null);
-        setStatus(root, "", "");
+        setStatus(
+          root,
+          "No aerial footprint here — drag the pin onto the roof or enter squares manually.",
+          "err"
+        );
         return null;
       });
   }
@@ -1037,6 +1183,9 @@
           }
         }
         root._qeMap.setView([viewLat, viewLon], 17);
+        if (root._qeBuildingEstimate && root._qeBuildingEstimate.geometry) {
+          drawFootprintOutline(root, root._qeBuildingEstimate.geometry);
+        }
         setTimeout(function () {
           try {
             root._qeMap.invalidateSize();
