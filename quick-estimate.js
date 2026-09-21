@@ -882,6 +882,55 @@
     }
   }
 
+  function refreshSquaresForPin(root) {
+    var geo = root._qeGeo;
+    if (!geo || geo.lat == null || geo.lon == null) return;
+    var token = (root._qePinEstimateToken || 0) + 1;
+    root._qePinEstimateToken = token;
+    setStatus(root, "Updating square estimate…", "pending");
+    root._qeEstimatePromise = estimateBuildingSquares(geo)
+      .then(function (estimate) {
+        if (root._qePinEstimateToken !== token) return estimate;
+        applyBuildingEstimate(root, estimate);
+        setStatus(root, "", "");
+        return estimate;
+      })
+      .catch(function () {
+        if (root._qePinEstimateToken !== token) return null;
+        applyBuildingEstimate(root, null);
+        setStatus(root, "", "");
+        return null;
+      });
+  }
+
+  function movePinTo(root, latlng) {
+    if (!root._qeGeo || !latlng) return;
+    var lat = typeof latlng.lat === "function" ? latlng.lat() : latlng.lat;
+    var lon = typeof latlng.lng === "function" ? latlng.lng() : latlng.lng;
+    if (lat == null || lon == null) return;
+    var prev = root._qeGeo;
+    root._qeGeo = {
+      label: prev.label || root._qeAddress || "",
+      city: prev.city || "",
+      provider: prev.provider || "",
+      lat: lat,
+      lon: lon,
+      weak: prev.weak,
+      pinAdjusted: true
+    };
+    if (root._qeMarker) {
+      root._qeMarker.setLatLng([lat, lon]);
+    }
+    var labelEl = root.querySelector("[data-qe-geolabel]");
+    if (labelEl) {
+      var base = root._qeGeo.label || root._qeAddress || "";
+      labelEl.textContent = base
+        ? base + " · pin adjusted"
+        : "Pin adjusted on map";
+    }
+    refreshSquaresForPin(root);
+  }
+
   function ensureMap(root) {
     var geo = root._qeGeo;
     var mapEl = root.querySelector("[data-qe-map]");
@@ -889,7 +938,10 @@
     if (!mapEl || !geo) return;
 
     if (labelEl) {
-      labelEl.textContent = geo.label || root._qeAddress || "";
+      var baseLabel = geo.label || root._qeAddress || "";
+      labelEl.textContent = geo.pinAdjusted && baseLabel
+        ? baseLabel + " · pin adjusted"
+        : baseLabel;
     }
 
     loadLeaflet()
@@ -916,7 +968,19 @@
               attribution: ""
             }
           ).addTo(root._qeMap);
-          root._qeMarker = L.marker([geo.lat, geo.lon]).addTo(root._qeMap);
+          root._qeMarker = L.marker([geo.lat, geo.lon], {
+            draggable: true,
+            autoPan: true
+          }).addTo(root._qeMap);
+          // Wire once when map is first created
+          root._qeMap.on("click", function (e) {
+            if (!e || !e.latlng) return;
+            movePinTo(root, e.latlng);
+          });
+          root._qeMarker.on("dragend", function () {
+            var ll = root._qeMarker.getLatLng();
+            movePinTo(root, ll);
+          });
         } else {
           root._qeMarker.setLatLng([geo.lat, geo.lon]);
         }
@@ -1014,12 +1078,16 @@
         if (cityInput && !cityInput.value.trim() && geo.city) {
           cityInput.value = geo.city;
         }
+        var lookupToken = (root._qePinEstimateToken || 0) + 1;
+        root._qePinEstimateToken = lookupToken;
         root._qeEstimatePromise = estimateBuildingSquares(geo)
           .then(function (estimate) {
+            if (root._qePinEstimateToken !== lookupToken) return estimate;
             applyBuildingEstimate(root, estimate);
             return estimate;
           })
           .catch(function () {
+            if (root._qePinEstimateToken !== lookupToken) return null;
             applyBuildingEstimate(root, null);
             return null;
           });
