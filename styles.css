@@ -2656,6 +2656,12 @@ a.card.card-thumb[href="/roofing/"] {
   color: var(--gold-soft);
   line-height: 1.4;
 }
+.qe-map-hint {
+  margin: 0 0 .55rem;
+  font-size: .88rem;
+  line-height: 1.45;
+  color: var(--gold-soft);
+}
 .qe-map {
   height: 220px;
   border-radius: var(--radius);
@@ -2664,12 +2670,25 @@ a.card.card-thumb[href="/roofing/"] {
   margin-bottom: 1rem;
   background: var(--navy-deep);
   z-index: 0;
+  pointer-events: auto;
+  touch-action: manipulation;
+  cursor: crosshair;
 }
 .qe-map .leaflet-container {
   width: 100%;
   height: 100%;
   font: inherit;
   background: #1a2332;
+  pointer-events: auto;
+  touch-action: pan-x pan-y;
+}
+.qe-map .leaflet-marker-icon {
+  cursor: grab;
+  pointer-events: auto;
+}
+.qe-map .leaflet-marker-dragging,
+.qe-map .leaflet-marker-icon:active {
+  cursor: grabbing;
 }
 .qe-products {
   display: grid;
