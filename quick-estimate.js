@@ -1731,54 +1731,25 @@
     }
   }
 
+  function leadsEndpoint() {
+    var url = (typeof window !== "undefined" && window.CPR_LEADS_ENDPOINT) || "";
+    return String(url).trim();
+  }
+
   async function notifyLead(body) {
+    var endpoint = leadsEndpoint();
+    if (!endpoint) return false;
     try {
-      var controller = window.AbortController ? new AbortController() : null;
-      var timeout = setTimeout(function () {
-        if (controller) controller.abort();
-      }, 12000);
-      var options = {
+      // text/plain + no-cors: avoids CORS preflight; Apps Script still receives JSON
+      await fetch(endpoint, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json"
-        },
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(body)
-      };
-      if (controller) options.signal = controller.signal;
-      try {
-        var res = await fetch("https://formsubmit.co/ajax/Daniel@cprhomepros.com", options);
-        clearTimeout(timeout);
-        if (!res.ok) throw new Error("notify http " + res.status);
-        var data = await res.json().catch(function () {
-          return {};
-        });
-        if (data && (data.success === "false" || data.success === false)) throw new Error("notify rejected");
-        return true;
-      } catch (err) {
-        clearTimeout(timeout);
-        throw err;
-      }
-    } catch (e1) {
-      try {
-        var fd = new FormData();
-        Object.keys(body).forEach(function (key) {
-          if (body[key] != null) fd.append(key, String(body[key]));
-        });
-        var res2 = await fetch("https://formsubmit.co/ajax/Daniel@cprhomepros.com", {
-          method: "POST",
-          headers: { Accept: "application/json" },
-          body: fd
-        });
-        if (!res2.ok) throw new Error("notify form " + res2.status);
-        var data2 = await res2.json().catch(function () {
-          return {};
-        });
-        if (data2 && (data2.success === "false" || data2.success === false)) throw new Error("notify rejected");
-        return true;
-      } catch (e2) {
-        return false;
-      }
+      });
+      return true;
+    } catch (err) {
+      return false;
     }
   }
 
