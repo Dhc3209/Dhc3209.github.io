@@ -848,3 +848,169 @@
   font: inherit;
   background: #2a2e34;
 }
+
+/* —— Storm inspection lead modal —— */
+html.storm-inspect-modal-open,
+body.storm-inspect-modal-open {
+  overflow: hidden;
+}
+.storm-inspect-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+.storm-inspect-modal[hidden] {
+  display: none !important;
+}
+.storm-inspect-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 24, 30, 0.72);
+  cursor: pointer;
+}
+.storm-inspect-modal__card {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 34rem);
+  max-height: min(92vh, 44rem);
+  overflow: auto;
+  background: var(--panel-raised, #52585F);
+  border: 1px solid #6A7078;
+  border-top: 3px solid var(--gold, #B8975F);
+  border-radius: calc(var(--radius, 10px) + 2px);
+  box-shadow: var(--shadow-lg, 0 16px 42px rgba(0, 0, 0, .38));
+  padding: 1.45rem 1.5rem 1.35rem;
+  color: var(--charcoal, #E8EAED);
+}
+.storm-inspect-modal__close {
+  position: absolute;
+  top: .55rem;
+  right: .65rem;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--gold-soft, #E8D4B0);
+  font-size: 1.55rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.storm-inspect-modal__close:hover,
+.storm-inspect-modal__close:focus-visible {
+  background: rgba(var(--gold-rgb, 184, 151, 95), .18);
+  outline: none;
+}
+.storm-inspect-modal__head {
+  padding-right: 1.75rem;
+  margin-bottom: 1rem;
+}
+.storm-inspect-modal__head .eyebrow {
+  margin: 0 0 .35rem;
+  color: var(--gold, #B8975F);
+}
+.storm-inspect-modal__head h2 {
+  margin: 0 0 .45rem;
+  font-size: clamp(1.25rem, 2.5vw, 1.45rem);
+  color: var(--charcoal-soft, #F2F3F5);
+}
+.storm-inspect-modal__head p {
+  margin: 0;
+  font-size: .92rem;
+  color: var(--gray, #B8BDC4);
+  line-height: 1.45;
+}
+.storm-inspect-modal__honey {
+  position: absolute !important;
+  left: -9999px !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+.storm-inspect-modal__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .85rem 1rem;
+}
+.storm-inspect-modal__full {
+  grid-column: 1 / -1;
+}
+.storm-inspect-modal__form label {
+  display: block;
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--charcoal-soft, #F2F3F5);
+  margin-bottom: .35rem;
+}
+.storm-inspect-modal__opt {
+  font-weight: 500;
+  color: var(--gray, #B8BDC4);
+}
+.storm-inspect-modal__form input,
+.storm-inspect-modal__form textarea {
+  width: 100%;
+  padding: .72rem .85rem;
+  border: 1px solid var(--gray-border, #6A7078);
+  border-radius: var(--radius, 10px);
+  font: inherit;
+  color: var(--charcoal, #E8EAED);
+  background: var(--panel, #4A4F57);
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+.storm-inspect-modal__form input:focus,
+.storm-inspect-modal__form textarea:focus {
+  outline: none;
+  border-color: rgba(var(--gold-rgb, 184, 151, 95), .65);
+  box-shadow: 0 0 0 3px rgba(var(--gold-rgb, 184, 151, 95), .16);
+}
+.storm-inspect-modal__form textarea {
+  resize: vertical;
+  min-height: 4.5rem;
+}
+.storm-inspect-modal__status {
+  min-height: 1.2rem;
+  margin: .85rem 0 0;
+  font-size: .9rem;
+  color: var(--gold-soft, #E8D4B0);
+}
+.storm-inspect-modal__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .65rem;
+  margin-top: 1rem;
+}
+.storm-inspect-modal__alt {
+  margin: .9rem 0 0;
+  font-size: .88rem;
+  color: var(--gray, #B8BDC4);
+}
+.storm-inspect-modal__alt a {
+  color: var(--gold-soft, #E8D4B0);
+}
+.storm-inspect-modal__thanks {
+  text-align: center;
+  padding: 1.25rem 0 .35rem;
+}
+.storm-inspect-modal__thanks p {
+  margin: 0 0 1.1rem;
+  font-size: 1.05rem;
+  line-height: 1.45;
+  color: var(--charcoal-soft, #F2F3F5);
+}
+button.btn.js-storm-inspect-open {
+  font: inherit;
+  cursor: pointer;
+}
+@media (max-width: 560px) {
+  .storm-inspect-modal__grid {
+    grid-template-columns: 1fr;
+  }
+  .storm-inspect-modal__actions .btn {
+    width: 100%;
+  }
+}

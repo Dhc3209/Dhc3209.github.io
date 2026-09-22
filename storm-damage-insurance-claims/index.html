@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css">
-  <link rel="stylesheet" href="/storm-check.css?v=storm9">
+  <link rel="stylesheet" href="/storm-check.css?v=storm10">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="canonical" href="https://cprhomepros.com/storm-damage-insurance-claims/">
@@ -79,7 +79,7 @@
     <h1>Hail and wind damage — documented the right way</h1>
     <p class="lead">Free inspection. Clear photos and notes. We work the claim with your adjuster alongside you — no deductible waivers, no “we’ll handle insurance so you don’t talk to them.”</p>
     <div class="hero-actions">
-      <a class="btn" href="/contact-us/?topic=storm">Schedule free storm inspection</a>
+      <a class="btn js-storm-inspect-open" href="#">Schedule free storm inspection</a>
       <a class="btn btn-outline btn-on-dark" href="#storm-check">Check nearby storm reports</a>
     </div>
     <a class="hero-phone" href="tel:+17042805996" aria-label="Call (704) 280-5996">(704) 280-5996</a>
@@ -150,10 +150,10 @@
           <h3>Storm hit your roof? We’ll document it for the claim.</h3>
           <p>Free inspection for hail and high-wind damage across Denver and Lake Norman. GAF Master Elite — we speak adjuster.</p>
           <div class="hero-actions">
-            <a class="btn btn-white" href="/contact-us/#estimate">Get a free storm inspection</a>
+            <a class="btn btn-white js-storm-inspect-open" href="#">Get a free storm inspection</a>
             <a class="btn btn-outline btn-on-dark" href="tel:+17042805996">Call (704) 280-5996</a>
           </div>
-          <p class="contact-strip">See damage near you? Call <a href="tel:+17042805996">(704) 280-5996</a> or <a href="/contact-us/#estimate">request a free claim inspection</a>.</p>
+          <p class="contact-strip">See damage near you? Call <a href="tel:+17042805996">(704) 280-5996</a> or <a class="js-storm-inspect-open" href="#">request a free claim inspection</a>.</p>
         </div>
         <p class="storm-check-disclaimer">Data from public feeds (Iowa Environmental Mesonet LSR for ~3 years of hail / qualifying wind, NOAA/NWS Storm Prediction Center today &amp; yesterday, and api.weather.gov alerts). Wind rows require ≥60 mph gusts or thunderstorm wind-damage LSRs. Empty results mean no matching public reports in range — not that “no storm happened.” Always verify with a professional inspection.</p>
       </div>
@@ -235,7 +235,7 @@
     <p>FORTIFIED Roof practices available where they fit the project. GAF Golden Pledge® on qualifying Master Elite installs.</p>
 
     <div class="hero-actions" style="margin-top:2rem">
-      <a class="btn" href="/contact-us/">Schedule free storm inspection</a>
+      <a class="btn js-storm-inspect-open" href="#">Schedule free storm inspection</a>
       <a class="btn btn-outline" href="tel:+17042805996">Call (704) 280-5996</a>
       <a class="btn btn-outline" href="/contact-us/">Get a Free Roof Estimate</a>
     </div>
@@ -343,7 +343,9 @@
   </div>
 </footer>
 <script src="/nav.js"></script>
-<script src="/storm-check.js?v=storm9" defer></script>
+<script src="/leads-config.js"></script>
+<script src="/storm-check.js?v=storm10" defer></script>
+<script src="/storm-inspect-modal.js?v=storm10" defer></script>
 
 </body>
 </html>
