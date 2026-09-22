@@ -303,11 +303,8 @@
     <div>
       <h2>Request a free roof estimate</h2>
       <p>Tell us about your roof — or call, text, or email if you need a storm inspection sooner.</p>
-      <form class="lead-form form-grid" action="https://formsubmit.co/Daniel@cprhomepros.com" method="POST" enctype="multipart/form-data">
+      <form class="lead-form form-grid" action="#" method="POST" data-cpr-leads-form>
         <input type="hidden" name="_subject" value="CPR website lead — Contact form">
-        <input type="hidden" name="_template" value="table">
-        <input type="hidden" name="_captcha" value="false">
-        <input type="hidden" name="_next" value="https://cprhomepros.com/contact-us/?submitted=1">
         <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
         <div>
           <label for="name">Name *</label>
@@ -480,7 +477,10 @@
   </div>
 </footer>
 <script src="/nav.js"></script>
-<script src="/quick-estimate.js?v=sq3" defer></script>
+<script src="/leads-config.js"></script>
+<script src="/quick-estimate.js?v=leads1" defer></script>
 
+  <script src="/leads-config.js"></script>
+  <script src="/contact-leads.js?v=leads1"></script>
 </body>
 </html>
