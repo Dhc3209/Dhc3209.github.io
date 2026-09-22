@@ -1,15 +1,34 @@
 /**
  * CPR Storm Activity Checker (client-side, GitHub Pages safe)
  * Sources: IEM LSR (Iowa Mesonet), SPC storm reports, NWS api.weather.gov alerts
+ * Filters: all hail last 1095 days; wind only ≥60 mph (or LSR TSTM wind damage);
+ *          SPC today/yesterday; NWS alerts ~14 days. Service-area label for LN hub.
  * Geocode: Photon (primary) + Nominatim (fallback). Addresses stay in the browser.
  */
 (function () {
   "use strict";
 
   var TZ = "America/New_York";
-  var LOOKBACK_DAYS = 120;
+  /** Hail + qualifying wind/tornado history window (3 years). */
+  var HAIL_LOOKBACK_DAYS = 1095;
+  /** NWS alerts + flood noise stay short-window. */
+  var ALERT_LOOKBACK_DAYS = 14;
+  var FLOOD_LOOKBACK_DAYS = 30;
+  /** Measured / estimated wind gust threshold (mph). */
+  var WIND_MIN_MPH = 60;
   var DEFAULT_RADIUS = 15;
-  var MAX_RESULTS = 40;
+  var MAX_RESULTS = 80;
+  /** Lake Norman / Denver NC hub for service-area labeling (~50 mi). */
+  var SERVICE_HUB = { lat: 35.5318, lon: -81.0298, label: "Lake Norman / Denver NC" };
+  var SERVICE_HUB_MILES = 50;
+  var SERVICE_COUNTIES = [
+    "Lincoln",
+    "Gaston",
+    "Mecklenburg",
+    "Catawba",
+    "Iredell",
+    "Cleveland"
+  ];
   var SEVERE_TYPES = {
     H: "hail",
     A: "hail",
@@ -72,6 +91,115 @@
       timeZoneName: "short"
     });
   }
+
+
+  function daysBetween(a, b) {
+    return Math.abs((a.getTime() - b.getTime()) / 86400000);
+  }
+
+  function withinLookback(when, days) {
+    if (!(when instanceof Date) || isNaN(when.getTime())) return false;
+    return daysBetween(when, new Date()) <= days + 0.5;
+  }
+
+  function parseWindMph(mag) {
+    if (mag == null) return null;
+    var s = String(mag).trim();
+    if (!s || /^none$/i.test(s) || s === "") return null;
+    // LSR wind is mph; tolerate "60 mph" / "60KT"
+    var m = s.match(/([0-9]+(?:\.[0-9]+)?)/);
+    if (!m) return null;
+    var n = parseFloat(m[1]);
+    if (isNaN(n)) return null;
+    if (/\bkt|knot/i.test(s)) n = n * 1.15078;
+    return n;
+  }
+
+  function windPassesThreshold(report) {
+    var mph = report.magMph != null ? report.magMph : parseWindMph(report._magRaw);
+    if (mph != null) return mph >= WIND_MIN_MPH;
+    // Equivalent severe: NWS LSR thunderstorm wind *damage* (TYPECODE D) without a gust
+    // is logged when criteria are met (~58+ mph). Include those; exclude unmetered gust-only.
+    if (report._typecode === "D") return true;
+    return false;
+  }
+
+  function reportPassesFilters(r) {
+    if (!r || !r.kind) return false;
+    if (r.kind === "hail") return withinLookback(r.when, HAIL_LOOKBACK_DAYS);
+    if (r.kind === "wind") {
+      if (!withinLookback(r.when, HAIL_LOOKBACK_DAYS)) return false;
+      return windPassesThreshold(r);
+    }
+    if (r.kind === "tornado") return withinLookback(r.when, HAIL_LOOKBACK_DAYS);
+    if (r.kind === "flood") return withinLookback(r.when, FLOOD_LOOKBACK_DAYS);
+    if (r.kind === "alert") return withinLookback(r.when, ALERT_LOOKBACK_DAYS);
+    return false;
+  }
+
+  function serviceAreaInfo(geo) {
+    var county = String(geo.county || "")
+      .replace(/\s+County$/i, "")
+      .trim();
+    var state = String(geo.state || "").trim().toUpperCase();
+    var stateOk = !state || state === "NC" || state === "NORTH CAROLINA";
+    var i;
+    if (stateOk && county) {
+      for (i = 0; i < SERVICE_COUNTIES.length; i++) {
+        if (county.toLowerCase() === SERVICE_COUNTIES[i].toLowerCase()) {
+          return {
+            inArea: true,
+            label: SERVICE_COUNTIES[i] + " County, NC (primary service area)"
+          };
+        }
+      }
+    }
+    var d = haversineMiles(geo.lat, geo.lon, SERVICE_HUB.lat, SERVICE_HUB.lon);
+    if (d <= SERVICE_HUB_MILES) {
+      return {
+        inArea: true,
+        label:
+          Math.round(d) +
+          " mi of " +
+          SERVICE_HUB.label +
+          " (within ~" +
+          SERVICE_HUB_MILES +
+          " mi hub)"
+      };
+    }
+    return {
+      inArea: false,
+      label:
+        "Outside primary Lake Norman counties / ~" +
+        SERVICE_HUB_MILES +
+        " mi hub — still searching near your pin"
+    };
+  }
+
+  function lookbackCopy() {
+    return (
+      "Hail: last " +
+      HAIL_LOOKBACK_DAYS +
+      " days (~3 years) · Wind: ≥" +
+      WIND_MIN_MPH +
+      " mph (or TSTM wind damage) · SPC: today/yesterday · NWS alerts: ~" +
+      ALERT_LOOKBACK_DAYS +
+      " days"
+    );
+  }
+
+  function renderResultsCta() {
+    return (
+      '<div class="storm-check-results-cta" role="region" aria-label="Storm damage help">' +
+      "<p><strong>Think a storm hit your roof?</strong> Public reports nearby are a starting point — not proof of damage at your address.</p>" +
+      '<p class="storm-check-results-cta-actions">' +
+      '<a class="btn btn-white" href="/storm-damage-insurance-claims/">Get a free storm damage inspection</a> ' +
+      '<a class="btn btn-outline btn-on-dark" href="/storm-damage-insurance-claims/#claims">Insurance claim help</a>' +
+      "</p>" +
+      "</div>"
+    );
+  }
+
 
   function isoDaysAgo(days) {
     var d = new Date(Date.now() - days * 86400000);
@@ -205,7 +333,10 @@
         lat: coords[1],
         lon: coords[0],
         label: parts.join(", ") || address,
-        provider: "Photon/OSM"
+        provider: "Photon/OSM",
+        county: props.county || props.district || "",
+        state: props.state || "",
+        city: props.city || props.name || ""
       };
     }
     throw new Error("No US match");
@@ -227,11 +358,15 @@
     var data = await res.json();
     if (!data || !data.length) throw new Error("No match");
     var hit = data[0];
+    var addr = hit.address || {};
     return {
       lat: parseFloat(hit.lat),
       lon: parseFloat(hit.lon),
       label: hit.display_name || address,
-      provider: "Nominatim/OSM"
+      provider: "Nominatim/OSM",
+      county: addr.county || "",
+      state: addr.state || "",
+      city: addr.city || addr.town || addr.village || ""
     };
   }
 
@@ -247,28 +382,27 @@
     }
   }
 
-  async function fetchIemLsr(lat, lon, radiusMiles) {
-    var box = bboxFor(lat, lon, Math.max(radiusMiles, 5) + 2);
-    var sts = isoDaysAgo(LOOKBACK_DAYS);
-    var ets = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
-    var url =
-      "https://mesonet.agron.iastate.edu/cgi-bin/request/gis/lsr.py?" +
-      "west=" +
-      box.west.toFixed(4) +
-      "&east=" +
-      box.east.toFixed(4) +
-      "&south=" +
-      box.south.toFixed(4) +
-      "&north=" +
-      box.north.toFixed(4) +
-      "&sts=" +
-      encodeURIComponent(sts) +
-      "&ets=" +
-      encodeURIComponent(ets) +
-      "&fmt=csv";
-    var res = await fetch(url);
-    if (!res.ok) throw new Error("IEM LSR " + res.status);
-    var text = await res.text();
+  function yearChunksUtc(lookbackDays) {
+    var endMs = Date.now();
+    var startMs = endMs - lookbackDays * 86400000;
+    var chunks = [];
+    var cursor = startMs;
+    while (cursor < endMs) {
+      var cStart = new Date(cursor);
+      var yearEnd = Date.UTC(cStart.getUTCFullYear() + 1, 0, 1);
+      var cEndMs = Math.min(yearEnd, endMs);
+      // Avoid zero-length; nudge end if same
+      if (cEndMs <= cursor) cEndMs = Math.min(cursor + 86400000 * 180, endMs);
+      chunks.push({
+        sts: new Date(cursor).toISOString().replace(/\.\d{3}Z$/, "Z"),
+        ets: new Date(cEndMs).toISOString().replace(/\.\d{3}Z$/, "Z")
+      });
+      cursor = cEndMs;
+    }
+    return chunks;
+  }
+
+  function parseIemLsrCsv(text, lat, lon, radiusMiles) {
     var rows = parseCsv(text);
     var out = [];
     for (var i = 0; i < rows.length; i++) {
@@ -282,14 +416,14 @@
       var typetext = String(r.TYPETEXT || "").trim();
       var kind = SEVERE_TYPES[code] || classifyFromText(typetext);
       if (kind === "other") continue;
-      // Hard-filter: skip non-storm noise like snow unless labeled severe-ish
-      if (/SNOW|FREEZING|FOG|DENSE|SMOKE|HEAT|COLD/i.test(typetext) && kind === "other")
-        continue;
-      if (/SNOW|FREEZING RAIN|ICE|FOG/i.test(typetext)) continue;
+      if (/SNOW|FREEZING RAIN|ICE|FOG|DENSE|SMOKE|HEAT|COLD/i.test(typetext)) continue;
 
       var mag = r.MAG && r.MAG !== "None" ? String(r.MAG).trim() : "";
+      var magMph = kind === "wind" ? parseWindMph(mag) : null;
       var magLabel = "";
       if (kind === "hail" && mag) magLabel = mag + '" hail';
+      else if (kind === "wind" && magMph != null) magLabel = Math.round(magMph) + " mph gust";
+      else if (kind === "wind" && code === "D") magLabel = "Wind damage";
       else if (kind === "wind" && mag) magLabel = mag + " mph gust";
       else if (mag) magLabel = mag;
 
@@ -314,6 +448,9 @@
         kind: kind,
         title: typetext || badgeLabel(kind),
         magLabel: magLabel,
+        magMph: magMph,
+        _magRaw: mag,
+        _typecode: code,
         when: when,
         city: [r.CITY, r.COUNTY, r.STATE].filter(Boolean).join(", "),
         remark: (r.REMARK || "").trim(),
@@ -324,6 +461,51 @@
       });
     }
     return out;
+  }
+
+  async function fetchIemLsrChunk(box, sts, ets) {
+    var url =
+      "https://mesonet.agron.iastate.edu/cgi-bin/request/gis/lsr.py?" +
+      "west=" +
+      box.west.toFixed(4) +
+      "&east=" +
+      box.east.toFixed(4) +
+      "&south=" +
+      box.south.toFixed(4) +
+      "&north=" +
+      box.north.toFixed(4) +
+      "&sts=" +
+      encodeURIComponent(sts) +
+      "&ets=" +
+      encodeURIComponent(ets) +
+      "&fmt=csv";
+    var res = await fetch(url);
+    if (!res.ok) throw new Error("IEM LSR " + res.status);
+    return await res.text();
+  }
+
+  /**
+   * IEM LSR for ~3 years near the pin. Batched by calendar year so one slow
+   * window does not fail the whole history pull; optional onProgress for UI.
+   */
+  async function fetchIemLsr(lat, lon, radiusMiles, onProgress) {
+    var box = bboxFor(lat, lon, Math.max(radiusMiles, 5) + 2);
+    var chunks = yearChunksUtc(HAIL_LOOKBACK_DAYS);
+    var out = [];
+    for (var i = 0; i < chunks.length; i++) {
+      if (typeof onProgress === "function") {
+        onProgress(
+          "Loading IEM local storm reports " +
+            (i + 1) +
+            "/" +
+            chunks.length +
+            " (up to ~3 years of hail / severe wind)…"
+        );
+      }
+      var text = await fetchIemLsrChunk(box, chunks[i].sts, chunks[i].ets);
+      out = out.concat(parseIemLsrCsv(text, lat, lon, radiusMiles));
+    }
+    return out.filter(reportPassesFilters);
   }
 
   function parseSpcTimeToday(hhmm) {
@@ -371,6 +553,7 @@
         day === "yesterday"
           ? parseSpcTimeYesterday(r.Time)
           : parseSpcTimeToday(r.Time);
+      var magMph = kind === "wind" ? parseWindMph(size) : null;
       out.push({
         id: "spc-" + day + "-" + kind + "-" + r.Time + "-" + rlat + "-" + rlon,
         kind: kind,
@@ -381,6 +564,9 @@
             ? "Wind report"
             : "Tornado report",
         magLabel: magLabel,
+        magMph: magMph,
+        _magRaw: size,
+        _typecode: kind === "wind" ? "G" : "",
         when: when,
         city: [r.Location, r.County, r.State].filter(Boolean).join(", "),
         remark: (r.Comments || "").trim(),
@@ -418,13 +604,13 @@
         return r;
       })
       .filter(function (r) {
-        return r.distance <= radiusMiles;
+        return r.distance <= radiusMiles && reportPassesFilters(r);
       });
   }
 
   async function fetchNwsAlerts(lat, lon) {
     var headers = { Accept: "application/geo+json" };
-    var start = isoDaysAgo(14);
+    var start = isoDaysAgo(ALERT_LOOKBACK_DAYS);
     var urls = [
       "https://api.weather.gov/alerts/active?point=" + lat + "," + lon,
       "https://api.weather.gov/alerts?point=" +
@@ -495,7 +681,7 @@
         source: "NWS alerts"
       });
     }
-    return out;
+    return out.filter(reportPassesFilters);
   }
 
   function dedupeReports(list) {
@@ -634,14 +820,21 @@
           return;
         }
 
+        var area = serviceAreaInfo(geo);
         setStatus(
           status,
-          "Checking IEM local storm reports, SPC, and NWS near " + geo.label + "…",
+          "Checking IEM local storm reports (3-year hail), SPC, and NWS near " +
+            geo.label +
+            "…",
           "is-loading"
         );
 
+        var iemProgress = function (msg) {
+          setStatus(status, msg, "is-loading");
+        };
+
         var parts = await Promise.all([
-          settle(fetchIemLsr(geo.lat, geo.lon, radius)),
+          settle(fetchIemLsr(geo.lat, geo.lon, radius, iemProgress)),
           settle(fetchSpcNear(geo.lat, geo.lon, radius)),
           settle(fetchNwsAlerts(geo.lat, geo.lon))
         ]);
@@ -650,11 +843,11 @@
         var sourceNotes = [];
         if (parts[0].ok) {
           combined = combined.concat(parts[0].value);
-          sourceNotes.push("IEM LSR");
+          sourceNotes.push("IEM LSR (~3 yr)");
         } else sourceNotes.push("IEM LSR unavailable");
         if (parts[1].ok) {
           combined = combined.concat(parts[1].value);
-          sourceNotes.push("SPC");
+          sourceNotes.push("SPC (today/yesterday)");
         } else sourceNotes.push("SPC unavailable");
         if (parts[2].ok) {
           combined = combined.concat(parts[2].value);
@@ -662,6 +855,7 @@
         } else sourceNotes.push("NWS unavailable");
 
         var deduped = sortReports(dedupeReports(combined)).slice(0, MAX_RESULTS);
+        var ctaHtml = renderResultsCta();
 
         if (meta) {
           meta.innerHTML =
@@ -671,9 +865,12 @@
             "<span><strong>Radius:</strong> " +
             escapeHtml(String(radius)) +
             " miles</span>" +
-            "<span><strong>Lookback:</strong> ~" +
-            LOOKBACK_DAYS +
-            " days (IEM) · 2 days (SPC) · ~14 days (NWS alerts)</span>" +
+            "<span><strong>Service area:</strong> " +
+            escapeHtml(area.label) +
+            "</span>" +
+            "<span><strong>Filters:</strong> " +
+            escapeHtml(lookbackCopy()) +
+            "</span>" +
             "<span><strong>Sources reached:</strong> " +
             escapeHtml(sourceNotes.join(" · ")) +
             "</span>";
@@ -682,12 +879,14 @@
         if (!deduped.length) {
           setStatus(
             status,
-            "No recent public hail/severe reports found within " +
+            "No matching public hail (3 years) or wind ≥" +
+              WIND_MIN_MPH +
+              " mph reports found within " +
               radius +
               " miles. That does not mean no storm happened — many events go unreported. A free inspection can still document roof condition.",
             "is-empty"
           );
-          if (results) results.innerHTML = "";
+          if (results) results.innerHTML = ctaHtml;
           return;
         }
 
@@ -705,12 +904,14 @@
             (deduped.length === 1 ? "" : "s") +
             " (" +
             hailCount +
-            " hail, " +
+            " hail in ~3 years, " +
             windCount +
-            " wind, others). These are public reports near your address — not proof that hail hit your house.",
+            " wind ≥" +
+            WIND_MIN_MPH +
+            " mph / damage, others). Public reports near your address — not proof that hail hit your house.",
           ""
         );
-        if (results) results.innerHTML = deduped.map(renderCard).join("");
+        if (results) results.innerHTML = deduped.map(renderCard).join("") + ctaHtml;
       } catch (err) {
         var msg =
           err && err.message === "Couldn't look up that address"

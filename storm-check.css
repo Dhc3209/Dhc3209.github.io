@@ -245,3 +245,27 @@
 
 .storm-check-wrap { padding: 0 0 .25rem; }
 .storm-check-wrap > .wrap { padding-bottom: .5rem; }
+
+
+.storm-check-results-cta {
+  grid-column: 1 / -1;
+  margin-top: .35rem;
+  padding: 1.1rem 1.2rem;
+  background: var(--navy-deep, var(--navy));
+  color: #d7dee8;
+  border-radius: var(--radius);
+}
+.storm-check-results-cta p { margin: 0 0 .75rem; font-size: .95rem; color: #c5ced8; }
+.storm-check-results-cta p:last-child { margin-bottom: 0; }
+.storm-check-results-cta strong { color: var(--white); }
+.storm-check-results-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .65rem;
+  align-items: center;
+}
+.storm-check-meta .sc-out-of-area,
+.storm-check-area-note {
+  color: #f0c674;
+  font-weight: 650;
+}
