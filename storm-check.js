@@ -16,8 +16,8 @@
   var FLOOD_LOOKBACK_DAYS = 30;
   /** Measured / estimated wind gust threshold (mph). */
   var WIND_MIN_MPH = 60;
-  var DEFAULT_RADIUS = 15;
-  var MAX_RESULTS = 80;
+  var DEFAULT_RADIUS = 25;
+  var MAX_RESULTS = 150;
   var LEAFLET_CSS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
   var LEAFLET_JS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
   var leafletPromise = null;
@@ -1030,6 +1030,32 @@
     });
   }
 
+  /** Keep older hail/tornado reports from being crowded out by recent wind LSRs. */
+  function prioritizeReports(list) {
+    var sorted = sortReports(list);
+    var hailTornado = sorted.filter(function (r) {
+      return r.kind === "hail" || r.kind === "tornado";
+    });
+    var wind = sorted.filter(function (r) {
+      return r.kind === "wind";
+    });
+    var other = sorted.filter(function (r) {
+      return r.kind !== "hail" && r.kind !== "tornado" && r.kind !== "wind";
+    });
+    var selected = hailTornado.slice(0, MAX_RESULTS);
+    var remaining = MAX_RESULTS - selected.length;
+
+    if (remaining > 0) {
+      selected = selected.concat(wind.slice(0, remaining));
+      remaining = MAX_RESULTS - selected.length;
+    }
+    if (remaining > 0) {
+      selected = selected.concat(other.slice(0, remaining));
+    }
+
+    return sortReports(selected);
+  }
+
   function formatDist(mi) {
     if (mi == null || isNaN(mi)) return "—";
     if (mi < 10) return mi.toFixed(1) + " mi";
@@ -1348,7 +1374,7 @@
           sourceNotes.push("NWS alerts");
         } else sourceNotes.push("NWS unavailable");
 
-        var deduped = sortReports(dedupeReports(combined)).slice(0, MAX_RESULTS);
+        var deduped = prioritizeReports(dedupeReports(combined));
 
         if (meta) {
           meta.innerHTML = "";
