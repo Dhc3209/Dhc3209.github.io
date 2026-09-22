@@ -725,46 +725,82 @@
     });
   }
 
-  function renderCard(r) {
-    var dist =
-      r.distance != null && !isNaN(r.distance)
-        ? r.distance < 10
-          ? r.distance.toFixed(1)
-          : String(Math.round(r.distance))
-        : "—";
-    var remark = r.remark
-      ? '<p>' + escapeHtml(r.remark.slice(0, 180)) + (r.remark.length > 180 ? "…" : "") + "</p>"
-      : "";
+  function formatDist(mi) {
+    if (mi == null || isNaN(mi)) return "—";
+    if (mi < 10) return mi.toFixed(1) + " mi";
+    return Math.round(mi) + " mi";
+  }
+
+  function formatEtShort(isoOrDate) {
+    var d = isoOrDate instanceof Date ? isoOrDate : new Date(isoOrDate);
+    if (isNaN(d.getTime())) return "—";
+    return d.toLocaleString("en-US", {
+      timeZone: TZ,
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      timeZoneName: "short"
+    });
+  }
+
+  function sizeOrMph(r) {
+    if (r.magLabel) return r.magLabel;
+    if (r.kind === "tornado") return "Tornado report";
+    if (r.kind === "flood") return "Flood report";
+    if (r.kind === "alert") return "Alert";
+    return "—";
+  }
+
+  function renderTableRow(r) {
+    var type = badgeLabel(r.kind);
+    var titleAttr = escapeHtml(
+      (r.title || type) +
+        (r.city ? " · " + r.city : "") +
+        (r.source ? " · " + r.source : "")
+    );
     return (
-      '<article class="storm-card">' +
-      '<div class="storm-card-top">' +
+      "<tr class=\"storm-row storm-row--" +
+      escapeHtml(r.kind) +
+      '\" title="' +
+      titleAttr +
+      '">' +
+      '<td data-label="Date">' +
+      escapeHtml(formatEtShort(r.when)) +
+      "</td>" +
+      '<td data-label="Type">' +
       '<span class="storm-badge storm-badge--' +
       escapeHtml(r.kind) +
       '">' +
-      escapeHtml(badgeLabel(r.kind)) +
+      escapeHtml(type) +
       "</span>" +
-      "<span class=\"storm-card-mag\">" +
-      escapeHtml(r.magLabel || "") +
-      "</span>" +
-      "</div>" +
-      "<h3>" +
-      escapeHtml(r.title) +
-      "</h3>" +
-      "<p><strong>" +
-      escapeHtml(formatEt(r.when)) +
-      "</strong></p>" +
-      "<p>" +
-      escapeHtml(dist) +
-      " mi · " +
-      escapeHtml(r.city || "Near your search") +
-      "</p>" +
-      remark +
-      '<div class="storm-card-foot">' +
-      '<span class="storm-source-tag">' +
-      escapeHtml(r.source) +
-      "</span>" +
-      "</div>" +
-      "</article>"
+      "</td>" +
+      '<td data-label="Size or mph">' +
+      escapeHtml(sizeOrMph(r)) +
+      "</td>" +
+      '<td data-label="Distance">' +
+      escapeHtml(formatDist(r.distance)) +
+      "</td>" +
+      "</tr>"
+    );
+  }
+
+  function renderResultsTable(list) {
+    var rows = list.map(renderTableRow).join("");
+    return (
+      '<div class="storm-table-wrap" role="region" aria-label="Nearby storm reports" tabindex="0">' +
+      '<table class="storm-table">' +
+      "<thead><tr>" +
+      "<th scope=\"col\">Date</th>" +
+      "<th scope=\"col\">Type</th>" +
+      "<th scope=\"col\">Size or mph</th>" +
+      "<th scope=\"col\">Distance from address</th>" +
+      "</tr></thead>" +
+      "<tbody>" +
+      rows +
+      "</tbody></table></div>" +
+      '<p class="storm-table-note">Public report near your address — not proof that hail or wind hit your roof.</p>'
     );
   }
 
@@ -913,7 +949,7 @@
             " mph / damage, others). Public reports near your address — not proof that hail hit your house.",
           ""
         );
-        if (results) results.innerHTML = deduped.map(renderCard).join("") + ctaHtml;
+        if (results) results.innerHTML = renderResultsTable(deduped) + ctaHtml;
       } catch (err) {
         var msg =
           err && err.message === "Couldn't look up that address"
