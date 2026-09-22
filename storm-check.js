@@ -290,75 +290,6 @@
     return "#B8975F";
   }
 
-  function reportCalendarYear(r) {
-    if (!r || !(r.when instanceof Date) || isNaN(r.when.getTime())) return null;
-    var year = r.when.toLocaleString("en-US", { timeZone: TZ, year: "numeric" });
-    return parseInt(year, 10) || null;
-  }
-
-  function chartYearData(list) {
-    var byYear = {};
-    (list || []).forEach(function (r) {
-      if (r.kind !== "hail" && r.kind !== "wind" && r.kind !== "tornado") return;
-      var year = reportCalendarYear(r);
-      if (!year) return;
-      if (!byYear[year]) byYear[year] = { hail: 0, wind: 0, tornado: 0 };
-      byYear[year][r.kind]++;
-    });
-    return Object.keys(byYear).sort(function (a, b) { return +a - +b; }).map(function (year) {
-      return { year: year, counts: byYear[year] };
-    });
-  }
-
-  function renderChartBar(kind, count, maxCount) {
-    var height = count ? Math.max(8, Math.round((count / maxCount) * 100)) : 0;
-    return (
-      '<span class="ewr-chart-column" aria-hidden="true">' +
-      '<span class="ewr-chart-value">' + count + "</span>" +
-      '<span class="ewr-chart-bar ewr-chart-bar--' + kind + (count ? '' : ' is-zero') +
-      '" style="height:' + height + '%"></span></span>'
-    );
-  }
-
-  function renderNearbyChart(list) {
-    var years = chartYearData(list);
-    var maxCount = 1;
-    years.forEach(function (entry) {
-      maxCount = Math.max(maxCount, entry.counts.hail, entry.counts.wind, entry.counts.tornado);
-    });
-    var chartLabel = years.length
-      ? years.map(function (entry) {
-          return entry.year + ": " + entry.counts.hail + " hail, " + entry.counts.wind +
-            " wind, " + entry.counts.tornado + " tornado";
-        }).join("; ")
-      : "No hail, wind, or tornado reports in the current filters";
-    var groups = years.map(function (entry) {
-      var entryLabel = entry.year + ": " + entry.counts.hail + " hail, " + entry.counts.wind +
-        " wind, " + entry.counts.tornado + " tornado";
-      return (
-        '<div class="ewr-chart-year" aria-label="' + escapeHtml(entryLabel) + '">' +
-        '<div class="ewr-chart-group">' +
-        renderChartBar("hail", entry.counts.hail, maxCount) +
-        renderChartBar("wind", entry.counts.wind, maxCount) +
-        renderChartBar("tornado", entry.counts.tornado, maxCount) +
-        '</div><span class="ewr-chart-year-label">' + escapeHtml(entry.year) + '</span></div>'
-      );
-    }).join("");
-    if (!groups) {
-      groups = '<p class="ewr-chart-empty">No hail, wind, or tornado reports in the current filters.</p>';
-    }
-    return (
-      '<div class="ewr-chart" role="img" aria-label="Nearby reports by calendar year: ' + escapeHtml(chartLabel) + '">' +
-      '<div class="ewr-chart-legend" aria-hidden="true">' +
-      '<span><i class="ewr-chart-swatch ewr-chart-swatch--hail"></i>Hail</span>' +
-      '<span><i class="ewr-chart-swatch ewr-chart-swatch--wind"></i>Wind</span>' +
-      '<span><i class="ewr-chart-swatch ewr-chart-swatch--tornado"></i>Tornado</span>' +
-      '</div>' +
-      '<div class="ewr-chart-plot">' + groups + '</div>' +
-      '<p class="ewr-chart-note">Public LSRs near this address — not proof the roof was hit.</p></div>'
-    );
-  }
-
   function destroyReportMap(root) {
     if (root._scMap) {
       try {
@@ -463,16 +394,17 @@
   function wireReportMapFocus(root, resultsEl) {
     if (!resultsEl) return;
     resultsEl.addEventListener("click", function (ev) {
-      var row = ev.target && ev.target.closest ? ev.target.closest("[data-report-id]") : null;
-      if (!row || !root._scMarkers) return;
-      var id = row.getAttribute("data-report-id");
+      var hit = ev.target && ev.target.closest ? ev.target.closest("[data-report-id]") : null;
+      if (!hit || !root._scMarkers) return;
+      var id = hit.getAttribute("data-report-id");
       var m = root._scMarkers[id];
       if (!m || !root._scMap) return;
       root._scMap.setView(m.getLatLng(), Math.max(root._scMap.getZoom(), 12), { animate: true });
       m.openPopup();
-      var rows = resultsEl.querySelectorAll(".ewr-report-row[data-report-id]");
-      for (var i = 0; i < rows.length; i++) rows[i].classList.remove("is-focused");
-      row.classList.add("is-focused");
+      var focusEl = hit.closest("tr[data-report-id]") || hit;
+      var prev = resultsEl.querySelectorAll(".is-focused");
+      for (var i = 0; i < prev.length; i++) prev[i].classList.remove("is-focused");
+      focusEl.classList.add("is-focused");
     });
   }
 
@@ -1126,51 +1058,168 @@
     return "—";
   }
 
-  function renderReportRow(r, idx) {
-    var type = badgeLabel(r.kind);
+  /** Compact magnitude for LIST OF TOTAL EVENTS (e.g. 0.75" / 60mph / EF1). */
+  function tableMagnitude(r) {
+    if (!r) return "—";
+    if (r.kind === "hail") {
+      var inches = hailInches(r);
+      if (inches) return String(inches) + '"';
+      var hailRaw = sizeOrMph(r);
+      var hm = String(hailRaw).match(/([0-9]+(?:\.[0-9]+)?)/);
+      return hm ? hm[1] + '"' : "—";
+    }
+    if (r.kind === "wind") {
+      var mph = r.magMph != null ? r.magMph : parseWindMph(r._magRaw || r.magLabel);
+      if (mph != null && !isNaN(mph)) return Math.round(mph) + "mph";
+      var windRaw = sizeOrMph(r);
+      if (/damage/i.test(windRaw)) return "Damage";
+      var wm = String(windRaw).match(/([0-9]+)/);
+      return wm ? wm[1] + "mph" : "—";
+    }
+    if (r.kind === "tornado") {
+      var tRaw = r.magLabel || r._magRaw || sizeOrMph(r) || "";
+      var ef = String(tRaw).match(/EF-?\s*\d/i);
+      if (ef) return ef[0].replace(/\s+/g, "").toUpperCase().replace("EF", "EF");
+      var fOnly = String(tRaw).match(/\bF\s*\d\b/i);
+      if (fOnly) return fOnly[0].replace(/\s+/g, "").toUpperCase();
+      if (tRaw && !/tornado report/i.test(tRaw)) return String(tRaw).trim();
+      return "—";
+    }
+    var fallback = sizeOrMph(r);
+    return fallback && fallback !== "—" ? fallback : "—";
+  }
+
+  function formatMdY(isoOrDate) {
+    var d = isoOrDate instanceof Date ? isoOrDate : new Date(isoOrDate);
+    if (isNaN(d.getTime())) return "—";
+    return d.toLocaleDateString("en-US", {
+      timeZone: TZ,
+      month: "numeric",
+      day: "numeric",
+      year: "numeric"
+    });
+  }
+
+  function typeIconSvg(kind) {
+    if (kind === "hail") {
+      return (
+        '<svg class="ewr-type-icon" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false">' +
+        '<path fill="#5B6B7A" d="M5.2 9.2c0-2.6 2-4.7 4.8-4.7 2.2 0 4.1 1.5 4.6 3.5.9.3 1.6 1.2 1.6 2.2 0 1.3-1.1 2.4-2.4 2.4H6.6C5.2 12.6 4 11.4 4 10c0-.4.1-.8.2-1.1.3-.4.7-.7 1-.7z"/>' +
+        '<circle fill="#7A8A98" cx="7.2" cy="15.2" r="1.1"/>' +
+        '<circle fill="#7A8A98" cx="10" cy="16.2" r="1.1"/>' +
+        '<circle fill="#7A8A98" cx="12.8" cy="15.1" r="1.1"/>' +
+        "</svg>"
+      );
+    }
+    if (kind === "wind") {
+      return (
+        '<svg class="ewr-type-icon" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false">' +
+        '<path fill="none" stroke="#5B6B7A" stroke-width="1.6" stroke-linecap="round" d="M3 6.5h9.5c1.4 0 2.5 1 2.5 2.2S13.9 11 12.5 11H11"/>' +
+        '<path fill="none" stroke="#5B6B7A" stroke-width="1.6" stroke-linecap="round" d="M3 10h11.2c1.1 0 2 .8 2 1.9S15.3 14 14.2 14H13"/>' +
+        '<path fill="none" stroke="#5B6B7A" stroke-width="1.6" stroke-linecap="round" d="M3 13.5h7.5"/>' +
+        "</svg>"
+      );
+    }
+    if (kind === "tornado") {
+      return (
+        '<svg class="ewr-type-icon" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false">' +
+        '<path fill="#5B6B7A" d="M3.5 4.2h13l-1.4 2.2H4.9L3.5 4.2zm1.8 3.4h9.4l-1.2 2.1H6.5L5.3 7.6zm1.6 3.3h6.2l-1.1 2H8l-1.1-2zm1.4 3.2h3.4l-.9 2.2h-1.6l-.9-2.2z"/>' +
+        "</svg>"
+      );
+    }
+    if (kind === "flood") {
+      return (
+        '<svg class="ewr-type-icon" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false">' +
+        '<path fill="none" stroke="#5B6B7A" stroke-width="1.5" stroke-linecap="round" d="M3 8c1.2 1.2 2.4 1.2 3.6 0s2.4-1.2 3.6 0 2.4 1.2 3.6 0"/>' +
+        '<path fill="none" stroke="#5B6B7A" stroke-width="1.5" stroke-linecap="round" d="M3 12c1.2 1.2 2.4 1.2 3.6 0s2.4-1.2 3.6 0 2.4 1.2 3.6 0"/>' +
+        "</svg>"
+      );
+    }
+    return (
+      '<svg class="ewr-type-icon" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false">' +
+      '<path fill="none" stroke="#5B6B7A" stroke-width="1.5" d="M10 3.5l1.2 2.6 2.8.3-2.1 1.9.6 2.8L10 9.8 7.5 11.1l.6-2.8-2.1-1.9 2.8-.3L10 3.5z"/>' +
+      "</svg>"
+    );
+  }
+
+  function isNearImpact(r) {
+    return r && r.distance != null && !isNaN(r.distance) && r.distance <= 1;
+  }
+
+  function renderEventsRow(r, idx) {
+    var kind = r.kind || "other";
+    var type = badgeLabel(kind);
     var rid = r.id || ("r-" + idx);
+    var near = isNearImpact(r);
     var titleAttr = escapeHtml(
       (r.title || type) +
         (r.city ? " · " + r.city : "") +
         (r.source ? " · " + r.source : "") +
-        " · Click to focus on map"
+        (near ? " · Within ~1 mile of address" : "") +
+        " · View on map"
     );
     return (
-      '<button type="button" role="listitem" class="ewr-report-row storm-row--' +
-      escapeHtml(r.kind) +
+      '<tr class="ewr-events-row storm-row--' +
+      escapeHtml(kind) +
+      (near ? " is-near" : "") +
       '" data-report-id="' +
       escapeHtml(rid) +
       '" title="' +
       titleAttr +
       '">' +
-      '<span class="ewr-report-date">' + escapeHtml(formatEtShort(r.when)) + '</span>' +
-      '<span class="ewr-report-type"><span class="storm-badge storm-badge--' +
-      escapeHtml(r.kind) +
-      '">' +
+      '<td class="ewr-events-type" data-label="Type">' +
+      '<span class="ewr-type-cell">' +
+      typeIconSvg(kind) +
+      '<span class="ewr-type-label">' +
       escapeHtml(type) +
-      '</span></span>' +
-      '<span class="ewr-report-size">' + escapeHtml(sizeOrMph(r)) + '</span>' +
-      '<span class="ewr-report-distance">' + escapeHtml(formatDist(r.distance)) + '</span>' +
-      '</button>'
+      "</span>" +
+      (near
+        ? '<span class="ewr-impact-mark" title="Report is within about 1 mile of this address" aria-label="Within about 1 mile">⊕</span>'
+        : "") +
+      "</span></td>" +
+      '<td class="ewr-events-mag" data-label="Magnitude">' +
+      escapeHtml(tableMagnitude(r)) +
+      "</td>" +
+      '<td class="ewr-events-date" data-label="Date">' +
+      escapeHtml(formatMdY(r.when)) +
+      "</td>" +
+      '<td class="ewr-events-map" data-label="Map">' +
+      '<button type="button" class="ewr-view-storm" data-report-id="' +
+      escapeHtml(rid) +
+      '">View Storm</button>' +
+      "</td>" +
+      "</tr>"
     );
   }
 
-  function renderNearbyList(list) {
-    if (!list.length) return "";
-    var rows = list.map(function (r, i) { return renderReportRow(r, i); }).join("");
+  function renderEventsTable(list) {
+    var filtered = (list || []).filter(function (r) {
+      return r.kind === "hail" || r.kind === "wind" || r.kind === "tornado";
+    });
+    if (!filtered.length) {
+      return '<p class="ewr-empty-table">No hail, wind, or tornado reports in this radius for the current filters.</p>';
+    }
+    var rows = filtered.map(function (r, i) { return renderEventsRow(r, i); }).join("");
     return (
-      '<div class="ewr-report-list" role="list" aria-label="Nearby storm report details">' +
-      '<div class="ewr-report-list-head" aria-hidden="true"><span>Date</span><span>Type</span><span>Size</span><span>Distance</span></div>' +
+      '<div class="ewr-events-wrap" role="region" aria-label="List of total events" tabindex="0">' +
+      '<table class="ewr-events-table">' +
+      "<thead><tr>" +
+      '<th scope="col">Type</th>' +
+      '<th scope="col">Magnitude</th>' +
+      '<th scope="col">Date</th>' +
+      '<th scope="col">Map</th>' +
+      "</tr></thead>" +
+      "<tbody>" +
       rows +
-      '</div>'
+      "</tbody></table></div>" +
+      '<p class="ewr-events-legend"><span class="ewr-impact-mark" aria-hidden="true">⊕</span> — Report is within about 1 mile of this address</p>'
     );
   }
 
   function renderNearbyReports(list) {
     return (
-      '<h4 class="ewr-section-title">Nearby reports</h4>' +
-      renderNearbyChart(list) +
-      renderNearbyList(list)
+      '<h4 class="ewr-events-title">LIST OF TOTAL EVENTS</h4>' +
+      renderEventsTable(list)
     );
   }
 
@@ -1197,7 +1246,7 @@
       '<div class="ewr-map" role="img" aria-label="Satellite map of storm reports near address"></div>' +
       "</div>" +
       renderCountTiles(counts) +
-      '<div class="ewr-chart-card">' +
+      '<div class="ewr-events-card">' +
       renderNearbyReports(list) +
       "</div>" +
       '<p class="ewr-sources"><strong>Sources:</strong> ' +
