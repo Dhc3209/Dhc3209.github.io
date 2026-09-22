@@ -18,6 +18,9 @@
   var WIND_MIN_MPH = 60;
   var DEFAULT_RADIUS = 15;
   var MAX_RESULTS = 80;
+  var LEAFLET_CSS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+  var LEAFLET_JS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+  var leafletPromise = null;
   /** Lake Norman / Denver NC hub for service-area labeling (~50 mi). */
   var SERVICE_HUB = { lat: 35.5318, lon: -81.0298, label: "Lake Norman / Denver NC" };
   var SERVICE_HUB_MILES = 50;
@@ -185,6 +188,307 @@
       " mph (or TSTM wind damage) · SPC: today/yesterday · NWS alerts: ~" +
       ALERT_LOOKBACK_DAYS +
       " days"
+    );
+  }
+
+
+  function loadLeaflet() {
+    if (window.L) return Promise.resolve(window.L);
+    if (leafletPromise) return leafletPromise;
+    leafletPromise = new Promise(function (resolve, reject) {
+      if (!document.querySelector("link[data-sc-leaflet]")) {
+        var link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = LEAFLET_CSS;
+        link.setAttribute("data-sc-leaflet", "1");
+        document.head.appendChild(link);
+      }
+      var s = document.createElement("script");
+      s.src = LEAFLET_JS;
+      s.async = true;
+      s.setAttribute("data-sc-leaflet", "1");
+      s.onload = function () {
+        if (window.L) resolve(window.L);
+        else reject(new Error("Leaflet missing"));
+      };
+      s.onerror = function () {
+        reject(new Error("Leaflet failed to load"));
+      };
+      document.head.appendChild(s);
+    });
+    return leafletPromise;
+  }
+
+  function hailInches(r) {
+    if (!r) return 0;
+    var raw = r.magLabel || r._magRaw || "";
+    var m = String(raw).match(/([0-9]+(?:\.[0-9]+)?)/);
+    return m ? parseFloat(m[1]) : 0;
+  }
+
+  function formatDateOnly(isoOrDate) {
+    var d = isoOrDate instanceof Date ? isoOrDate : new Date(isoOrDate);
+    if (isNaN(d.getTime())) return "—";
+    return d.toLocaleString("en-US", {
+      timeZone: TZ,
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      year: "numeric"
+    });
+  }
+
+  /** Pick standout hail (largest, then closest) and strongest wind ≥60. */
+  function pickSignificant(list) {
+    var hail = null;
+    var wind = null;
+    list.forEach(function (r) {
+      if (r.kind === "hail") {
+        if (!hail) {
+          hail = r;
+          return;
+        }
+        var hi = hailInches(r);
+        var hiH = hailInches(hail);
+        if (hi > hiH) hail = r;
+        else if (hi === hiH && (r.distance || 99) < (hail.distance || 99)) hail = r;
+        else if (
+          hi === hiH &&
+          (r.distance || 99) === (hail.distance || 99) &&
+          (r.when && hail.when && r.when.getTime() > hail.when.getTime())
+        ) {
+          hail = r;
+        }
+      }
+      if (r.kind === "wind") {
+        var mph = r.magMph != null ? r.magMph : parseWindMph(r._magRaw);
+        var cur = wind && (wind.magMph != null ? wind.magMph : parseWindMph(wind._magRaw));
+        if (mph == null && r._typecode === "D") mph = WIND_MIN_MPH; // damage LSR floor
+        if (mph == null) return;
+        if (!wind || mph > (cur || 0)) wind = r;
+        else if (mph === cur && (r.distance || 99) < (wind.distance || 99)) wind = r;
+      }
+    });
+    return { hail: hail, wind: wind };
+  }
+
+  function countKinds(list) {
+    var c = { hail: 0, wind: 0, tornado: 0 };
+    list.forEach(function (r) {
+      if (r.kind === "hail") c.hail++;
+      else if (r.kind === "wind") c.wind++;
+      else if (r.kind === "tornado") c.tornado++;
+    });
+    return c;
+  }
+
+  function markerColor(kind) {
+    if (kind === "hail") return "#B71C2C";
+    if (kind === "wind") return "#3D7AB5";
+    if (kind === "tornado") return "#7B4FB0";
+    if (kind === "flood") return "#2A8F7A";
+    return "#B8975F";
+  }
+
+  function destroyReportMap(root) {
+    if (root._scMap) {
+      try {
+        root._scMap.remove();
+      } catch (e) {}
+      root._scMap = null;
+      root._scMarkers = null;
+      root._scHomeMarker = null;
+    }
+  }
+
+  function initReportMap(root, mapEl, geo, list, radiusMiles) {
+    destroyReportMap(root);
+    if (!mapEl || !geo) return;
+    loadLeaflet()
+      .then(function (L) {
+        var map = L.map(mapEl, {
+          zoomControl: true,
+          attributionControl: true,
+          scrollWheelZoom: false,
+          dragging: true
+        });
+        L.tileLayer(
+          "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+          {
+            maxZoom: 19,
+            attribution:
+              'Tiles &copy; <a href="https://www.esri.com/">Esri</a> — Maxar, Earthstar Geographics'
+          }
+        ).addTo(map);
+        L.tileLayer(
+          "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+          { maxZoom: 19, opacity: 0.85, attribution: "" }
+        ).addTo(map);
+
+        var home = L.circleMarker([geo.lat, geo.lon], {
+          radius: 9,
+          color: "#B8975F",
+          weight: 2,
+          fillColor: "#E8D4B0",
+          fillOpacity: 0.95
+        })
+          .addTo(map)
+          .bindPopup("<strong>Your address</strong><br>" + escapeHtml(geo.label));
+        root._scHomeMarker = home;
+
+        // Search radius ring
+        L.circle([geo.lat, geo.lon], {
+          radius: radiusMiles * 1609.34,
+          color: "#B8975F",
+          weight: 1,
+          opacity: 0.55,
+          fillColor: "#B8975F",
+          fillOpacity: 0.06,
+          interactive: false
+        }).addTo(map);
+
+        var markers = {};
+        var bounds = L.latLngBounds([geo.lat, geo.lon]);
+        list.forEach(function (r, idx) {
+          if (r.lat == null || r.lon == null || r.kind === "alert") return;
+          var color = markerColor(r.kind);
+          var m = L.circleMarker([r.lat, r.lon], {
+            radius: r.kind === "tornado" ? 8 : 6,
+            color: "#1a1a1a",
+            weight: 1,
+            fillColor: color,
+            fillOpacity: 0.9
+          }).addTo(map);
+          var popup =
+            "<strong>" +
+            escapeHtml(badgeLabel(r.kind)) +
+            "</strong>" +
+            (r.magLabel ? " · " + escapeHtml(r.magLabel) : "") +
+            "<br>" +
+            escapeHtml(formatEtShort(r.when)) +
+            "<br>" +
+            escapeHtml(formatDist(r.distance)) +
+            (r.city ? " · " + escapeHtml(r.city) : "");
+          m.bindPopup(popup);
+          var key = r.id || "r-" + idx;
+          markers[key] = m;
+          bounds.extend([r.lat, r.lon]);
+        });
+        root._scMap = map;
+        root._scMarkers = markers;
+        try {
+          map.fitBounds(bounds.pad(0.2), { maxZoom: 12 });
+        } catch (e) {
+          map.setView([geo.lat, geo.lon], 10);
+        }
+        setTimeout(function () {
+          map.invalidateSize();
+        }, 80);
+      })
+      .catch(function () {
+        mapEl.innerHTML =
+          '<p class="sc-map-fallback">Map unavailable — table below still lists public reports.</p>';
+      });
+  }
+
+  function wireTableMapFocus(root, resultsEl) {
+    if (!resultsEl) return;
+    resultsEl.addEventListener("click", function (ev) {
+      var tr = ev.target && ev.target.closest ? ev.target.closest("tr[data-report-id]") : null;
+      if (!tr || !root._scMarkers) return;
+      var id = tr.getAttribute("data-report-id");
+      var m = root._scMarkers[id];
+      if (!m || !root._scMap) return;
+      root._scMap.setView(m.getLatLng(), Math.max(root._scMap.getZoom(), 12), { animate: true });
+      m.openPopup();
+      var rows = resultsEl.querySelectorAll("tr[data-report-id]");
+      for (var i = 0; i < rows.length; i++) rows[i].classList.remove("is-focused");
+      tr.classList.add("is-focused");
+    });
+  }
+
+  function renderSignificantStrip(sig) {
+    var parts = [];
+    if (sig.hail) {
+      parts.push(
+        '<div class="ewr-sig ewr-sig--hail">' +
+          '<span class="ewr-sig-label">Significant hail</span>' +
+          '<span class="ewr-sig-date">' +
+          escapeHtml(formatDateOnly(sig.hail.when)) +
+          "</span>" +
+          '<span class="ewr-sig-detail">' +
+          escapeHtml(sig.hail.magLabel || "Hail") +
+          " · " +
+          escapeHtml(formatDist(sig.hail.distance)) +
+          "</span></div>"
+      );
+    }
+    if (sig.wind) {
+      var wLabel =
+        sig.wind.magLabel ||
+        (sig.wind.magMph != null ? Math.round(sig.wind.magMph) + " mph" : "Wind ≥60 mph / damage");
+      parts.push(
+        '<div class="ewr-sig ewr-sig--wind">' +
+          '<span class="ewr-sig-label">Strongest wind (≥60 mph)</span>' +
+          '<span class="ewr-sig-date">' +
+          escapeHtml(formatDateOnly(sig.wind.when)) +
+          "</span>" +
+          '<span class="ewr-sig-detail">' +
+          escapeHtml(wLabel) +
+          " · " +
+          escapeHtml(formatDist(sig.wind.distance)) +
+          "</span></div>"
+      );
+    }
+    if (!parts.length) {
+      return (
+        '<div class="ewr-sig-strip ewr-sig-strip--empty">' +
+        "<p>No standout hail or ≥60 mph wind LSRs in this radius for the ~3-year window — nearby weaker or unreported events may still exist.</p>" +
+        "</div>"
+      );
+    }
+    return '<div class="ewr-sig-strip" role="region" aria-label="Significant storm dates">' + parts.join("") + "</div>";
+  }
+
+  function renderCountTiles(counts) {
+    return (
+      '<div class="ewr-tiles" role="group" aria-label="Three-year nearby report counts">' +
+      '<div class="ewr-tile ewr-tile--hail"><span class="ewr-tile-num">' +
+      counts.hail +
+      '</span><span class="ewr-tile-label">Hail reports</span><span class="ewr-tile-sub">~3 years · public LSRs</span></div>' +
+      '<div class="ewr-tile ewr-tile--wind"><span class="ewr-tile-num">' +
+      counts.wind +
+      '</span><span class="ewr-tile-label">Wind ≥60 mph / damage</span><span class="ewr-tile-sub">~3 years · public LSRs</span></div>' +
+      '<div class="ewr-tile ewr-tile--tornado"><span class="ewr-tile-num">' +
+      counts.tornado +
+      '</span><span class="ewr-tile-label">Tornado reports</span><span class="ewr-tile-sub">~3 years · public LSRs</span></div>' +
+      "</div>" +
+      '<p class="ewr-tiles-note">Counts are public Local Storm Reports near this address — not proof the roof was hit. Always verify with a professional inspection.</p>'
+    );
+  }
+
+  function renderReportHeader(geo, radius, area) {
+    return (
+      '<header class="ewr-header">' +
+      '<div class="ewr-brand">' +
+      '<span class="ewr-brand-mark">CPR</span>' +
+      '<div class="ewr-brand-text">' +
+      '<p class="ewr-eyebrow">Campbells Precision Roofing</p>' +
+      "<h3 class=\"ewr-title\">Extreme Weather Report</h3>" +
+      "</div></div>" +
+      '<div class="ewr-address">' +
+      '<p class="ewr-address-label">Resolved address</p>' +
+      '<p class="ewr-address-value">' +
+      escapeHtml(geo.label) +
+      "</p>" +
+      '<p class="ewr-address-meta">' +
+      '<span><strong>Radius:</strong> ' +
+      escapeHtml(String(radius)) +
+      " miles</span>" +
+      '<span><strong>Service area:</strong> ' +
+      escapeHtml(area.label) +
+      "</span></p>" +
+      "</div></header>"
     );
   }
 
@@ -753,19 +1057,23 @@
     return "—";
   }
 
-  function renderTableRow(r) {
+  function renderTableRow(r, idx) {
     var type = badgeLabel(r.kind);
+    var rid = r.id || ("r-" + idx);
     var titleAttr = escapeHtml(
       (r.title || type) +
         (r.city ? " · " + r.city : "") +
-        (r.source ? " · " + r.source : "")
+        (r.source ? " · " + r.source : "") +
+        " · Click to focus on map"
     );
     return (
-      "<tr class=\"storm-row storm-row--" +
+      '<tr class="storm-row storm-row--' +
       escapeHtml(r.kind) +
-      '\" title="' +
+      '" data-report-id="' +
+      escapeHtml(rid) +
+      '" title="' +
       titleAttr +
-      '">' +
+      '" tabindex="0">' +
       '<td data-label="Date">' +
       escapeHtml(formatEtShort(r.when)) +
       "</td>" +
@@ -787,7 +1095,7 @@
   }
 
   function renderResultsTable(list) {
-    var rows = list.map(renderTableRow).join("");
+    var rows = list.map(function (r, i) { return renderTableRow(r, i); }).join("");
     return (
       '<div class="storm-table-wrap" role="region" aria-label="Nearby storm reports" tabindex="0">' +
       '<table class="storm-table">' +
@@ -801,6 +1109,46 @@
       rows +
       "</tbody></table></div>" +
       '<p class="storm-table-note">Public report near your address — not proof that hail or wind hit your roof.</p>'
+    );
+  }
+
+
+  function renderFullReport(opts) {
+    var geo = opts.geo;
+    var radius = opts.radius;
+    var area = opts.area;
+    var list = opts.list || [];
+    var sourceNotes = opts.sourceNotes || [];
+    var sig = pickSignificant(list);
+    var counts = countKinds(list);
+    var tableHtml = list.length
+      ? renderResultsTable(list)
+      : '<p class="ewr-empty-table">No matching public reports in this radius for the current filters.</p>';
+    return (
+      '<article class="ewr-report" aria-label="Extreme Weather Report">' +
+      renderReportHeader(geo, radius, area) +
+      renderSignificantStrip(sig) +
+      '<div class="ewr-map-card">' +
+      '<div class="ewr-map-head"><span>Satellite map · nearby public reports</span>' +
+      '<span class="ewr-map-legend">' +
+      '<i class="ewr-leg ewr-leg--home"></i> Address ' +
+      '<i class="ewr-leg ewr-leg--hail"></i> Hail ' +
+      '<i class="ewr-leg ewr-leg--wind"></i> Wind ' +
+      '<i class="ewr-leg ewr-leg--tornado"></i> Tornado</span></div>' +
+      '<div class="ewr-map" role="img" aria-label="Satellite map of storm reports near address"></div>' +
+      "</div>" +
+      renderCountTiles(counts) +
+      '<div class="ewr-table-card">' +
+      '<h4 class="ewr-section-title">Nearby reports</h4>' +
+      tableHtml +
+      "</div>" +
+      '<p class="ewr-sources"><strong>Sources:</strong> ' +
+      escapeHtml(sourceNotes.join(" · ")) +
+      " · " +
+      escapeHtml(lookbackCopy()) +
+      "</p>" +
+      renderResultsCta() +
+      "</article>"
     );
   }
 
@@ -834,6 +1182,7 @@
         setStatus(status, "Enter a street address to check nearby storm reports.", "is-error");
         return;
       }
+      destroyReportMap(root);
       if (results) results.innerHTML = "";
       if (meta) meta.innerHTML = "";
       setStatus(status, "Looking up address and checking storm reports…", "is-loading");
@@ -893,26 +1242,12 @@
         } else sourceNotes.push("NWS unavailable");
 
         var deduped = sortReports(dedupeReports(combined)).slice(0, MAX_RESULTS);
-        var ctaHtml = renderResultsCta();
 
         if (meta) {
-          meta.innerHTML =
-            "<span><strong>Near:</strong> " +
-            escapeHtml(geo.label) +
-            "</span>" +
-            "<span><strong>Radius:</strong> " +
-            escapeHtml(String(radius)) +
-            " miles</span>" +
-            "<span><strong>Service area:</strong> " +
-            escapeHtml(area.label) +
-            "</span>" +
-            "<span><strong>Filters:</strong> " +
-            escapeHtml(lookbackCopy()) +
-            "</span>" +
-            "<span><strong>Sources reached:</strong> " +
-            escapeHtml(sourceNotes.join(" · ")) +
-            "</span>";
+          meta.innerHTML = "";
         }
+
+        destroyReportMap(root);
 
         if (!deduped.length) {
           setStatus(
@@ -924,7 +1259,21 @@
               " miles. That does not mean no storm happened — many events go unreported. A free inspection can still document roof condition.",
             "is-empty"
           );
-          if (results) results.innerHTML = ctaHtml;
+          if (results) {
+            results.innerHTML = renderFullReport({
+              geo: geo,
+              radius: radius,
+              area: area,
+              list: [],
+              sourceNotes: sourceNotes
+            });
+            var mapEl0 = results.querySelector(".ewr-map");
+            initReportMap(root, mapEl0, geo, [], radius);
+            if (!root._scTableWired) {
+              wireTableMapFocus(root, results);
+              root._scTableWired = true;
+            }
+          }
           return;
         }
 
@@ -949,7 +1298,21 @@
             " mph / damage, others). Public reports near your address — not proof that hail hit your house.",
           ""
         );
-        if (results) results.innerHTML = renderResultsTable(deduped) + ctaHtml;
+        if (results) {
+          results.innerHTML = renderFullReport({
+            geo: geo,
+            radius: radius,
+            area: area,
+            list: deduped,
+            sourceNotes: sourceNotes
+          });
+          var mapEl = results.querySelector(".ewr-map");
+          initReportMap(root, mapEl, geo, deduped, radius);
+          if (!root._scTableWired) {
+            wireTableMapFocus(root, results);
+            root._scTableWired = true;
+          }
+        }
       } catch (err) {
         var msg =
           err && err.message === "Couldn't look up that address"
