@@ -81,7 +81,7 @@
       <p class="lead">Local <strong>GAF Master Elite</strong> &amp; <strong>President’s Club</strong> installs — Timberline HDZ® / UHDZ®, Golden Pledge® on qualifying systems, and clear estimates. Free inspections. When storms hit, we document damage and work the claim <em>with</em> your adjuster.</p>
       <div class="hero-actions" role="group" aria-label="Choose your next step">
         <a class="btn btn-storm" href="/storm-damage-insurance-claims/">Storm / Insurance</a>
-        <a class="btn btn-outline btn-on-dark btn-estimate" href="#quick-estimate">Get a Quick Estimate</a>
+        <a class="btn btn-outline btn-on-dark btn-estimate" href="/instant-quote/">Get a Quick Estimate</a>
       </div>
       <a class="hero-phone" href="tel:+17042805996" aria-label="Call (704) 280-5996">(704) 280-5996</a>
       <ul class="hero-trust" aria-label="Trust signals">
@@ -203,201 +203,11 @@
         </div>
       </form>
       <div class="storm-check-status" role="status" aria-live="polite"></div>
-      <p class="storm-check-teaser-link"><a href="/storm-damage-insurance-claims/#storm-check">Open full storm checker with sources &amp; report chart →</a></p>      <p class="storm-check-disclaimer" style="text-align:center">3-year hail + 60+ mph wind from IEM / SPC / NWS — not a claim that hail hit your house. <a href="/storm-damage-insurance-claims/">Get a free storm inspection</a>.</p>
+      <p class="storm-check-teaser-link"><a href="/storm-damage-insurance-claims/#storm-check">Open full storm checker with sources &amp; report chart →</a></p>
+      <p class="storm-check-disclaimer" style="text-align:center">3-year hail + 60+ mph wind from IEM / SPC / NWS — not a claim that hail hit your house. <a href="/storm-damage-insurance-claims/">Get a free storm inspection</a>.</p>
     </div>
   </div>
 </section>
-
-
-<section class="quick-estimate" id="quick-estimate" data-quick-estimate aria-labelledby="qe-heading">
-  <div class="wrap">
-    <div class="qe-layout">
-      <div class="qe-intro">
-        <div class="section-head">
-          <p class="eyebrow">Preliminary GAF estimate</p>
-          <h2 id="qe-heading">Instant roof quote — Denver &amp; Lake Norman</h2>
-          <p>Four quick steps: confirm your address, review approximate roof squares, share your info, then see a <strong>preliminary GAF estimate range</strong>. Final price always requires a free on-site inspection.</p>
-        </div>
-        <ul class="list-check qe-bullets">
-          <li>GAF Timberline HDZ® / UHDZ®, Designer Collection, and optional MRS metal</li>
-          <li>Approximate squares from aerial/satellite map data — adjustable, never a final measurement</li>
-          <li>We’ll show a preliminary GAF range after we have your name, phone, and email — so we can follow up with a real inspection, not a junk lead.</li>
-          <li>We email Daniel on every completed lead for fast follow-up</li>
-        </ul>
-        <div class="qe-trust" aria-label="Credentials and contact">
-          <p class="qe-trust-line"><strong>GAF Master Elite</strong> · Golden Pledge® eligible · Free inspection · <a href="tel:+17042805996">(704) 280-5996</a></p>
-          <p class="qe-trust-line">BBB A+ · NC License #101889 · <strong>Not an insurance quote / we don’t waive deductibles</strong></p>
-        </div>
-        <div class="qe-cta-pair">
-          <a class="btn qe-cta-estimate" href="#quick-estimate">Get a preliminary estimate</a>
-          <a class="btn btn-outline qe-cta-storm" href="/storm-damage-insurance-claims/">Storm / insurance inspection →</a>
-        </div>
-        <p class="qe-alt-path">Calculator is a CPR planning tool — not endorsed by Google or GAF as a pricing authority.</p>
-      </div>
-      <div class="qe-card">
-        <div class="qe-progress" data-qe-progress aria-hidden="true">
-          <span class="qe-prog-label" data-qe-step-label>Step 1 of 4</span>
-          <ol class="qe-prog-steps qe-prog-steps--4">
-            <li data-qe-prog="1" class="is-active"><span>Address</span></li>
-            <li data-qe-prog="2"><span>Squares</span></li>
-            <li data-qe-prog="3"><span>Your info</span></li>
-            <li data-qe-prog="4"><span>Estimate</span></li>
-          </ol>
-        </div>
-        <form class="qe-form" novalidate>
-          <!-- Step 1: Address -->
-          <div class="qe-step" data-qe-step="1">
-            <h3 class="qe-step-title">Where’s the roof?</h3>
-            <p class="qe-step-lead">Enter the property address. We’ll place a map pin and pull an approximate square count from aerial/satellite building data.</p>
-            <div class="qe-field">
-              <label for="qe-address">Property address *</label>
-              <input id="qe-address" name="qe-address" type="text" required autocomplete="street-address" placeholder="Street, Denver NC 28037">
-            </div>
-            <div class="qe-nav">
-              <button class="btn qe-submit" type="button" data-qe-next>Find my roof →</button>
-            </div>
-          </div>
-
-          <!-- Step 2: Confirm squares (+ map, product, stories) -->
-          <div class="qe-step" data-qe-step="2" hidden>
-            <h3 class="qe-step-title">Confirm approximate squares</h3>
-            <p class="qe-step-lead">Does this pin look right? Review the square estimate below — it’s approximate only.</p>
-            <p class="qe-geolabel" data-qe-geolabel></p>
-            <p class="qe-map-hint">Tap or drag the pin onto your roof if the pin is off.</p>
-            <div class="qe-map" data-qe-map role="application" aria-label="Satellite map — tap or drag the pin onto your roof"></div>
-            <div class="qe-grid">
-              <div class="full qe-mode">
-                <span class="qe-label">Roof size</span>
-                <label class="qe-radio"><input type="radio" name="qe-size-mode" value="preset"> Home size preset</label>
-                <label class="qe-radio"><input type="radio" name="qe-size-mode" value="squares" checked> Approximate squares</label>
-              </div>
-              <div class="full" data-qe-preset hidden>
-                <label for="qe-home-size">Approximate home size *</label>
-                <select id="qe-home-size" name="qe-home-size">
-                  <option value="small">Under 1,500 sq ft (~18 squares)</option>
-                  <option value="medium" selected>1,500–2,500 sq ft (~25 squares)</option>
-                  <option value="large">2,500–3,500 sq ft (~33 squares)</option>
-                  <option value="estate">3,500+ sq ft (~42 squares)</option>
-                </select>
-              </div>
-              <div class="full" data-qe-squares-wrap>
-                <label for="qe-squares">Roof squares (1 square = 100 sq ft) *</label>
-                <input id="qe-squares" name="qe-squares" type="number" min="5" max="100" step="1" value="25" inputmode="numeric">
-              </div>
-              <p class="full qe-squares-note" data-qe-building-note>Approx. squares (footprint × pitch factor) appear after lookup — not a final measurement. Drag the pin onto the roof if the outline looks wrong.</p>
-              <div class="full">
-                <label for="qe-stories">Stories *</label>
-                <select id="qe-stories" name="qe-stories">
-                  <option value="1" selected>1 story</option>
-                  <option value="1.5">1.5 story</option>
-                  <option value="2">2+ stories</option>
-                </select>
-              </div>
-            </div>
-            <p class="qe-step-lead" style="margin-top:.25rem">Pick a GAF product for the preliminary range:</p>
-            <div class="qe-products" role="radiogroup" aria-label="GAF product">
-              <label class="qe-product">
-                <input type="radio" name="qe-material" value="hdz" checked>
-                <span class="qe-product-body">
-                  <span class="qe-product-badge">Most popular</span>
-                  <span class="qe-product-name">Timberline HDZ®</span>
-                  <span class="qe-product-desc">GAF architectural asphalt — LayerLock® + WindProven™ limited warranty eligibility on qualifying installs.</span>
-                </span>
-              </label>
-              <label class="qe-product">
-                <input type="radio" name="qe-material" value="uhdz">
-                <span class="qe-product-body">
-                  <span class="qe-product-name">Timberline UHDZ®</span>
-                  <span class="qe-product-desc">Ultra HDZ look — thicker profile, same GAF architectural lineage for curb appeal.</span>
-                </span>
-              </label>
-              <label class="qe-product">
-                <input type="radio" name="qe-material" value="designer">
-                <span class="qe-product-body">
-                  <span class="qe-product-name">GAF Designer Collection</span>
-                  <span class="qe-product-desc">Premium designer asphalt (e.g. Grand Sequoia® / Camelot® class) — higher preliminary range.</span>
-                </span>
-              </label>
-              <label class="qe-product qe-product--secondary">
-                <input type="radio" name="qe-material" value="metal">
-                <span class="qe-product-body">
-                  <span class="qe-product-badge qe-product-badge--alt">Secondary</span>
-                  <span class="qe-product-name">Metal (MRS standing seam)</span>
-                  <span class="qe-product-desc">Standing-seam metal when asphalt isn’t the fit — typically the highest range.</span>
-                </span>
-              </label>
-            </div>
-            <div class="qe-nav qe-nav--split">
-              <button class="btn btn-outline" type="button" data-qe-back>← Edit address</button>
-              <button class="btn qe-submit" type="button" data-qe-next>Confirm squares →</button>
-            </div>
-          </div>
-
-          <!-- Step 3: Your info (required before any $) -->
-          <div class="qe-step" data-qe-step="3" hidden>
-            <h3 class="qe-step-title">Your info</h3>
-            <p class="qe-pre-disclaimer"><strong>This is a preliminary estimate only — not a final price. Final cost requires an on-site inspection.</strong></p>
-            <p class="qe-step-lead">We need your contact details before showing any dollar range. Property address carries over from step 1.</p>
-            <div class="qe-grid">
-              <div>
-                <label for="qe-name">Name *</label>
-                <input id="qe-name" name="qe-name" type="text" required autocomplete="name" placeholder="Your name">
-              </div>
-              <div>
-                <label for="qe-phone">Phone *</label>
-                <input id="qe-phone" name="qe-phone" type="tel" required autocomplete="tel" placeholder="(704) 280-5996">
-              </div>
-              <div class="full">
-                <label for="qe-email">Email *</label>
-                <input id="qe-email" name="qe-email" type="email" required autocomplete="email" placeholder="you@email.com">
-              </div>
-              <div class="full">
-                <label for="qe-city">City / area *</label>
-                <input id="qe-city" name="qe-city" type="text" required autocomplete="address-level2" placeholder="Denver, Mooresville, Cornelius…">
-              </div>
-            </div>
-            <p class="qe-mini-note">Not an insurance quote. We don’t waive deductibles. No fake urgency — take your time.</p>
-            <div class="qe-nav qe-nav--split">
-              <button class="btn btn-outline" type="button" data-qe-back>← Back</button>
-              <button class="btn qe-submit" type="button" data-qe-next>See preliminary range →</button>
-            </div>
-          </div>
-
-          <!-- Step 4: Estimate range (ONLY after step 3) -->
-          <div class="qe-step" data-qe-step="4" hidden>
-            <h3 class="qe-step-title">Preliminary GAF estimate range</h3>
-            <div class="qe-result" data-qe-result>
-              <p class="qe-result-label">Preliminary GAF estimate range</p>
-              <p class="qe-range" data-qe-range>—</p>
-              <p class="qe-meta" data-qe-meta></p>
-              <p class="qe-disclaimer"><strong>Rough web estimate only — actual price depends on measured squares, pitch, stories, tear-off, decking, access, flashings, and options; final pricing after inspection.</strong> This is not a contract or insurance approval. We don’t waive deductibles.</p>
-            </div>
-            <div class="qe-done" data-qe-done>
-              <p class="qe-done-title" data-qe-done-title>You’re on our list</p>
-              <p data-qe-done-copy>Your preliminary range of <strong data-qe-done-range></strong> was sent to our team. We’ll follow up to schedule a <strong>free inspection</strong>.</p>
-              <p class="qe-done-actions"><a class="btn btn-outline" data-qe-done-mailto hidden href="mailto:Daniel@cprhomepros.com">Email this estimate</a></p>
-            </div>
-            <div class="qe-nav qe-nav--split">
-              <button class="btn btn-outline" type="button" data-qe-back>← Edit info</button>
-              <a class="btn qe-submit" href="tel:+17042805996">Call (704) 280-5996</a>
-            </div>
-            <p class="form-note">Lead emailed to <strong>Daniel@cprhomepros.com</strong>. Or text <a href="sms:+17042805996">(704) 280-5996</a>.</p>
-          </div>
-
-          <div class="qe-status" data-qe-status role="status" aria-live="polite"></div>
-        </form>
-        <div class="qe-card-trust">
-          <span>GAF Master Elite</span>
-          <span>Golden Pledge® eligible</span>
-          <span>Free inspection</span>
-          <span><a href="tel:+17042805996">(704) 280-5996</a></span>
-          <span>BBB A+ · NC #101889</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
 
 <section class="commitment-explore section-alt">
   <div class="wrap">
@@ -453,6 +263,14 @@
       <p>GAF Master Elite · President’s Club · Timberline HDZ® / UHDZ® · Golden Pledge® warranties — serving Denver, Lake Norman, and surrounding counties. We also offer CertainTeed, Brava, and VELUX when they fit.</p>
     </div>
     <div class="grid-4">
+      <a class="card card-thumb" href="/instant-quote/">
+        <span class="card-media"><img src="/images/from-live/IMG_20170818_201357_297.jpg" alt="GAF architectural shingle roof installed by CPR — instant quote" width="800" height="500" loading="lazy"></span>
+        <span class="card-body">
+          <h3>Instant Quote</h3>
+          <p>Preliminary GAF estimate from your address — four quick steps, then we follow up.</p>
+          <span class="card-link">Get a quote →</span>
+        </span>
+      </a>
       <a class="card card-thumb" href="/storm-damage-insurance-claims/">
         <span class="card-media"><img src="/images/from-live/20170818_183428.jpg" alt="Storm-damaged roof inspection documentation by CPR" width="800" height="500" loading="lazy"></span>
         <span class="card-body">
@@ -638,7 +456,7 @@
     <p>Free inspections. Storm documentation with your adjuster. 5.0 from 151 Google reviews — Denver, Mooresville, Cornelius, Huntersville, Concord, and Lake Norman.</p>
     <div class="hero-actions">
       <a class="btn btn-storm" href="/storm-damage-insurance-claims/">Storm / Insurance</a>
-      <a class="btn btn-outline btn-on-dark btn-estimate" href="#quick-estimate">Get a Quick Estimate</a>
+      <a class="btn btn-outline btn-on-dark btn-estimate" href="/instant-quote/">Get a Quick Estimate</a>
     </div>
     <div class="contact-strip cta-contact" role="group" aria-label="Call, text, or email">
       <span class="cs-label">Call · Text · Email</span>
@@ -711,6 +529,7 @@
           <li><a href="/about-us/">About Us</a></li>
           <li><a href="/portfolio/">Portfolio</a></li>
           <li><a href="/reviews/">Reviews</a></li>
+          <li><a href="/instant-quote/">Instant Quote</a></li>
           <li><a href="/faq/">FAQ</a></li>
           <li><a href="/faq/">Resources</a></li>
           <li><a href="/velux-products/">VELUX Products</a></li>
@@ -733,8 +552,7 @@
   </div>
 </footer>
 <script src="/nav.js"></script>
-<script src="/storm-check.js?v=storm5" defer></script><script src="/leads-config.js"></script>
-<script src="/quick-estimate.js?v=leads1" defer></script>
+<script src="/storm-check.js?v=storm5" defer></script>
 
 </body>
 </html>
