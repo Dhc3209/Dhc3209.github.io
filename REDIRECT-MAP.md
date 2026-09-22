@@ -55,7 +55,8 @@ These are the HTML mock pages currently in `/workspace/cpr-redesign/`. The recom
 | `/service-area/denver-nc` | `areas.html` | `/areas-we-serve` | **301**; no city-specific mock page; closest parent. |
 | `/service-area/cornelius-nc` | `areas.html` | `/areas-we-serve` | **301**; no city-specific mock page; closest parent. |
 | `/service-area/huntersville-nc` | `areas.html` | `/areas-we-serve` | **301**; no city-specific mock page; closest parent. |
-| `/service-area/mooresville-nc` | `areas.html` | `/areas-we-serve` | **301**; no city-specific mock page; closest parent. |
+| `/service-area/mooresville-nc` | `service-area/mooresville-nc/index.html` | `/service-area/mooresville-nc` | **Serve in place** (real town page 2026-09-22). Do **not** 301 to Areas. |
+| `/service-area/sherrills-ford-nc` | `service-area/sherrills-ford-nc/index.html` | `/service-area/sherrills-ford-nc` | **Serve in place** (new town page 2026-09-22). |
 | `/service-area/davidson-nc` | `areas.html` | `/areas-we-serve` | **301**; no city-specific mock page; closest parent. |
 | `/service-area/concord-nc` | `areas.html` | `/areas-we-serve` | **301**; no city-specific mock page; closest parent. |
 | `/roof-repair-vs-full-replacement-in-denver-nc-how-to-decide` | `repair.html` | `/roof-repair-and-replacement` | **301**; article has no new equivalent. |

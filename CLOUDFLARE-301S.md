@@ -21,8 +21,6 @@ When live: remove or leave GH stubs harmless (edge 301 wins before origin).
 | `/resources/` | `/faq/` |
 | `/timberline-uhdz` | `/timberline-hdz/` |
 | `/timberline-uhdz/` | `/timberline-hdz/` |
-| `/service-area/mooresville-nc` | `/areas-we-serve/` |
-| `/service-area/mooresville-nc/` | `/areas-we-serve/` |
 | `/service-area/davidson-nc` | `/areas-we-serve/` |
 | `/service-area/davidson-nc/` | `/areas-we-serve/` |
 | `/service-area/concord-nc` | `/areas-we-serve/` |
@@ -67,11 +65,13 @@ When live: remove or leave GH stubs harmless (edge 301 wins before origin).
 | `https://www.cprhomepros.com/*` | `https://cprhomepros.com/$1` (www → apex, single hop) |
 | Legacy Townsquare / Duda host URLs | apex `https://cprhomepros.com$uri` when Cloudflare fronts |
 
-### Do **NOT** 301 (real pages — ship 2026-09-21)
+### Do **NOT** 301 (real pages — ship 2026-09-21 / Lake Norman pack 2026-09-22)
 
 - `/service-area/denver-nc/` — real town page
 - `/service-area/cornelius-nc/` — real town page
 - `/service-area/huntersville-nc/` — real town page
+- `/service-area/mooresville-nc/` — real town page (2026-09-22). **Remove** any CF rule that sent this path → `/areas-we-serve/`.
+- `/service-area/sherrills-ford-nc/` — real town page (2026-09-22). Do not 301.
 - All must-keep URLs in SHIP / WEEK-PACK §C1 (`/`, `/about-us/`, `/roofing/`, `/storm-damage-insurance-claims/`, etc.)
 
 ---

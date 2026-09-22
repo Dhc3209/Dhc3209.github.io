@@ -31,3 +31,14 @@
 - [ ] `/gutters/` primary = gutter inspection
 - [ ] `/contact-us/`, `/reviews/`, `/portfolio/`, `/faq/`, `/areas-we-serve/` H1s page-specific
 - [ ] Footer still shows Campground Rd + licenses
+
+## 2026-09-22 evening — Lake Norman town SEO pack
+
+- **NEW** `/service-area/mooresville-nc/` — replaced meta-refresh stub with full town page (Section A)
+- **NEW** `/service-area/sherrills-ford-nc/` — full town page (Section B; double-L spelling)
+- Areas We Serve: Mooresville card → town URL; added Sherrills Ford card; intro town list
+- Homepage: Mooresville → town URL; Sherrills Ford mention+link; closing CTA towns line
+- Sitemap: both town URLs
+- Cornelius + Huntersville: title/meta/og + local differentiator + nearby links to Mooresville/Sherrills
+- Denver nearby: Mooresville + Sherrills Ford links
+- CLOUDFLARE-301S / REDIRECT-MAP: do **not** 301 mooresville-nc → Areas once live
