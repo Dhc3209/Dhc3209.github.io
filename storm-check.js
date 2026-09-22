@@ -191,11 +191,13 @@
   function renderResultsCta() {
     return (
       '<div class="storm-check-results-cta" role="region" aria-label="Storm damage help">' +
-      "<p><strong>Think a storm hit your roof?</strong> Public reports nearby are a starting point — not proof of damage at your address.</p>" +
+      "<h3>Storm hit your roof? We’ll document it for the claim.</h3>" +
+      "<p>Free inspection for hail and high-wind damage across Denver and Lake Norman. GAF Master Elite — we speak adjuster.</p>" +
       '<p class="storm-check-results-cta-actions">' +
-      '<a class="btn btn-white" href="/storm-damage-insurance-claims/">Get a free storm damage inspection</a> ' +
-      '<a class="btn btn-outline btn-on-dark" href="/storm-damage-insurance-claims/#claims">Insurance claim help</a>' +
+      '<a class="btn btn-white" href="/storm-damage-insurance-claims/">Get a free storm inspection</a> ' +
+      '<a class="btn btn-outline btn-on-dark" href="tel:+17042805996">Call (704) 280-5996</a>' +
       "</p>" +
+      '<p class="storm-check-results-cta-alt">See damage near you? Call <a href="tel:+17042805996">(704) 280-5996</a> or <a href="/storm-damage-insurance-claims/">request a free claim inspection</a>.</p>' +
       "</div>"
     );
   }
