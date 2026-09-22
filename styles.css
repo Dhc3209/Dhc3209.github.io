@@ -2913,6 +2913,21 @@ a.card.card-thumb[href="/roofing/"] {
   .qe-card-trust { font-size: .68rem; gap: .3rem .55rem; }
 }
 
+
+/* Instant Quote: keep step inputs always typeable (no overlay / pointer block) */
+.qe-form .qe-step:not([hidden]) input:not([type="radio"]):not([type="checkbox"]),
+.qe-form .qe-step:not([hidden]) select,
+.qe-form .qe-step:not([hidden]) textarea {
+  pointer-events: auto !important;
+  user-select: text;
+  -webkit-user-select: text;
+  position: relative;
+  z-index: 2;
+}
+.qe-form .qe-step[hidden] {
+  display: none !important;
+}
+
 /* END competitive polish Sep 2026 */
 
 /* —— Overnight P0 polish (Sep 19–20, 2026) —— */
