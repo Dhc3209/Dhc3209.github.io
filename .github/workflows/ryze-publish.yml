@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'blog/data/**'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -27,7 +28,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A blog/index.html blog/data blog
+          git add -A -- blog
           if ! git diff --cached --quiet; then
             git commit -m 'Render Ryze articles [skip ci]'
             git push
