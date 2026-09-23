@@ -8,6 +8,18 @@ When a CF 301 is live for a From path, remove the GH Pages soft stub so origin n
 
 ---
 
+## P1 blog-fix 2026-09-23
+
+Applied at Cloudflare edge (Free Single Redirects, 10/10 slots). Verified via `--resolve cprhomepros.com:443:104.21.55.139`:
+
+| From | To | Notes |
+|------|----|-------|
+| `/roof-repair`, `/roof-repair/`, `/roof-replacement`, `/roof-replacement/` | `/roof-repair-and-replacement/` | One merged rule |
+| `/areas`, `/areas/` | `/areas-we-serve/` | New rule |
+| `/gutters` (no slash) | `/gutters/` | OR’d onto existing P0 gutter-install rule |
+
+Also shipped in repo (live `be6b3ce`): leak post in `sitemap.xml`; branded root `404.html`. Soft HTML stubs may remain as origin safety net for stale DNS.
+
 ## P0 Ryze 2026-09-23 (priority batch)
 
 Apply these Redirect Rules first (301 → apex trailing-slash URL):
