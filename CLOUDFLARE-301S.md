@@ -29,7 +29,7 @@ Apply these Redirect Rules first (301 → apex trailing-slash URL):
 | `/home.htm` | `/` |
 | `/Home.htm` | `/` |
 
-Soft meta-refresh stubs for the directory From paths above were removed from the repo in this P0 batch. `.htm` paths have no GH Pages stubs — CF 301 only.
+Pages soft meta-refresh stubs for the P0 From paths above (incl. `.htm`) are interim for DNS cache lag so GitHub origin does not 404; Cloudflare Redirect Rules remain the true 301 when proxied.
 
 ---
 ## Prefer HTTP 301 (From → To)
