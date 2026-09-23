@@ -1,14 +1,37 @@
 # Cloudflare HTTP 301 redirect rules — CPR (cprhomepros.com)
 
-**Status:** Docs only — Cloudflare is **not** connected to App Builder / this deploy.  
-GitHub Pages meta-refresh stubs (200 + refresh + `noindex`) are interim. Prefer edge **HTTP 301** when Cloudflare fronts the apex.
+**Status (2026-09-23):** Cloudflare **NOW fronts the apex** (`cprhomepros.com`). Live responses show `server: cloudflare`. Prefer edge **HTTP 301** Redirect Rules over GitHub Pages meta-refresh stubs (200 + refresh + `noindex`).
 
-**Rules for Marketing:** Paste as Cloudflare **Redirect Rules** (or Page Rules). One hop. Apex final URL with trailing slash. Do **not** 301 a preserve-in-place URL to itself.
+**Operator note:** This file is the paste list for Cloudflare **Redirect Rules** (dashboard or API). Rules must still be configured in Cloudflare — committing here does not apply them at the edge. One hop. Apex final URL with trailing slash. Do **not** 301 a preserve-in-place URL to itself.
 
-When live: remove or leave GH stubs harmless (edge 301 wins before origin).
+When a CF 301 is live for a From path, remove the GH Pages soft stub so origin no longer returns 200+refresh for that URL.
 
 ---
 
+## P0 Ryze 2026-09-23 (priority batch)
+
+Apply these Redirect Rules first (301 → apex trailing-slash URL):
+
+| From | To |
+|---|---|
+| `/contact` | `/contact-us/` |
+| `/contact/` | `/contact-us/` |
+| `/resources` | `/faq/` |
+| `/resources/` | `/faq/` |
+| `/roof-repair-vs-full-replacement-in-denver-nc-how-to-decide` | `/roof-repair-and-replacement/` |
+| `/roof-repair-vs-full-replacement-in-denver-nc-how-to-decide/` | `/roof-repair-and-replacement/` |
+| `/complete-gutter-installation-services-in-mooresville-nc` | `/gutters/` |
+| `/complete-gutter-installation-services-in-mooresville-nc/` | `/gutters/` |
+| `/key-steps-in-commercial-roofing-projects-in-huntersville-nc` | `/commercial-roofing/` |
+| `/key-steps-in-commercial-roofing-projects-in-huntersville-nc/` | `/commercial-roofing/` |
+| `/About-Us.htm` | `/about-us/` |
+| `/about-us.htm` | `/about-us/` |
+| `/home.htm` | `/` |
+| `/Home.htm` | `/` |
+
+Soft meta-refresh stubs for the directory From paths above were removed from the repo in this P0 batch. `.htm` paths have no GH Pages stubs — CF 301 only.
+
+---
 ## Prefer HTTP 301 (From → To)
 
 | From | To |
@@ -57,6 +80,10 @@ When live: remove or leave GH stubs harmless (edge 301 wins before origin).
 | `/how-metal-roofing-protects-homes-in-cornelius-nc/` | `/metal-roofing/` |
 | `/professional-roof-replacement-services-in-denver-nc` | `/roof-repair-and-replacement/` |
 | `/professional-roof-replacement-services-in-denver-nc/` | `/roof-repair-and-replacement/` |
+| `/About-Us.htm` | `/about-us/` |
+| `/about-us.htm` | `/about-us/` |
+| `/home.htm` | `/` |
+| `/Home.htm` | `/` |
 
 ### Optional / host
 
@@ -76,8 +103,8 @@ When live: remove or leave GH stubs harmless (edge 301 wins before origin).
 
 ---
 
-## Interim (GitHub Pages today)
+## Interim (GitHub Pages)
 
-Meta-refresh stubs already ship at the From paths above (and `/about.html`). They return **200** + refresh — **not** equity-equivalent to HTTP 301. Replace with Cloudflare edge 301s when CF is on the domain.
+Remaining non-P0 meta-refresh stubs may still ship at other From paths (and `/about.html`). They return **200** + refresh — **not** equity-equivalent to HTTP 301. Replace with Cloudflare edge 301s (this paste list). P0 directory stubs removed 2026-09-23.
 
-Shipped: 2026-09-21 · Source: `SHIP-TOWN-PAGES-2026-09-21.md` + WEEK-PACK §C2
+Shipped: 2026-09-21 · Source: `SHIP-TOWN-PAGES-2026-09-21.md` + WEEK-PACK §C2 · P0 update: 2026-09-23
