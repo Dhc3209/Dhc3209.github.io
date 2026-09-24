@@ -3124,3 +3124,356 @@ a.card.card-thumb[href="/roofing/"] {
   .site-header .nav-cta { display: none !important; }
   .nav-links .nav-mobile-only { display: list-item; }
 }
+
+/* ==========================================================================
+   CPR homepage COLOR FLOW (PREVIEW 2026-09-24, not live)
+   Append to the END of /styles.css. Self-contained: it already includes the
+   v2 "Navy" service-card rules, so do NOT also paste after-v2-navy.css.
+   Brand stays red / navy / gold. Flat slate-gray section backgrounds (#383D45 body,
+   #42484F→#383D45 .section-alt, #4A4F57→#383D45 .cta-band) move to the navy family
+   already used by the topbar / hero / footer. Two light zones break up the scroll:
+     1) Factory-credentials badge row + Why CPR / Google reviews
+     2) FAQ
+   Page rhythm: topbar navy · header navy · hero (photo + navy overlay) · LIGHT badges+Why CPR ·
+                Services navy · Areas navy-mid · Process navy · LIGHT FAQ · CTA navy glow · footer navy
+   Note: the live rule `section:not(.hero):not(.dual-hero):not(.cta-band):not(.section-alt)
+   { background: transparent }` has specificity (0,4,1), so per-section overrides below
+   repeat that :not() chain to win without !important.
+   ========================================================================== */
+
+:root {
+  --flow-dark: var(--navy);          /* #1B2B45 */
+  --flow-dark-alt: var(--navy-mid);  /* #243552 */
+  --flow-light: #F7F5F0;             /* warm off-white */
+  --flow-ink: var(--navy);           /* headings on light, 13.0:1 on #F7F5F0 */
+  --flow-body: var(--panel);         /* #4A4F57 body on light, 7.6:1 */
+  --flow-muted: #5C636D;             /* small labels on light, 5.6:1 */
+  --flow-gold-ink: #7A5C2E;          /* gold text on light, 5.7:1 (--gold is only 2.5:1) */
+  --flow-link-dark: #F0C4C8;         /* site's cranberry tint; links on navy 7.9–9.1:1 (--red is 2.5:1) */
+  --flow-card: linear-gradient(180deg, #33466A 0%, #2C3D56 100%);
+}
+
+/* ---- Page base: gaps / default sections = navy instead of slate #383D45 ---- */
+body { background: var(--flow-dark); }
+section:not(.hero):not(.dual-hero):not(.cta-band):not(.section-alt) {
+  background: var(--flow-dark);
+}
+/* links inside body copy on dark sections (live red = 2.2–2.5:1 on navy) */
+.section-alt .section-head a,
+.cta-band p a,
+section:not(.pride-reviews):not(.faq-section):not(.why-badge-row) .section-head p a {
+  color: var(--flow-link-dark);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+/* outline buttons on dark sections: cranberry-tint text/border (same treatment the live CTA band uses) */
+.section-alt .btn-outline,
+.what-to-expect .btn-outline {
+  color: var(--flow-link-dark) !important;
+  border-color: rgba(240, 196, 200, .55);
+}
+.section-alt .btn-outline:hover,
+.what-to-expect .btn-outline:hover {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff !important;
+}
+
+/* ---- Header: slate rgba(56,61,69,.94) → navy, so topbar + header + hero read as one band ---- */
+.site-header { background: rgba(27, 43, 69, .96); border-bottom-color: rgba(255, 255, 255, .08); }
+.site-header.is-scrolled { background: rgba(27, 43, 69, .98); }
+/* active / hover nav link: red is 2.5:1 on navy → cranberry tint (9.1:1) */
+.nav-links a:hover, .nav-links button.nav-drop:hover, .nav-links a.active,
+.nav-links > li.active-section > .nav-drop,
+.nav-links > li.has-dropdown.active-section > .nav-drop { color: var(--flow-link-dark); }
+@media (min-width: 1181px) {
+  .nav-phone { background: #2C3D56; border-color: rgba(255, 255, 255, .16); }
+}
+
+/* ---- 1) LIGHT: factory-credentials badge row (white logo plates sit naturally here) ---- */
+section.why-badge-row:not(.hero):not(.dual-hero):not(.cta-band):not(.section-alt) {
+  background: linear-gradient(180deg, #FFFFFF 0%, var(--flow-light) 100%);
+  border-bottom: 1px solid rgba(var(--navy-rgb), .10);
+}
+.why-badge-label { color: var(--flow-muted); }
+.why-badges img { border-color: rgba(var(--navy-rgb), .12); box-shadow: 0 2px 10px rgba(var(--navy-rgb), .08); }
+
+/* ---- 1) LIGHT: Why CPR + Google reviews ---- */
+section.pride-reviews:not(.hero):not(.dual-hero):not(.cta-band):not(.section-alt) {
+  background: var(--flow-light);
+}
+.pride-reviews .eyebrow { color: var(--red); }                        /* 5.2:1 */
+.pride-reviews .section-head h2,
+.pride-reviews h2 { color: var(--flow-ink); }
+.pride-reviews .why-opener,
+.pride-reviews .why-lead,
+.pride-reviews .why-bullets li { color: var(--flow-body); }
+.pride-reviews .why-bullets li { border-bottom-color: rgba(var(--navy-rgb), .10); }
+.pride-reviews .why-bullets strong { color: var(--flow-ink); }
+.pride-reviews .why-bullets li::before { color: #8A6A33; }             /* check mark, 4.6:1 */
+.pride-reviews a:not(.btn) { color: var(--red); }
+/* "About Campbells…" outline button: live red text now 5.2:1 on light (was 1.9:1 on slate) */
+.pride-reviews .google-reviews-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(var(--navy-rgb), .12);
+  border-top: 3px solid var(--gold);
+  box-shadow: 0 10px 28px rgba(var(--navy-rgb), .10);
+}
+.pride-reviews .gr-gmark { background: #fff; border-color: rgba(var(--navy-rgb), .14); }
+.pride-reviews .gr-label { color: var(--flow-gold-ink); }             /* 6.2:1 on #fff */
+.pride-reviews .gr-name { color: var(--flow-ink); }
+.pride-reviews .gr-score { color: var(--flow-ink); }
+.pride-reviews .gr-stars { color: #C27C0E; text-shadow: none; }   /* rating graphic, 3.4:1 on #fff (Google #F4B400 is 1.85:1); '5.0' + aria-label carry the value */
+.pride-reviews .gr-count { color: var(--flow-body); }
+.pride-reviews .gr-count strong { color: var(--flow-ink); }
+.pride-reviews .gr-source { color: var(--flow-muted); }
+.pride-reviews .gr-source a { color: var(--red); }
+
+/* ---- Services: navy (#1B2B45) + v2 "Navy" cards (a touch lighter, so they lift off the section) ---- */
+a.card.card-thumb {
+  background: var(--flow-card);
+  border: 1px solid rgba(255, 255, 255, .10);
+  border-top: 3px solid var(--gold);
+  transition: transform .3s var(--ease-out), box-shadow .3s var(--ease-out), border-color .3s var(--ease-out);
+}
+a.card.card-thumb:hover,
+a.card.card-thumb:focus-visible {
+  transform: translateY(-3px);
+  border-color: rgba(var(--gold-rgb), .85);
+  border-top-color: var(--gold);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .38), 0 0 0 1px rgba(var(--gold-rgb), .35);
+}
+a.card.card-thumb:focus-visible { outline: 2px solid var(--gold-soft); outline-offset: 3px; }
+.card-thumb .card-media { position: relative; aspect-ratio: 16 / 10; border-bottom: 1px solid rgba(var(--gold-rgb), .30); }
+.card-thumb .card-media img { width: 100%; height: 100%; object-fit: cover; }
+.card-thumb .card-media::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(to top, rgba(0, 0, 0, .35), transparent 55%);
+}
+.card-thumb .card-body h3 { color: #fff; }                           /* 9.4:1 */
+.card-thumb .card-body p {                                            /* #D5DCE6 6.8:1; no clamp */
+  color: #D5DCE6;
+  display: block; -webkit-line-clamp: unset; line-clamp: none;
+  -webkit-box-orient: initial; overflow: visible; text-overflow: clip;
+}
+.card-thumb .card-body { min-height: 0; }
+.card-thumb .card-body .card-link { color: #fff; font-size: .85rem; font-weight: 600; letter-spacing: .01em; }
+a.card.card-thumb:hover .card-link,
+a.card.card-thumb:focus-visible .card-link { color: var(--gold-soft); }
+.grid-4:has(> a.card-thumb) { align-items: stretch; }
+@media (min-width: 721px) {
+  .grid-4 > a.card-thumb .card-body p { min-height: 4.5em; }        /* equal heights per row */
+}
+/* Metal photo swap (dji_fly_20250726): show the standing-seam sections */
+a.card.card-thumb[href$="/metal-roofing/"] .card-media img { object-position: center 55%; }
+
+/* ---- Areas we serve: navy-mid (#243552), a half-step lighter than Services/Process ---- */
+.section-alt { background: var(--flow-dark-alt); }
+/* area cards reuse the Navy card style above */
+
+/* ---- Process: navy (#1B2B45); the live 6px navy-deep top rule separates it from Areas ---- */
+.what-to-expect .section-head h2 { background: transparent; }        /* live had a slate #383D45 box behind the title */
+.step {
+  background: var(--flow-card);
+  border-color: rgba(255, 255, 255, .10);
+}
+.step p { color: #D5DCE6; }                                           /* 6.8:1 */
+.step-reach {
+  /* navy card + gold edge (a flat gold tint over navy turned muddy gray) */
+  background: linear-gradient(180deg, rgba(var(--gold-rgb), .16) 0%, transparent 45%), var(--flow-card);
+  border-color: rgba(var(--gold-rgb), .60);
+}
+.step-contact a {
+  color: #F0F2F5 !important;
+  background: rgba(255, 255, 255, .06);
+  border-color: rgba(255, 255, 255, .20);
+}
+
+/* ---- 2) LIGHT: FAQ (long-form text reads best dark-on-light) ---- */
+section.faq-section:not(.hero):not(.dual-hero):not(.cta-band):not(.section-alt) {
+  background: var(--flow-light);
+}
+.faq-section .eyebrow { color: var(--red); }
+.faq-section .section-head h2 { color: var(--flow-ink); }
+.faq-section .section-head p { color: var(--flow-body); }
+.faq-item { border-bottom-color: rgba(var(--navy-rgb), .12); }
+.faq-item h3 { color: var(--flow-ink); }
+.faq-item p { color: var(--flow-body); }
+.faq-section a:not(.btn) { color: var(--red); }
+
+/* ---- CTA band: slate gradient → navy with the hero's red/gold glow ---- */
+.cta-band {
+  background:
+    radial-gradient(ellipse at 85% 0%, rgba(var(--red-rgb), .16), transparent 55%),
+    radial-gradient(ellipse at 10% 100%, rgba(var(--gold-rgb), .10), transparent 45%),
+    linear-gradient(160deg, var(--navy-mid) 0%, var(--navy) 55%, var(--navy-deep) 100%);
+  border-top: 1px solid rgba(var(--gold-rgb), .35);
+}
+.cta-band .contact-strip a { border-color: rgba(255, 255, 255, .18); }
+/* buttons/links in the CTA band otherwise stay exactly as live */
+
+/* ==========================================================================
+   COLOR FLOW, INNER PAGES (2026-09-24, v=dh7)
+   color-flow.css above was built against the homepage. This block carries the
+   same system to every other page. It adds no new palette: navy family,
+   #F7F5F0 light, #4A4F57 body on light, red links on light, #F0C4C8 on navy.
+   ========================================================================== */
+
+/* ---- A. Retire the slate tokens ----
+   Inner pages still paint cards, panels, forms, dropdowns, the trust bar and
+   photo frames with the old slate variables (#383D45 / #3E434B / #4A4F57 / #52585F).
+   Point those tokens at the navy family instead. --panel / --panel-raised become the
+   same two stops as the pack's Navy card (#33466A → #2C3D56). --flow-body is pinned
+   because the pack defines it as var(--panel). */
+:root {
+  --flow-body: #4A4F57;
+  --cream: var(--navy);          /* was #383D45 */
+  --gray-light: var(--navy-mid); /* was #3E434B */
+  --panel: #2C3D56;              /* was #4A4F57 */
+  --panel-raised: #33466A;       /* was #52585F */
+  --gray-border: #3F5475;        /* was #555B64 */
+}
+.card:hover { border-color: rgba(var(--gold-rgb), .55); }  /* was slate #6A7078 */
+.card-thumb .card-media,
+.photo-frame { background: var(--navy-mid); }             /* image placeholders, was #3A3F47 / #3E434B */
+.card-icon {                                              /* was gold-wash → slate → red-soft */
+  background: linear-gradient(145deg, #3A4C6E 0%, var(--panel) 100%);
+}
+
+/* ---- B. Text on navy sections (inner pages) ----
+   Red (#A84850) is 2.5:1 on navy, so red eyebrows, in-text links and red outline
+   buttons inside dark content sections move to the homepage treatment: eyebrow
+   #C5CAD1 (what the homepage section-head eyebrows already use), links and outline
+   buttons #F0C4C8. :where() keeps these at low specificity so every light-zone rule
+   (pack + section C) still wins. Heroes, CTA band buttons, footer untouched. */
+:where(section:not(.hero):not(.dual-hero)) .eyebrow { color: var(--gray); }
+/* hero eyebrow links (blog posts: "Blog ·") were red on the hero's navy; match the gold-soft eyebrow */
+.hero-eyebrow a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+/* Google reviews card on dark (Reviews page): gold label was 4.0:1 on the navy card */
+.gr-label { color: var(--gold-soft); }
+:where(section:not(.hero):not(.dual-hero):not(.cta-band):not(.pride-reviews):not(.faq-section):not(.why-badge-row) a:not(.card):not(.card-thumb)):not(.btn) {
+  color: var(--flow-link-dark);
+}
+:where(section:not(.hero):not(.dual-hero):not(.cta-band):not(.pride-reviews):not(.faq-section):not(.why-badge-row)) .btn-outline:not(.btn-on-dark) {
+  color: var(--flow-link-dark) !important;
+  border-color: rgba(240, 196, 200, .55);
+}
+:where(section:not(.hero):not(.dual-hero):not(.cta-band):not(.pride-reviews):not(.faq-section):not(.why-badge-row)) .btn-outline:not(.btn-on-dark):hover {
+  background: var(--red); border-color: var(--red); color: #fff !important;
+}
+:where(section:not(.hero):not(.dual-hero):not(.cta-band):not(.pride-reviews):not(.faq-section):not(.why-badge-row)) :is(.card .card-link, a.roofing-link) {
+  color: var(--flow-link-dark);
+}
+:where(section:not(.hero):not(.dual-hero):not(.cta-band):not(.pride-reviews):not(.faq-section):not(.why-badge-row)) a.roofing-link:hover {
+  color: #fff; border-bottom-color: var(--flow-link-dark);
+}
+/* ✓ list markers: red glyph was 2.5:1 on navy → brand gold (5.1:1) on dark; light zones use the pack's #8A6A33 */
+:where(section:not(.hero):not(.dual-hero):not(.cta-band):not(.pride-reviews):not(.faq-section):not(.why-badge-row)) .list-check li::before {
+  color: var(--gold);
+}
+/* quote + storm modals now sit on the navy card: red "Cancel" outline was 2.2:1 */
+.quote-lead-modal__actions .btn-outline,
+.storm-inspect-modal__actions .btn-outline {
+  color: var(--flow-link-dark) !important;
+  border-color: rgba(240, 196, 200, .55);
+}
+.quote-lead-modal__actions .btn-outline:hover,
+.storm-inspect-modal__actions .btn-outline:hover { background: var(--red); border-color: var(--red); color: #fff !important; }
+/* callouts: muddy red-soft (#4A383C) → faint red tint that works on navy and on light */
+.callout { background: rgba(var(--red-rgb), .14); border-left-color: var(--red); }
+/* storm checker (storm-check.css): light-theme grey note + tag colours were unreadable on dark */
+.storm-check .storm-check-disclaimer { color: var(--gray); }
+.storm-check .storm-badge--hail,
+.storm-check .storm-badge--wind,
+.storm-check .storm-badge--tornado,
+.storm-check .storm-badge--flood,
+.storm-check .storm-badge--alert { background: rgba(255, 255, 255, .06); }
+.storm-check .storm-badge--hail { color: #F0C4C8; }
+.storm-check .storm-badge--wind { color: #C9D7EA; }
+.storm-check .storm-badge--tornado { color: #D9C4EA; }
+.storm-check .storm-badge--flood { color: #B9DDD4; }
+.storm-check .storm-badge--alert { color: #EFD59A; }
+
+/* ---- C. LIGHT zones on inner pages (long-form reading) ----
+   1) FAQ content: any content section holding .faq-item (the /faq/ page and the
+      town-page FAQ blocks; the homepage + storm page already use .faq-section).
+   2) Blog posts: the section right after a hero whose eyebrow links to /blog/.
+   3) Blog index: the section whose cards link to /blog/ posts.
+   Same colours as the pack's light zones: #F7F5F0, navy headings, #4A4F57 body, red links. */
+section:has(.faq-item):not(.hero):not(.dual-hero):not(.cta-band):not(.section-alt),
+section.hero:has(.hero-eyebrow a[href="/blog/"]) + section:not(.hero):not(.dual-hero):not(.cta-band):not(.section-alt),
+section:has(> .wrap > .card h2 a[href^="/blog/"]):not(.hero):not(.dual-hero):not(.cta-band):not(.section-alt) {
+  background: var(--flow-light);
+  color: var(--flow-body);
+}
+:is(section:has(.faq-item), section.hero:has(.hero-eyebrow a[href="/blog/"]) + section, section:has(> .wrap > .card h2 a[href^="/blog/"])):not(.hero):not(.cta-band) {
+  --heading: var(--flow-ink);
+  --charcoal: var(--flow-ink);
+  --charcoal-soft: var(--flow-body);
+  --gray: var(--flow-body);
+}
+:is(section:has(.faq-item), section.hero:has(.hero-eyebrow a[href="/blog/"]) + section, section:has(> .wrap > .card h2 a[href^="/blog/"])):not(.hero):not(.cta-band) :is(h1, h2, h3, h4, strong, b, th) {
+  color: var(--flow-ink);
+}
+:is(section:has(.faq-item), section.hero:has(.hero-eyebrow a[href="/blog/"]) + section, section:has(> .wrap > .card h2 a[href^="/blog/"])):not(.hero):not(.cta-band) :is(p, li, td, dd, blockquote, figcaption) {
+  color: var(--flow-body);
+}
+:is(section:has(.faq-item), section.hero:has(.hero-eyebrow a[href="/blog/"]) + section, section:has(> .wrap > .card h2 a[href^="/blog/"])):not(.hero):not(.cta-band) a:not(.btn) {
+  color: var(--red);
+}
+:is(section:has(.faq-item), section.hero:has(.hero-eyebrow a[href="/blog/"]) + section, section:has(> .wrap > .card h2 a[href^="/blog/"])):not(.hero):not(.cta-band) .eyebrow {
+  color: var(--red);
+}
+:is(section:has(.faq-item), section.hero:has(.hero-eyebrow a[href="/blog/"]) + section, section:has(> .wrap > .card h2 a[href^="/blog/"])):not(.hero):not(.cta-band) .card {
+  background: #FFFFFF;
+  border: 1px solid rgba(var(--navy-rgb), .12);
+  box-shadow: 0 10px 28px rgba(var(--navy-rgb), .08);
+}
+:is(section:has(.faq-item), section.hero:has(.hero-eyebrow a[href="/blog/"]) + section, section:has(> .wrap > .card h2 a[href^="/blog/"])):not(.hero):not(.cta-band) .card:hover {
+  border-color: rgba(var(--gold-rgb), .55);
+  box-shadow: 0 12px 30px rgba(var(--navy-rgb), .12);
+}
+:is(section:has(.faq-item), section.hero:has(.hero-eyebrow a[href="/blog/"]) + section, section:has(> .wrap > .card h2 a[href^="/blog/"])):not(.hero):not(.cta-band) .photo-frame {
+  background: #fff;
+  border-color: rgba(var(--navy-rgb), .12);
+  box-shadow: 0 10px 28px rgba(var(--navy-rgb), .12);
+}
+:is(section:has(.faq-item), section.hero:has(.hero-eyebrow a[href="/blog/"]) + section, section:has(> .wrap > .card h2 a[href^="/blog/"])):not(.hero):not(.cta-band) .callout {
+  background: #FFFFFF;
+  border: 1px solid rgba(var(--navy-rgb), .10);
+  border-left: 4px solid var(--red);
+}
+:is(section:has(.faq-item), section.hero:has(.hero-eyebrow a[href="/blog/"]) + section, section:has(> .wrap > .card h2 a[href^="/blog/"])):not(.hero):not(.cta-band) .btn-outline:not(.btn-on-dark) {
+  color: var(--red) !important;
+  border-color: var(--red);
+}
+
+:is(section:has(.faq-item), section.hero:has(.hero-eyebrow a[href="/blog/"]) + section, section:has(> .wrap > .card h2 a[href^="/blog/"])):not(.hero):not(.cta-band) .list-check li::before {
+  color: #8A6A33;
+}
+
+/* Ryze blog blocks (TL;DR + FAQ) carry inline color-mix() text at 55–78% opacity;
+   on the light article that lands at 2.7–4.5:1, so pin them to the light-zone colours */
+.ryze-article .pseo-tldr-label { color: var(--flow-muted) !important; }
+.ryze-article .pseo-faq-item p { color: var(--flow-body) !important; }
+.ryze-article .pseo-faq-item p:first-child { color: var(--flow-ink) !important; }
+
+/* ---- D. Swapped CTA-band buttons: estimate is the filled red primary ----
+   The live CTA band restyles every .btn as a soft outline. Only the buttons that were
+   swapped to "Get a Free Roof Estimate → /contact-us/#estimate" (homepage, Areas)
+   get the filled primary; Storm / Insurance next to them is .btn-outline (cranberry outline). */
+.cta-band .hero-actions > a.btn[href="/contact-us/#estimate"]:not(.btn-outline):not(.btn-ghost):not(.btn-on-dark) {
+  background: var(--red);
+  border: 2px solid var(--red);
+  color: #fff !important;
+  box-shadow: 0 8px 22px rgba(var(--red-rgb), .35);
+}
+.cta-band .hero-actions > a.btn[href="/contact-us/#estimate"]:not(.btn-outline):not(.btn-ghost):not(.btn-on-dark):hover {
+  background: var(--red-dark);
+  border-color: var(--red-dark);
+  color: #fff !important;
+  transform: translateY(-2px);
+}
+
+/* ---- E. 404 (standalone <main>, no sections): links were red on the navy body ---- */
+body > main a { color: var(--flow-link-dark); }
