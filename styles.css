@@ -3477,3 +3477,47 @@ section:has(> .wrap > .card h2 a[href^="/blog/"]):not(.hero):not(.dual-hero):not
 
 /* ---- E. 404 (standalone <main>, no sections): links were red on the navy body ---- */
 body > main a { color: var(--flow-link-dark); }
+
+/* ==========================================================================
+   COLOR FLOW, FINISHING PASS (2026-09-24, v=dh8)
+   ========================================================================== */
+
+/* ---- F. Navy runs: adjacent dark sections alternate --navy / --navy-mid ----
+   Counted from the END of the page (nth-last-of-type), so on every inner page:
+   · the section right before the CTA band is --navy (the band opens on --navy-mid);
+   · on pages with no CTA band, the last section is --navy-mid, which sets it off from
+     the footer (the footer opens on --navy);
+   · touching sections always differ, because neighbouring siblings flip parity.
+   Light zones (specificity 0,5,1) still win; heroes and the CTA band are untouched.
+   The homepage keeps the pack's hand-set rhythm (it already alternates). */
+:where(body:not(:has(> section.pride-reviews))) section:nth-last-of-type(odd):not(.hero):not(.dual-hero):not(.cta-band) {
+  background: var(--navy-mid);
+}
+:where(body:not(:has(> section.pride-reviews))) section:nth-last-of-type(even):not(.hero):not(.dual-hero):not(.cta-band) {
+  background: var(--navy);
+}
+
+/* ---- G. Footer badges: one white plate for every badge ----
+   GAF Master Elite, President's Club and the Brava ring are transparent PNGs that sat
+   straight on navy; the other badges already carry white in the artwork. */
+.footer-marks .footer-badge {
+  background: #fff;
+  border-color: rgba(255, 255, 255, .85);
+}
+.footer-marks .footer-badge:hover {
+  background: #fff;
+  border-color: rgba(var(--gold-rgb), .75);
+}
+
+/* ---- H. Storm page "Compliant promise" callout: navy-mid card, 1px gold border ----
+   (the only callout in the section that leads into the storm checker) */
+section:has(+ section.storm-check-wrap) .callout {
+  background: var(--navy-mid);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius);
+}
+section:has(+ section.storm-check-wrap) .callout p { color: #D5DCE6; }
+section:has(+ section.storm-check-wrap) .callout strong { color: #fff; }
+/* trust bar: flat #2C3D56 (the --panel / card navy) instead of fading into --navy-mid, so the
+   strip reads as its own band whichever shade the first section below it takes */
+.trust-bar { background: var(--panel); }
