@@ -3063,3 +3063,57 @@ a.card.card-thumb[href="/roofing/"] {
 /* Why CPR six-credential bullets (SEO pack 2026-09-23) */
 .why-bullets li { margin-bottom: 0.4rem; line-height: 1.45; }
 .why-bullets li strong { font-weight: 700; }
+
+/* Homepage: spaced manufacturer badges above Why CPR (2026-09-24) */
+.why-badge-row {
+  background: linear-gradient(180deg, #fff 0%, var(--cream) 100%);
+  border-bottom: 1px solid var(--gray-border);
+  padding: 1.75rem 0 1.35rem;
+}
+.why-badge-label {
+  text-align: center;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted, #6b7280);
+  margin: 0 0 1.15rem;
+}
+.why-badges {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.25rem 1.5rem;
+}
+.why-badges li {
+  flex: 1 1 0;
+  min-width: 88px;
+  max-width: 140px;
+  display: flex;
+  justify-content: center;
+}
+.why-badges img {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  background: #fff;
+  border: 1px solid rgba(26, 35, 50, .1);
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 2px 10px rgba(26, 35, 50, .06);
+}
+.why-badges img.why-badge--wide {
+  width: auto;
+  max-width: 160px;
+  height: 56px;
+  padding: 10px 12px;
+}
+@media (max-width: 720px) {
+  .why-badges { justify-content: center; gap: 1rem; }
+  .why-badges li { flex: 0 0 auto; max-width: none; }
+  .why-badges img { width: 80px; height: 80px; }
+}
