@@ -3117,3 +3117,10 @@ a.card.card-thumb[href="/roofing/"] {
   .why-badges li { flex: 0 0 auto; max-width: none; }
   .why-badges img { width: 80px; height: 80px; }
 }
+
+/* Mobile header de-dupe 2026-09-24 */
+.nav-links .nav-mobile-only { display: none; }
+@media (max-width: 1180px) {
+  .site-header .nav-cta { display: none !important; }
+  .nav-links .nav-mobile-only { display: list-item; }
+}
