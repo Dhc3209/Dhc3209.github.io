@@ -3462,13 +3462,13 @@ section:has(> .wrap > .card h2 a[href^="/blog/"]):not(.hero):not(.dual-hero):not
    The live CTA band restyles every .btn as a soft outline. Only the buttons that were
    swapped to "Get a Free Roof Estimate → /contact-us/#estimate" (homepage, Areas)
    get the filled primary; Storm / Insurance next to them is .btn-outline (cranberry outline). */
-.cta-band .hero-actions > a.btn[href="/contact-us/#estimate"]:not(.btn-outline):not(.btn-ghost):not(.btn-on-dark) {
+.cta-band .hero-actions > a.btn[href^="/contact-us/"][href$="#estimate"]:not(.btn-outline):not(.btn-ghost):not(.btn-on-dark) {
   background: var(--red);
   border: 2px solid var(--red);
   color: #fff !important;
   box-shadow: 0 8px 22px rgba(var(--red-rgb), .35);
 }
-.cta-band .hero-actions > a.btn[href="/contact-us/#estimate"]:not(.btn-outline):not(.btn-ghost):not(.btn-on-dark):hover {
+.cta-band .hero-actions > a.btn[href^="/contact-us/"][href$="#estimate"]:not(.btn-outline):not(.btn-ghost):not(.btn-on-dark):hover {
   background: var(--red-dark);
   border-color: var(--red-dark);
   color: #fff !important;
