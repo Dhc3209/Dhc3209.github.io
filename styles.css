@@ -853,6 +853,14 @@ section > .wrap + .wrap.two-col { margin-top: 0; }
   background: rgba(255,255,255,.1);
   border-color: rgba(212,175,55,.35);
 }
+
+.footer-marks .footer-badge.footer-badge--wide {
+  width: auto;
+  height: 44px;
+  max-width: 160px;
+  padding: 6px 8px;
+  background: #fff;
+}
 .footer-grid {
   display: grid; grid-template-columns: 1.35fr 1fr 1fr 1fr; gap: 1.5rem;
   margin-bottom: 1.75rem;
