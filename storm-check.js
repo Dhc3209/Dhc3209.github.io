@@ -3,6 +3,8 @@
  * Sources: IEM LSR (Iowa Mesonet), SPC storm reports, NWS api.weather.gov alerts
  * Filters: all hail last 1095 days; wind only ≥60 mph (or LSR TSTM wind damage);
  *          SPC today/yesterday; NWS alerts ~14 days. Service-area label for LN hub.
+ * Area view: on page load (no address) shows hail/wind/tornado LSRs + SPC for the
+ *          last 90 days within 35 mi of Denver NC / Lake Norman.
  * Geocode: Photon (primary) + Nominatim (fallback). Addresses stay in the browser.
  */
 (function () {
@@ -21,6 +23,12 @@
   var LEAFLET_CSS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
   var LEAFLET_JS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
   var leafletPromise = null;
+  /** Area-wide view shown on page load (no address needed). */
+  var AREA_CENTER = { lat: 35.53, lon: -80.95, label: "Denver NC / Lake Norman / north Charlotte" };
+  /** 45 mi reaches the SC side too (Rock Hill / Fort Mill, York & north Lancaster Co.). */
+  var AREA_RADIUS_MILES = 45;
+  var AREA_LOOKBACK_DAYS = 90;
+  var AREA_LIST_INITIAL = 10;
   /** Lake Norman / Denver NC hub for service-area labeling (~50 mi). */
   var SERVICE_HUB = { lat: 35.5318, lon: -81.0298, label: "Lake Norman / Denver NC" };
   var SERVICE_HUB_MILES = 50;
@@ -301,7 +309,8 @@
     }
   }
 
-  function initReportMap(root, mapEl, geo, list, radiusMiles) {
+  function initReportMap(root, mapEl, geo, list, radiusMiles, opts) {
+    opts = opts || {};
     destroyReportMap(root);
     if (!mapEl || !geo) return;
     loadLeaflet()
@@ -325,25 +334,28 @@
           { maxZoom: 19, opacity: 0.85, attribution: "" }
         ).addTo(map);
 
-        var home = L.circleMarker([geo.lat, geo.lon], {
-          radius: 9,
-          color: "#B8975F",
-          weight: 2,
-          fillColor: "#E8D4B0",
-          fillOpacity: 0.95
-        })
-          .addTo(map)
-          .bindPopup("<strong>Your address</strong><br>" + escapeHtml(geo.label));
-        root._scHomeMarker = home;
+        if (!opts.noHome) {
+          var home = L.circleMarker([geo.lat, geo.lon], {
+            radius: 9,
+            color: "#B8975F",
+            weight: 2,
+            fillColor: "#E8D4B0",
+            fillOpacity: 0.95
+          })
+            .addTo(map)
+            .bindPopup("<strong>Your address</strong><br>" + escapeHtml(geo.label));
+          root._scHomeMarker = home;
+        }
 
         // Search radius ring
-        L.circle([geo.lat, geo.lon], {
+        var ring = L.circle([geo.lat, geo.lon], {
           radius: radiusMiles * 1609.34,
           color: "#B8975F",
-          weight: 1,
+          weight: opts.noHome ? 1.5 : 1,
           opacity: 0.55,
+          dashArray: opts.noHome ? "6 6" : null,
           fillColor: "#B8975F",
-          fillOpacity: 0.06,
+          fillOpacity: opts.noHome ? 0.04 : 0.06,
           interactive: false
         }).addTo(map);
 
@@ -367,8 +379,10 @@
             "<br>" +
             escapeHtml(formatEtShort(r.when)) +
             "<br>" +
-            escapeHtml(formatDist(r.distance)) +
-            (r.city ? " · " + escapeHtml(r.city) : "");
+            (opts.noHome
+              ? escapeHtml(r.city || "Location on map")
+              : escapeHtml(formatDist(r.distance)) +
+                (r.city ? " · " + escapeHtml(r.city) : ""));
           m.bindPopup(popup);
           var key = r.id || "r-" + idx;
           markers[key] = m;
@@ -377,7 +391,8 @@
         root._scMap = map;
         root._scMarkers = markers;
         try {
-          map.fitBounds(bounds.pad(0.2), { maxZoom: 12 });
+          if (opts.noHome) map.fitBounds(ring.getBounds(), { padding: [6, 6] });
+          else map.fitBounds(bounds.pad(0.2), { maxZoom: 12 });
         } catch (e) {
           map.setView([geo.lat, geo.lon], 10);
         }
@@ -795,9 +810,9 @@
    * IEM LSR for ~3 years near the pin. Batched by calendar year so one slow
    * window does not fail the whole history pull; optional onProgress for UI.
    */
-  async function fetchIemLsr(lat, lon, radiusMiles, onProgress) {
+  async function fetchIemLsr(lat, lon, radiusMiles, onProgress, lookbackDays) {
     var box = bboxFor(lat, lon, Math.max(radiusMiles, 5) + 2);
-    var chunks = yearChunksUtc(HAIL_LOOKBACK_DAYS);
+    var chunks = yearChunksUtc(lookbackDays || HAIL_LOOKBACK_DAYS);
     var out = [];
     for (var i = 0; i < chunks.length; i++) {
       if (typeof onProgress === "function") {
@@ -1285,6 +1300,545 @@
     );
   }
 
+
+  /* ——— Area-wide view (page load, no address) ——— */
+
+  function titleCaseIfCaps(str) {
+    var t = String(str || "").trim();
+    if (!t || t !== t.toUpperCase()) return t;
+    return t.toLowerCase().replace(/\b([a-z])/g, function (m) {
+      return m.toUpperCase();
+    }).replace(/\b(Nne|Ne|Ene|Ese|Se|Sse|Ssw|Sw|Wsw|Wnw|Nw|Nnw|N|E|S|W)\b/g, function (m) {
+      return m.toUpperCase();
+    });
+  }
+
+  function nearestTown(r) {
+    var parts = String(r.city || "").split(",").map(function (x) {
+      return x.trim();
+    }).filter(Boolean);
+    if (!parts.length) return "—";
+    var place = titleCaseIfCaps(parts[0]);
+    var state = parts.length >= 3 ? parts[parts.length - 1].toUpperCase() : "";
+    // LSR city carries a "3 SW Town" prefix — show "Town, ST (3 mi SW)".
+    var m = place.match(/^(\d+(?:\.\d+)?)\s+([NSEW]{1,3})\s+(.+)$/i);
+    var off = "";
+    if (m) {
+      place = m[3];
+      off = " (" + m[1] + " mi " + m[2].toUpperCase() + ")";
+    }
+    return place + (state ? ", " + state : "") + off;
+  }
+
+  /** Common hail size names (NWS reference objects). */
+  function hailSizeName(inches) {
+    if (!inches) return "";
+    var names = [
+      [4.5, "softball"],
+      [4.0, "grapefruit"],
+      [3.0, "teacup"],
+      [2.75, "baseball"],
+      [2.5, "tennis ball"],
+      [2.0, "hen egg"],
+      [1.75, "golf ball"],
+      [1.5, "ping-pong ball"],
+      [1.25, "half dollar"],
+      [1.0, "quarter"],
+      [0.88, "nickel"],
+      [0.75, "penny"],
+      [0.5, "marble"]
+    ];
+    for (var i = 0; i < names.length; i++) {
+      if (inches >= names[i][0] - 0.005) return names[i][1];
+    }
+    return "pea";
+  }
+
+  function areaMagnitude(r) {
+    if (r.kind === "hail") {
+      var inch = hailInches(r);
+      if (!inch) return "Hail";
+      return inch + '" ' + hailSizeName(inch);
+    }
+    if (r.kind === "wind") {
+      if (r.magMph != null && !isNaN(r.magMph)) {
+        return Math.round(r.magMph) + " mph" + (r.qualifier === "M" ? " (measured)" : r.qualifier === "E" ? " (est.)" : "");
+      }
+      return "Damage";
+    }
+    if (r.kind === "tornado") return r.magLabel && !/tornado/i.test(r.magLabel) ? r.magLabel : "Tornado";
+    return tableMagnitude(r);
+  }
+
+  function areaWindowLabel() {
+    return "Hail & wind reports, last " + AREA_LOOKBACK_DAYS + " days";
+  }
+
+  function areaScopeLabel() {
+    return (
+      "Within " +
+      AREA_RADIUS_MILES +
+      " mi of Denver NC — Lake Norman, Huntersville, Mooresville, Cornelius, Davidson, Lincolnton, Charlotte & Rock Hill / Fort Mill SC"
+    );
+  }
+
+  function renderAreaHeader(updatedAt) {
+    return (
+      '<header class="ewr-header">' +
+      '<div class="ewr-brand">' +
+      '<span class="ewr-brand-mark">CPR</span>' +
+      '<div class="ewr-brand-text">' +
+      '<p class="ewr-eyebrow">Extreme Weather Report · Lake Norman area</p>' +
+      '<h3 class="ewr-title" id="sc-area-heading">Recent storm reports near Lake Norman</h3>' +
+      "</div></div>" +
+      '<div class="ewr-address">' +
+      '<p class="ewr-address-label">' + escapeHtml(areaWindowLabel()) + "</p>" +
+      '<p class="ewr-address-value">' + escapeHtml(areaScopeLabel()) + "</p>" +
+      '<p class="ewr-address-meta">' +
+      "<span><strong>Source:</strong> NOAA / NWS local storm reports</span>" +
+      (updatedAt
+        ? "<span><strong>Updated:</strong> " + escapeHtml(formatEtShort(updatedAt)) + "</span>"
+        : "") +
+      "</p></div></header>"
+    );
+  }
+
+  function renderAreaRow(r, idx, hidden) {
+    var kind = r.kind || "other";
+    var rid = r.id || "a-" + idx;
+    return (
+      '<tr class="ewr-events-row storm-row--' +
+      escapeHtml(kind) +
+      '" data-kind="' +
+      escapeHtml(kind) +
+      '" data-report-id="' +
+      escapeHtml(rid) +
+      '"' +
+      (hidden ? " hidden" : "") +
+      ' title="' +
+      escapeHtml(
+        (r.title || badgeLabel(kind)) +
+          (r.city ? " · " + r.city : "") +
+          (r.remark ? " · " + r.remark.slice(0, 160) : "") +
+          " · View on map"
+      ) +
+      '">' +
+      '<td class="ewr-events-date" data-label="Date">' + escapeHtml(formatMdY(r.when)) + "</td>" +
+      '<td class="ewr-events-type" data-label="Type"><span class="ewr-type-cell">' +
+      typeIconSvg(kind) +
+      '<span class="ewr-type-label">' + escapeHtml(badgeLabel(kind)) + "</span></span></td>" +
+      '<td class="ewr-events-mag" data-label="Size / speed">' + escapeHtml(areaMagnitude(r)) + "</td>" +
+      '<td class="ewr-events-town" data-label="Nearest town">' + escapeHtml(nearestTown(r)) + "</td>" +
+      '<td class="ewr-events-map" data-label="Map"><button type="button" class="ewr-view-storm" data-report-id="' +
+      escapeHtml(rid) +
+      '">View</button></td>' +
+      "</tr>"
+    );
+  }
+
+  function renderAreaTable(list) {
+    var rows = list
+      .map(function (r, i) {
+        return renderAreaRow(r, i, i >= AREA_LIST_INITIAL);
+      })
+      .join("");
+    var counts = countKinds(list);
+    var chips = [["all", "All", list.length], ["hail", "Hail", counts.hail], ["wind", "Wind", counts.wind]];
+    if (counts.tornado) chips.push(["tornado", "Tornado", counts.tornado]);
+    var chipHtml =
+      '<div class="sc-area-chips" role="group" aria-label="Filter reports by type">' +
+      chips
+        .map(function (c) {
+          return (
+            '<button type="button" class="sc-area-chip' +
+            (c[0] === "all" ? " is-active" : "") +
+            '" data-sc-area-filter="' +
+            c[0] +
+            '" aria-pressed="' +
+            (c[0] === "all" ? "true" : "false") +
+            '">' +
+            c[1] +
+            " <span>" +
+            c[2] +
+            "</span></button>"
+          );
+        })
+        .join("") +
+      "</div>";
+    var more =
+      '<p class="sc-area-more"' +
+      (list.length > AREA_LIST_INITIAL ? "" : " hidden") +
+      '><button type="button" class="sc-area-more-btn" data-sc-area-more>Show all ' +
+      list.length +
+      " reports</button></p>";
+    return (
+      chipHtml +
+      '<div class="ewr-events-wrap" role="region" aria-label="Recent area storm reports" tabindex="0">' +
+      '<table class="ewr-events-table ewr-events-table--area">' +
+      "<thead><tr>" +
+      '<th scope="col">Date</th>' +
+      '<th scope="col">Type</th>' +
+      '<th scope="col">Size / speed</th>' +
+      '<th scope="col">Nearest town</th>' +
+      '<th scope="col">Map</th>' +
+      "</tr></thead><tbody>" +
+      rows +
+      "</tbody></table></div>" +
+      more
+    );
+  }
+
+  function renderAreaSignificant(list) {
+    var hail = list.filter(function (r) {
+      return r.kind === "hail";
+    });
+    if (!hail.length) return "";
+    var latest = hail[0];
+    var largest = hail.reduce(function (a, b) {
+      return hailInches(b) > hailInches(a) ? b : a;
+    }, hail[0]);
+    function card(label, r) {
+      return (
+        '<div class="ewr-sig ewr-sig--hail">' +
+        '<span class="ewr-sig-label">' + escapeHtml(label) + "</span>" +
+        '<span class="ewr-sig-date">' + escapeHtml(formatDateOnly(r.when)) + "</span>" +
+        '<span class="ewr-sig-detail">' +
+        escapeHtml(areaMagnitude(r)) +
+        " · " +
+        escapeHtml(nearestTown(r)) +
+        "</span></div>"
+      );
+    }
+    var parts = [card("Largest hail · last " + AREA_LOOKBACK_DAYS + " days", largest)];
+    if (latest !== largest) parts.push(card("Most recent hail", latest));
+    return '<div class="ewr-sig-strip" role="region" aria-label="Notable hail reports">' + parts.join("") + "</div>";
+  }
+
+  function applyAreaRows(areaEl) {
+    var filter = areaEl._scFilter || "all";
+    var expanded = !!areaEl._scExpanded;
+    var rows = areaEl.querySelectorAll("tbody tr[data-kind]");
+    var shown = 0;
+    var matching = 0;
+    for (var i = 0; i < rows.length; i++) {
+      var match = filter === "all" || rows[i].getAttribute("data-kind") === filter;
+      if (match) matching++;
+      var vis = match && (expanded || shown < AREA_LIST_INITIAL);
+      rows[i].hidden = !vis;
+      if (vis) shown++;
+    }
+    var more = areaEl.querySelector(".sc-area-more");
+    if (more) {
+      more.hidden = expanded || matching <= AREA_LIST_INITIAL;
+      var btn = more.querySelector("button");
+      if (btn) btn.textContent = "Show all " + matching + " reports";
+    }
+  }
+
+  function renderAreaTiles(counts) {
+    var sub = "last " + AREA_LOOKBACK_DAYS + " days · " + AREA_RADIUS_MILES + " mi";
+    return (
+      '<div class="ewr-tiles ewr-tiles--area" role="group" aria-label="Area report counts">' +
+      '<div class="ewr-tile ewr-tile--hail"><span class="ewr-tile-num">' + counts.hail +
+      '</span><span class="ewr-tile-label">Hail reports</span><span class="ewr-tile-sub">' + sub + "</span></div>" +
+      '<div class="ewr-tile ewr-tile--wind"><span class="ewr-tile-num">' + counts.wind +
+      '</span><span class="ewr-tile-label">Wind ≥60 mph / damage</span><span class="ewr-tile-sub">' + sub + "</span></div>" +
+      '<div class="ewr-tile ewr-tile--tornado"><span class="ewr-tile-num">' + counts.tornado +
+      '</span><span class="ewr-tile-label">Tornado reports</span><span class="ewr-tile-sub">' + sub + "</span></div>" +
+      "</div>"
+    );
+  }
+
+  function renderAreaReport(list, sourceNotes, updatedAt, errorMsg) {
+    var body;
+    if (errorMsg) {
+      body =
+        '<div class="ewr-sig-strip ewr-sig-strip--empty"><p>' +
+        escapeHtml(errorMsg) +
+        ' <button type="button" class="sc-area-more-btn" data-sc-area-retry>Try again</button></p></div>';
+    } else if (!list.length) {
+      body =
+        '<div class="ewr-sig-strip ewr-sig-strip--empty"><p>No hail or wind reports in the last ' +
+        AREA_LOOKBACK_DAYS +
+        " days near Lake Norman — check your address below for the full 3-year history.</p></div>";
+    } else {
+      body = renderAreaTiles(countKinds(list)) + renderAreaSignificant(list);
+    }
+    var mapCard =
+      '<div class="ewr-map-card">' +
+      '<div class="ewr-map-head"><span>' + escapeHtml(areaWindowLabel()) + " · " + AREA_RADIUS_MILES + " mi around Lake Norman</span>" +
+      '<span class="ewr-map-legend">' +
+      '<i class="ewr-leg ewr-leg--hail"></i> Hail ' +
+      '<i class="ewr-leg ewr-leg--wind"></i> Wind ' +
+      '<i class="ewr-leg ewr-leg--tornado"></i> Tornado</span></div>' +
+      '<div class="ewr-map" role="img" aria-label="Satellite map of recent hail and wind reports around Lake Norman"></div>' +
+      "</div>";
+    var table = list.length
+      ? '<div class="ewr-events-card"><h4 class="ewr-events-title">Recent reports · last ' +
+        AREA_LOOKBACK_DAYS +
+        " days</h4>" +
+        renderAreaTable(list) +
+        "</div>"
+      : "";
+    return (
+      '<article class="ewr-report ewr-report--area" aria-labelledby="sc-area-heading">' +
+      renderAreaHeader(updatedAt) +
+      body +
+      (errorMsg ? "" : mapCard) +
+      table +
+      '<p class="ewr-sources"><strong>Sources:</strong> ' +
+      escapeHtml(
+        (sourceNotes && sourceNotes.length ? sourceNotes : ["NOAA / NWS local storm reports via Iowa Environmental Mesonet"]).join(" · ")
+      ) +
+      " · Wind shown only when ≥" +
+      WIND_MIN_MPH +
+      " mph or NWS thunderstorm wind-damage reports. Public reports are not proof a specific roof was hit.</p>" +
+      '<p class="sc-area-next">Want reports for your home? <a href="#sc-address" data-sc-area-focus>Enter your address below</a> for a 3-year history — or <a class="js-storm-inspect-open" href="#">get a free storm inspection</a>.</p>' +
+      "</article>"
+    );
+  }
+
+  /** IEM LSR GeoJSON (CORS-enabled) for the area view; bbox prefilter + exact Haversine. */
+  async function fetchIemGeojsonArea() {
+    var c = AREA_CENTER;
+    var box = bboxFor(c.lat, c.lon, AREA_RADIUS_MILES + 2);
+    var url =
+      "https://mesonet.agron.iastate.edu/geojson/lsr.py?west=" +
+      box.west.toFixed(3) +
+      "&east=" +
+      box.east.toFixed(3) +
+      "&south=" +
+      box.south.toFixed(3) +
+      "&north=" +
+      box.north.toFixed(3) +
+      "&sts=" +
+      encodeURIComponent(isoDaysAgo(AREA_LOOKBACK_DAYS + 1).replace(/:\d\dZ$/, "Z")) +
+      "&ets=" +
+      encodeURIComponent(new Date(Date.now() + 3600000).toISOString().replace(/:\d\d\.\d{3}Z$/, "Z"));
+    var res = await fetch(url, { headers: { Accept: "application/geo+json, application/json" } });
+    if (!res.ok) throw new Error("IEM LSR GeoJSON " + res.status);
+    var data = await res.json();
+    var feats = (data && data.features) || [];
+    // Corrections: same (type, valid, lat2, lon2) → keep newest product_id.
+    var byKey = {};
+    feats.forEach(function (f) {
+      var p = f.properties || {};
+      var code = String(p.type || "").toUpperCase();
+      var kind = code === "H" ? "hail" : code === "G" || code === "D" ? "wind" : code === "T" ? "tornado" : null;
+      if (!kind) return; // excludes O/N non-thunderstorm wind, floods, winter, etc.
+      var lat = parseFloat(p.lat);
+      var lon = parseFloat(p.lon);
+      if (isNaN(lat) || isNaN(lon)) return;
+      var key = code + "|" + p.valid + "|" + lat.toFixed(2) + "|" + lon.toFixed(2);
+      var prev = byKey[key];
+      if (prev && String(prev.p.product_id || "") >= String(p.product_id || "")) return;
+      byKey[key] = { p: p, kind: kind, code: code, lat: lat, lon: lon };
+    });
+    var out = [];
+    Object.keys(byKey).forEach(function (k) {
+      var o = byKey[k];
+      var p = o.p;
+      var dist = haversineMiles(c.lat, c.lon, o.lat, o.lon);
+      if (dist > AREA_RADIUS_MILES) return;
+      var magf = p.magf != null && p.magf !== "" ? parseFloat(p.magf) : null;
+      if (magf != null && isNaN(magf)) magf = null;
+      var r = {
+        id: "iem-" + (p.product_id || "") + "-" + k,
+        kind: o.kind,
+        title: p.typetext || badgeLabel(o.kind),
+        magLabel: o.kind === "hail" && magf ? magf + '" hail' : o.kind === "wind" && magf ? Math.round(magf) + " mph gust" : o.kind === "wind" ? "Wind damage" : "",
+        magMph: o.kind === "wind" ? magf : null,
+        _magRaw: magf != null ? String(magf) : "",
+        _typecode: o.code,
+        qualifier: p.qualifier || "",
+        when: new Date(p.valid),
+        city: [p.city, p.county, p.st || p.state].filter(Boolean).join(", "),
+        remark: String(p.remark || "").trim(),
+        reporter: p.source || "",
+        distance: dist,
+        lat: o.lat,
+        lon: o.lon,
+        source: "NWS " + (p.wfo || "") + " LSR via IEM"
+      };
+      if (!withinLookback(r.when, AREA_LOOKBACK_DAYS)) return;
+      if (r.kind === "wind" && !windPassesThreshold(r)) return;
+      out.push(r);
+    });
+    return out;
+  }
+
+  /** SPC rows are the same NWS LSRs: drop ones matching an IEM row (peril, ≤2 min, ≤1 mi). */
+  function mergeSpcIntoArea(iemList, spcList) {
+    var extra = [];
+    spcList.forEach(function (s) {
+      if (s.kind !== "hail" && s.kind !== "wind" && s.kind !== "tornado") return;
+      var dup = iemList.some(function (r) {
+        return (
+          r.kind === s.kind &&
+          Math.abs(r.when.getTime() - s.when.getTime()) <= 120000 &&
+          haversineMiles(r.lat, r.lon, s.lat, s.lon) <= 1
+        );
+      });
+      if (!dup) extra.push(s);
+    });
+    return iemList.concat(extra);
+  }
+
+  async function fetchAreaReports() {
+    var c = AREA_CENTER;
+    var parts = await Promise.all([
+      settle(fetchIemGeojsonArea()),
+      settle(fetchSpcNear(c.lat, c.lon, AREA_RADIUS_MILES))
+    ]);
+    var iem;
+    if (parts[0].ok) iem = parts[0].value;
+    else {
+      // Fallback: existing IEM CSV request path.
+      var csv = await settle(fetchIemLsr(c.lat, c.lon, AREA_RADIUS_MILES, null, AREA_LOOKBACK_DAYS));
+      if (!csv.ok) throw new Error("Area feed unavailable");
+      iem = dedupeReports(
+        csv.value.filter(function (r) {
+          return (
+            (r.kind === "hail" || r.kind === "wind" || r.kind === "tornado") &&
+            r._typecode !== "O" && r._typecode !== "N" && r._typecode !== "C" &&
+            withinLookback(r.when, AREA_LOOKBACK_DAYS)
+          );
+        })
+      );
+    }
+    var notes = ["NOAA / NWS local storm reports via Iowa Environmental Mesonet (last " + AREA_LOOKBACK_DAYS + " days, ground reports only)"];
+    var list = iem;
+    if (parts[1].ok && parts[1].value.length) {
+      var spc = parts[1].value.filter(function (r) {
+        return withinLookback(r.when, AREA_LOOKBACK_DAYS);
+      });
+      var merged = mergeSpcIntoArea(iem, spc);
+      if (merged.length > iem.length) notes.push("NOAA Storm Prediction Center (today/yesterday)");
+      list = merged;
+    }
+    return { list: sortReports(list), notes: notes };
+  }
+
+  function initArea(root, areaEl) {
+    var cache = null;
+
+    function wire() {
+      if (areaEl._scAreaWired) return;
+      areaEl._scAreaWired = true;
+      wireReportMapFocus(areaEl, areaEl);
+      areaEl.addEventListener("click", function (ev) {
+        var t = ev.target;
+        if (!t || !t.closest) return;
+        if (t.closest("[data-sc-area-more]")) {
+          areaEl._scExpanded = true;
+          applyAreaRows(areaEl);
+          return;
+        }
+        var chip = t.closest("[data-sc-area-filter]");
+        if (chip) {
+          areaEl._scFilter = chip.getAttribute("data-sc-area-filter");
+          areaEl._scExpanded = false;
+          var chips = areaEl.querySelectorAll("[data-sc-area-filter]");
+          for (var c = 0; c < chips.length; c++) {
+            var on = chips[c] === chip;
+            chips[c].classList.toggle("is-active", on);
+            chips[c].setAttribute("aria-pressed", on ? "true" : "false");
+          }
+          applyAreaRows(areaEl);
+          return;
+        }
+        if (t.closest("[data-sc-area-retry]")) {
+          ev.preventDefault();
+          load();
+          return;
+        }
+        if (t.closest("[data-sc-area-focus]")) {
+          var input = $("#sc-address", root) || $('[name="address"]', root);
+          if (input) {
+            ev.preventDefault();
+            input.scrollIntoView({ behavior: "smooth", block: "center" });
+            try {
+              input.focus({ preventScroll: true });
+            } catch (e) {
+              input.focus();
+            }
+          }
+          return;
+        }
+        if (t.closest("[data-sc-area-show]")) {
+          ev.preventDefault();
+          if (typeof areaEl._scOnShow === "function") areaEl._scOnShow();
+          show();
+        }
+      });
+    }
+
+    function paint(data, errorMsg) {
+      destroyReportMap(areaEl);
+      areaEl.hidden = false;
+      areaEl.classList.remove("is-collapsed");
+      areaEl.innerHTML = renderAreaReport(
+        data ? data.list : [],
+        data ? data.notes : [],
+        data ? data.at : null,
+        errorMsg
+      );
+      areaEl._scFilter = "all";
+      areaEl._scExpanded = false;
+      if (!errorMsg) {
+        var mapEl = areaEl.querySelector(".ewr-map");
+        // Draw wind first so hail / tornado dots sit on top.
+        var rank = { wind: 0, hail: 1, tornado: 2 };
+        var mapList = (data ? data.list : []).slice().sort(function (a, b) {
+          return (rank[a.kind] || 0) - (rank[b.kind] || 0);
+        });
+        initReportMap(
+          areaEl,
+          mapEl,
+          { lat: AREA_CENTER.lat, lon: AREA_CENTER.lon, label: AREA_CENTER.label },
+          mapList,
+          AREA_RADIUS_MILES,
+          { noHome: true }
+        );
+      }
+    }
+
+    async function load() {
+      destroyReportMap(areaEl);
+      areaEl.hidden = false;
+      areaEl.classList.remove("is-collapsed");
+      areaEl.innerHTML =
+        '<div class="storm-check-status is-loading sc-area-loading" role="status">Loading recent NOAA hail &amp; wind reports around Lake Norman…</div>';
+      try {
+        var res = await fetchAreaReports();
+        cache = { list: res.list, notes: res.notes, at: new Date() };
+        areaEl.setAttribute("data-sc-area-count", String(res.list.length));
+        paint(cache, null);
+      } catch (e) {
+        areaEl.setAttribute("data-sc-area-count", "error");
+        paint(null, "Couldn't load area storm reports right now. You can still check your address below, or call (704) 280-5996.");
+      }
+    }
+
+    function show() {
+      if (cache) paint(cache, null);
+      else load();
+    }
+
+    function collapse() {
+      destroyReportMap(areaEl);
+      areaEl.hidden = false;
+      areaEl.classList.add("is-collapsed");
+      areaEl.innerHTML =
+        '<p class="sc-area-collapsed">Showing reports near your address. <button type="button" class="sc-area-more-btn" data-sc-area-show>Back to Lake Norman area reports (last ' +
+        AREA_LOOKBACK_DAYS +
+        " days)</button></p>";
+    }
+
+    wire();
+    return { load: load, show: show, collapse: collapse };
+  }
+
   function setStatus(el, msg, cls) {
     el.className = "storm-check-status" + (cls ? " " + cls : "");
     el.textContent = msg || "";
@@ -1303,6 +1857,24 @@
 
     if (!form || !addressInput) return;
 
+    // Area-wide report on page load (full page only)
+    var areaView = null;
+    if (!isTeaser) {
+      var areaEl = $(".sc-area", root);
+      if (!areaEl) {
+        areaEl = document.createElement("div");
+        areaEl.className = "sc-area";
+        form.parentNode.insertBefore(areaEl, form);
+      }
+      areaView = initArea(root, areaEl);
+      areaEl._scOnShow = function () {
+        destroyReportMap(root);
+        if (results) results.innerHTML = "";
+        if (meta) meta.innerHTML = "";
+        setStatus(status, "", "");
+      };
+    }
+
     form.addEventListener("submit", function (ev) {
       ev.preventDefault();
       run();
@@ -1318,6 +1890,7 @@
       destroyReportMap(root);
       if (results) results.innerHTML = "";
       if (meta) meta.innerHTML = "";
+      if (areaView) areaView.collapse();
       setStatus(status, "Looking up address and checking storm reports…", "is-loading");
       if (submitBtn) submitBtn.disabled = true;
 
@@ -1463,8 +2036,14 @@
       }
     }
 
+    var hasPrefill = !isTeaser && /address=/.test(location.hash + location.search);
+    if (areaView) {
+      if (hasPrefill) areaView.collapse();
+      else areaView.load();
+    }
+
     // Prefill from query string on full page
-    if (!isTeaser && /address=/.test(location.hash + location.search)) {
+    if (hasPrefill) {
       try {
         var raw = location.hash.indexOf("?") >= 0
           ? location.hash.split("?")[1]

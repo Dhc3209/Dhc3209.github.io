@@ -1014,3 +1014,100 @@ button.btn.js-storm-inspect-open {
     width: 100%;
   }
 }
+
+/* ——— Area-wide report (page load, no address) ——— */
+.sc-area { margin: 0 0 1.35rem; }
+.sc-area .ewr-report { margin-top: 0; }
+.sc-area-loading { margin: 0; padding: .9rem 0; }
+.ewr-events-table tr[hidden] { display: none !important; }
+.ewr-events-table--area { min-width: 560px; }
+.ewr-events-town { color: #333; }
+.sc-area-more { margin: .7rem 0 0; text-align: center; }
+.sc-area-more-btn {
+  padding: .45rem .95rem;
+  border: 1px solid #C8CCD3;
+  border-radius: 999px;
+  background: #fff;
+  color: #1A73E8;
+  font: inherit;
+  font-size: .88rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+.sc-area-more-btn:hover,
+.sc-area-more-btn:focus-visible { color: #0B57D0; border-color: #1A73E8; outline: none; }
+.sc-area-next {
+  margin: 0;
+  font-size: .92rem;
+  color: var(--charcoal-soft, #D4D8DE);
+}
+.sc-area-next a { color: var(--gold-soft, #E8D4B0); font-weight: 650; }
+.sc-area-collapsed {
+  margin: 0;
+  padding: .7rem .9rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem .75rem;
+  align-items: center;
+  font-size: .9rem;
+  color: var(--gray);
+  border: 1px dashed rgba(184, 151, 95, .55);
+  border-radius: var(--radius);
+}
+@media (max-width: 640px) {
+  .ewr-events-table--area { min-width: 0; }
+  .ewr-report--area { padding: 1rem .85rem 1.1rem; }
+}
+.ewr-tiles--area { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 559px) {
+  .ewr-tiles--area { gap: .45rem; }
+  .ewr-tiles--area .ewr-tile { padding: .7rem .4rem .65rem; }
+  .ewr-tiles--area .ewr-tile-num { font-size: 1.5rem; }
+  .ewr-tiles--area .ewr-tile-label { font-size: .72rem; }
+  .ewr-tiles--area .ewr-tile-sub { font-size: .62rem; }
+}
+.sc-area-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin: 0 0 .7rem;
+}
+.sc-area-chip {
+  padding: .32rem .75rem;
+  border: 1px solid #C8CCD3;
+  border-radius: 999px;
+  background: #fff;
+  color: #333;
+  font: inherit;
+  font-size: .84rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+.sc-area-chip span { color: #6B7280; font-weight: 600; margin-left: .15rem; }
+.sc-area-chip.is-active { background: #8B3A41; border-color: #8B3A41; color: #fff; }
+.sc-area-chip.is-active span { color: #F3D9DC; }
+.sc-area-chip:focus-visible { outline: 2px solid #1A73E8; outline-offset: 2px; }
+.sc-area-more[hidden] { display: none; }
+@media (max-width: 640px) {
+  .ewr-events-table--area tbody tr {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: "date type map" "mag town town";
+    gap: .15rem .7rem;
+    align-items: center;
+    padding: .55rem .65rem;
+  }
+  .ewr-events-table--area tbody td {
+    display: block;
+    width: auto;
+    padding: 0;
+    text-align: left;
+  }
+  .ewr-events-table--area tbody td::before { content: none; }
+  .ewr-events-table--area .ewr-events-date { grid-area: date; font-weight: 700; font-size: .86rem; }
+  .ewr-events-table--area .ewr-events-type { grid-area: type; font-size: .88rem; }
+  .ewr-events-table--area .ewr-events-mag { grid-area: mag; font-size: .82rem; color: #555; }
+  .ewr-events-table--area .ewr-events-town { grid-area: town; font-size: .82rem; color: #555; }
+  .ewr-events-table--area .ewr-events-map { grid-area: map; text-align: right; }
+  .ewr-events-table--area tbody tr[hidden] { display: none !important; }
+}
