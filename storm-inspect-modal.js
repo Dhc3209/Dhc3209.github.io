@@ -19,6 +19,17 @@
           transport_type: "beacon"
         });
       }
+      if (typeof gtag === "function") {
+        gtag("event", "conversion", {
+          send_to: "AW-819633691/JLMoCMW1r4QdEJu86oYD",
+          value: 1.0,
+          currency: "USD",
+          transport_type: "beacon"
+        });
+      }
+      if (typeof fbq === "function") {
+        fbq("track", "Lead", { content_name: formName });
+      }
     } catch (e) {}
   }
   function endpoint() {

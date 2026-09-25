@@ -1282,8 +1282,22 @@
     });
   }
 
+  function cprBeginQuote() {
+    if (window.__cprBeginQuoteFired) return;
+    window.__cprBeginQuoteFired = true;
+    try {
+      if (typeof gtag === "function") {
+        gtag("event", "begin_quote", { page_path: location.pathname });
+      }
+      if (typeof fbq === "function") {
+        fbq("trackCustom", "BeginQuote");
+      }
+    } catch (e) {}
+  }
+
   function showStep(root, step) {
     root._qeStep = step;
+    if (step > 1) cprBeginQuote();
     root.querySelectorAll("[data-qe-step]").forEach(function (panel) {
       var n = parseInt(panel.getAttribute("data-qe-step"), 10);
       panel.hidden = n !== step;
@@ -1777,6 +1791,17 @@
           transport_type: "beacon"
         });
       }
+      if (typeof gtag === "function") {
+        gtag("event", "conversion", {
+          send_to: "AW-819633691/JLMoCMW1r4QdEJu86oYD",
+          value: 1.0,
+          currency: "USD",
+          transport_type: "beacon"
+        });
+      }
+      if (typeof fbq === "function") {
+        fbq("track", "Lead", { content_name: formName });
+      }
     } catch (e) {}
   }
 
@@ -1929,6 +1954,15 @@
         if (radio) radio.checked = true;
       });
     });
+
+    var qeAddr = form.querySelector('[name="qe-address"]');
+    if (qeAddr) {
+      ["input", "change"].forEach(function (ev) {
+        qeAddr.addEventListener(ev, function () {
+          if ((qeAddr.value || "").trim().length >= 5) cprBeginQuote();
+        });
+      });
+    }
 
     toggleSizeMode(root);
     showStep(root, 1);
