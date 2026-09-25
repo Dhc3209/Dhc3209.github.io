@@ -10,6 +10,17 @@
     ".js-storm-inspect-open, a[href*='contact-us'][href*='topic=storm'], a[href='/contact-us/?topic=storm']";
   var lastFocus = null;
 
+  function cprTrackLead(formName) {
+    try {
+      if (typeof gtag === "function") {
+        gtag("event", "generate_lead", {
+          form_name: formName,
+          page_path: location.pathname,
+          transport_type: "beacon"
+        });
+      }
+    } catch (e) {}
+  }
   function endpoint() {
     return String(window.CPR_LEADS_ENDPOINT || "").trim();
   }
@@ -261,6 +272,7 @@
         if (status) status.textContent = "";
         form.hidden = true;
         if (thanks) thanks.hidden = false;
+        cprTrackLead("storm_inspection");
         form.reset();
         window.setTimeout(function () {
           closeModal();

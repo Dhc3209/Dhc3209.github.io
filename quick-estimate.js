@@ -1747,6 +1747,7 @@
       root._qeLeadBody = body;
       var notified = await notifyLead(body);
       root._qeNotifyOk = notified;
+      if (notified) cprTrackLead("instant_quote");
       applyDoneMessaging(root, body, notified);
       showStep(root, 4);
       // showStep clears status — set notify outcome after
@@ -1765,6 +1766,18 @@
       }
       return;
     }
+  }
+
+  function cprTrackLead(formName) {
+    try {
+      if (typeof gtag === "function") {
+        gtag("event", "generate_lead", {
+          form_name: formName,
+          page_path: location.pathname,
+          transport_type: "beacon"
+        });
+      }
+    } catch (e) {}
   }
 
   function leadsEndpoint() {

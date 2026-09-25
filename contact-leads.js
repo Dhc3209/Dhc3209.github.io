@@ -1,5 +1,16 @@
 (function () {
   "use strict";
+  function cprTrackLead(formName) {
+    try {
+      if (typeof gtag === "function") {
+        gtag("event", "generate_lead", {
+          form_name: formName,
+          page_path: location.pathname,
+          transport_type: "beacon"
+        });
+      }
+    } catch (e) {}
+  }
   function endpoint() {
     return String((window.CPR_LEADS_ENDPOINT || "")).trim();
   }
@@ -56,6 +67,7 @@
       })
         .then(function () {
           status.textContent = "Thanks — we got it. We'll follow up soon.";
+          cprTrackLead("contact_estimate");
           form.reset();
           if (location.search.indexOf("submitted=1") === -1) {
             history.replaceState(null, "", location.pathname + "?submitted=1");
