@@ -3521,3 +3521,8 @@ section:has(+ section.storm-check-wrap) .callout strong { color: #fff; }
 /* trust bar: flat #2C3D56 (the --panel / card navy) instead of fading into --navy-mid, so the
    strip reads as its own band whichever shade the first section below it takes */
 .trust-bar { background: var(--panel); }
+
+/* topbar: fit "Storm damage inspections" on one row in more widths */
+@media (min-width:721px) and (max-width:900px){ .topbar{font-size:.72rem} .topbar .wrap{column-gap:1rem} }
+@media (max-width:720px){ .topbar .wrap{column-gap:.75rem} }
+@media (max-width:371px){ .topbar{font-size:.68rem} }
