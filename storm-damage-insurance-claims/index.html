@@ -32,7 +32,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css?v=dh9">
-  <link rel="stylesheet" href="/storm-check.css?v=storm11">
+  <link rel="stylesheet" href="/storm-check.css?v=storm12">
   <link rel="stylesheet" href="/quote-lead-modal.css?v=ql1">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -265,31 +265,10 @@
       <div class="storm-check-panel">
         <div class="section-head" style="margin-bottom:1.1rem">
           <p class="eyebrow">Public storm reports</p>
-          <h2 id="storm-check-heading">Check storm activity near your home</h2>
-          <p>Enter your street address to see <strong>hail reports from the last 3 years</strong> and <strong>wind reports ≥ 60 mph</strong> (plus severe wind damage) near your location from public NOAA-backed sources (IEM / NWS local storm reports, SPC today/yesterday, and NWS alerts). Focused on the Lake Norman / Denver NC area — reports nearby are not proof that hail hit your house.</p>
+          <h2 id="storm-check-heading">Recent storm reports around Lake Norman</h2>
+          <p>Recent NOAA hail, wind and tornado reports within 45 miles of Denver NC — updated automatically every time you load this page.</p>
         </div>
-        <form class="storm-check-form" action="#" method="get">
-          <div>
-            <label for="sc-address">Street address *</label>
-            <input id="sc-address" name="address" type="text" required autocomplete="street-address" placeholder="e.g. 3910 N NC-16 Business, Denver, NC 28037">
-          </div>
-          <div>
-            <label for="sc-radius">Radius</label>
-            <select id="sc-radius" name="radius">
-              <option value="10">10 miles</option>
-              <option value="15">15 miles</option>
-              <option value="25" selected>25 miles</option>
-              <option value="50">50 miles</option>
-            </select>
-          </div>
-          <div class="sc-actions">
-            <button class="btn" type="submit">Check nearby storms</button>
-          </div>
-        </form>
-        <p class="storm-check-hint">Address stays in your browser — we don’t store it on a server. Times shown in Eastern Time.</p>
-        <div class="storm-check-status" role="status" aria-live="polite"></div>
-        <div class="storm-check-meta" aria-live="polite"></div>
-        <div class="storm-check-results"></div>
+        <div class="sc-area" aria-live="polite"></div>
         <div class="storm-check-cta" id="claims">
           <h3>Storm hit your roof? We’ll document it for the claim.</h3>
           <p>Free inspection for hail and high-wind damage across Denver and Lake Norman. GAF Master Elite — we speak adjuster.</p>
@@ -299,7 +278,7 @@
           </div>
           <p class="contact-strip">See damage near you? Call <a href="tel:+17042805996">(704) 280-5996</a> or <a class="js-storm-inspect-open" href="#">request a free claim inspection</a>.</p>
         </div>
-        <p class="storm-check-disclaimer">Data from public feeds (Iowa Environmental Mesonet LSR for ~3 years of hail / qualifying wind, NOAA/NWS Storm Prediction Center today &amp; yesterday, and api.weather.gov alerts). Wind rows require ≥60 mph gusts or thunderstorm wind-damage LSRs. Empty results mean no matching public reports in range — not that “no storm happened.” Always verify with a professional inspection.</p>
+        <p class="storm-check-disclaimer">Data from public NOAA / National Weather Service local storm reports (via the Iowa Environmental Mesonet), last 90 days, within 45 miles of Denver NC. Wind rows require ≥60 mph gusts or thunderstorm wind-damage reports. Reports near you are not proof your roof was hit, and many storms go unreported. Times shown in Eastern Time. Always verify with a professional inspection.</p>
       </div>
     </section>
   </div>
@@ -404,7 +383,7 @@
 <section class="cta-band">
   <div class="wrap">
     <h2>Had a recent storm near your home?</h2>
-    <p>Start with a free inspection or check public storm reports near your address — then we’ll document what we find on the roof.</p>
+    <p>Start with a free inspection or check recent public storm reports for our area — then we’ll document what we find on the roof.</p>
     <div class="hero-actions">
       <a class="btn js-quote-lead-open" href="/contact-us/#estimate">Get a Free Roof Estimate</a>
       <a class="btn btn-outline" href="/storm-damage-insurance-claims/">Storm / insurance inspection</a>
@@ -500,7 +479,7 @@
 <script src="/nav.js"></script>
 <script src="/leads-config.js"></script>
 <script src="/quote-lead-modal.js?v=ql3" defer></script>
-<script src="/storm-check.js?v=storm11" defer></script>
+<script src="/storm-check.js?v=storm12" defer></script>
 <script src="/storm-inspect-modal.js?v=storm12" defer></script>
 
 </body>
