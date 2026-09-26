@@ -81,7 +81,7 @@
       '  <div class="storm-inspect-modal__head">' +
       '    <p class="eyebrow">Free storm inspection</p>' +
       '    <h2 id="storm-inspect-title">Schedule a free storm inspection</h2>' +
-      "    <p>We’ll document hail/wind damage and work with your adjuster alongside you. No deductible waivers.</p>" +
+      "    <p>We’ll document hail/wind damage and give you clear photos and notes for your claim. No deductible waivers.</p>" +
       "  </div>" +
       '  <form class="storm-inspect-modal__form" data-storm-inspect-form novalidate>' +
       '    <input type="text" name="_honey" class="storm-inspect-modal__honey" tabindex="-1" autocomplete="off" aria-hidden="true">' +
