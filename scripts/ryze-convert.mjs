@@ -44,6 +44,11 @@ for (const filename of filenames) {
   html = replaceOne(html, /<meta name="description" content="[^"]*">/, `<meta name="description" content="${description}">`, 'meta description');
   html = replaceOne(html, /<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${url}">`, 'canonical');
   html = replaceOne(html, /<meta property="og:image" content="[^"]*">/, `<meta property="og:image" content="${escapeHtml(imageUrl || 'https://cprhomepros.com/images/from-live/IMG_4733.JPG')}">`, 'social image');
+  // Keep the template's og:image:* companions in step with the article image (template drift, 2026-09-28).
+  const socialImage = escapeHtml(imageUrl || 'https://cprhomepros.com/images/from-live/IMG_4733.JPG');
+  html = html.replace(/<meta property="og:image:secure_url" content="[^"]*">/, `<meta property="og:image:secure_url" content="${socialImage}">`);
+  html = html.replace(/<meta property="og:image:alt" content="[^"]*">/, `<meta property="og:image:alt" content="${escapeHtml((article.image && article.image.alt) || article.title)}">`);
+  html = html.replace(/\n\s*<meta property="og:image:(?:type|width|height)" content="[^"]*">/g, '');
   for (const [key, value] of [['url', url], ['description', description], ['title', metaTitle]]) {
     html = replaceOne(html, new RegExp(`<meta property="og:${key}" content="[^"]*">`), `<meta property="og:${key}" content="${value}">`, `og:${key}`);
   }

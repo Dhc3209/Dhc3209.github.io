@@ -158,8 +158,7 @@
     var text = (el.textContent || "").replace(/\s+/g, " ").trim().toLowerCase();
     var stormCta =
       text.indexOf("schedule free storm inspection") !== -1 ||
-      text.indexOf("get a free storm inspection") !== -1 ||
-      text.indexOf("request a free claim inspection") !== -1;
+      text.indexOf("get a free storm inspection") !== -1;
     return stormCta;
   }
 
