@@ -81,7 +81,7 @@
       '  <div class="storm-inspect-modal__head">' +
       '    <p class="eyebrow">Free storm inspection</p>' +
       '    <h2 id="storm-inspect-title">Schedule a free storm inspection</h2>' +
-      "    <p>We’ll document hail/wind damage and give you clear photos and notes for your claim. No deductible waivers.</p>" +
+      "    <p>We’ll inspect for hail and wind damage and give you clear photos and a plain-language repair-or-replace recommendation.</p>" +
       "  </div>" +
       '  <form class="storm-inspect-modal__form" data-storm-inspect-form novalidate>' +
       '    <input type="text" name="_honey" class="storm-inspect-modal__honey" tabindex="-1" autocomplete="off" aria-hidden="true">' +
@@ -95,7 +95,7 @@
       '      <div class="storm-inspect-modal__full"><label for="si-address">Property address *</label>' +
       '        <input id="si-address" name="Address" type="text" required autocomplete="street-address" placeholder="Street, City, NC ZIP"></div>' +
       '      <div class="storm-inspect-modal__full"><label for="si-notes">Preferred time / notes <span class="storm-inspect-modal__opt">(optional)</span></label>' +
-      '        <textarea id="si-notes" name="Notes" rows="3" placeholder="Best time to call, storm date, claim number…"></textarea></div>' +
+      '        <textarea id="si-notes" name="Notes" rows="3" placeholder="Best time to call, storm date, what you noticed…"></textarea></div>' +
       "    </div>" +
       '    <p class="storm-inspect-modal__status" data-storm-inspect-status role="status" aria-live="polite"></p>' +
       '    <div class="storm-inspect-modal__actions">' +
@@ -267,7 +267,7 @@
       Address: address,
       Message: notes,
       Notes: notes,
-      Service: "Storm / insurance inspection",
+      Service: "Storm damage inspection",
       SourcePage: location.pathname,
       Timestamp: etTimestamp()
     };

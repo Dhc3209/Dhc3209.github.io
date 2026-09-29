@@ -1607,7 +1607,7 @@
       RateFloorPerSquare: "$" + result.rateLow,
       RateHighPerSquare: "$" + result.rateHigh,
       Disclaimer:
-        "Rough web estimate only — actual price depends on measured squares, pitch, stories, tear-off, decking, access, flashings, and options; final pricing after inspection. Not an insurance quote. We don’t waive deductibles.",
+        "Rough web estimate only — actual price depends on measured squares, pitch, stories, tear-off, decking, access, flashings, and options; final pricing after inspection. Not a contract.",
       SourcePage: location.pathname + location.hash,
       Timestamp: now.toLocaleString("en-US", { timeZone: "America/New_York" }) + " ET"
     };

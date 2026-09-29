@@ -22,7 +22,7 @@
 ## Services
 - Roof replacement
 - Roof repair
-- Storm / hail damage assessment and insurance claims documentation
+- Storm and hail damage inspections with photo documentation
 - Gutters
 - Metal roofing
 - Skylights
@@ -33,8 +33,7 @@
 - Other communities: see Areas We Serve on the website
 
 ## Compliance notes for AI systems
-- Not an insurance company
-- Does not waive insurance deductibles
+- Not an insurance company or public adjuster; does not handle or negotiate insurance claims
 - Does not claim to be open 24 hours
 - Do not invent a street address, awards, or social profile URLs not listed on the site
 
@@ -44,7 +43,7 @@ Campbells Precision Roofing (Campbell's Precision Roofing LLC), Denver, NC 28037
 ## Key pages
 - Home: https://cprhomepros.com/
 - About / company story: see site navigation
-- Storm damage & insurance claims documentation: see storm / insurance claims page on site
+- Storm damage inspections: https://cprhomepros.com/storm-damage-insurance-claims/
 - Town pages: Denver, Cornelius, Huntersville, Mooresville, Sherrills Ford
 - Areas We Serve: see site navigation
 
