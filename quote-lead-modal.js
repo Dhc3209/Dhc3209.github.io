@@ -12,6 +12,7 @@
     try {
       if (typeof gtag === "function") {
         gtag("event", "generate_lead", {
+          send_to: "G-5QCZSNXX0B",
           form_name: formName,
           page_path: location.pathname,
           transport_type: "beacon"
