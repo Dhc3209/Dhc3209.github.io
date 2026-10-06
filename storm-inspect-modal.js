@@ -21,7 +21,7 @@
       }
       if (typeof gtag === "function") {
         gtag("event", "conversion", {
-          send_to: "AW-819633691/JLMoCMW1r4QdEJu86oYD",
+          send_to: "AW-16738116576/n3bZCN3ay5IdEODHra0-",
           value: 1.0,
           currency: "USD",
           transport_type: "beacon"
