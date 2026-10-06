@@ -22,13 +22,13 @@
         }
         if (typeof gtag !== "function") return;
         var common = {
+          send_to: "G-5QCZSNXX0B",
           link_url: href.split("?")[0],
           page_path: location.pathname,
           link_text: (a.textContent || "").trim().slice(0, 60),
           transport_type: "beacon"
         };
         if (low.indexOf("tel:") === 0) {
-          common.send_to = "G-5QCZSNXX0B";
           gtag("event", "phone_call_click", common);
         } else if (low.indexOf("sms:") === 0) {
           gtag("event", "sms_click", common);

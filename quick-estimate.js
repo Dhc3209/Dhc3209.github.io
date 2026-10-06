@@ -1287,7 +1287,7 @@
     window.__cprBeginQuoteFired = true;
     try {
       if (typeof gtag === "function") {
-        gtag("event", "begin_quote", { page_path: location.pathname });
+        gtag("event", "begin_quote", { send_to: "G-5QCZSNXX0B", page_path: location.pathname });
       }
       if (typeof fbq === "function") {
         fbq("trackCustom", "BeginQuote");
