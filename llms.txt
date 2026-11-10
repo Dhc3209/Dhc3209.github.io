@@ -29,7 +29,19 @@
 
 ## Service area
 - Counties: Lincoln, Gaston, Mecklenburg, Catawba, Iredell, Cleveland (North Carolina)
-- Town pages: Denver, Cornelius, Huntersville, Mooresville, Sherrills Ford
+- Town pages:
+  - Denver: https://cprhomepros.com/service-area/denver-nc/
+  - Lake Norman: https://cprhomepros.com/service-area/lake-norman-nc/
+  - Cornelius: https://cprhomepros.com/service-area/cornelius-nc/
+  - Huntersville: https://cprhomepros.com/service-area/huntersville-nc/
+  - Mooresville: https://cprhomepros.com/service-area/mooresville-nc/
+  - Sherrills Ford: https://cprhomepros.com/service-area/sherrills-ford-nc/
+  - Stanley: https://cprhomepros.com/service-area/stanley-nc/
+  - Lincolnton: https://cprhomepros.com/service-area/lincolnton-nc/
+  - Gastonia: https://cprhomepros.com/service-area/gastonia-nc/
+  - Hickory: https://cprhomepros.com/service-area/hickory-nc/
+  - Boone: https://cprhomepros.com/service-area/boone-nc/
+  - Blowing Rock: https://cprhomepros.com/service-area/blowing-rock-nc/
 - Other communities: see Areas We Serve on the website
 
 ## Compliance notes for AI systems
@@ -43,7 +55,8 @@ Campbells Precision Roofing (Campbell's Precision Roofing LLC), Denver, NC 28037
 - Home: https://cprhomepros.com/
 - About / company story: see site navigation
 - Storm damage inspections: https://cprhomepros.com/storm-damage-insurance-claims/
-- Town pages: Denver, Cornelius, Huntersville, Mooresville, Sherrills Ford
+- Town pages: see Service area above (Denver, Lake Norman, Cornelius, Huntersville, Mooresville, Sherrills Ford, Stanley, Lincolnton, Gastonia, Hickory, Boone, Blowing Rock)
+- Commercial roofing: https://cprhomepros.com/commercial-roofing/
 - Areas We Serve: see site navigation
 
 ## Contact

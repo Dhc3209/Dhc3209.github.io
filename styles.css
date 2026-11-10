@@ -262,6 +262,37 @@ p { margin: 0 0 1.05em; color: var(--gray); }
 }
 .hero-phone:hover { color: var(--gold-soft) !important; }
 .hero-note { color: #C8D0DC; font-size: .875rem; margin: 0; }
+.home-call-now {
+  margin: .85rem 0 0;
+  padding: .85rem 1rem;
+  max-width: 34rem;
+  border: 1px solid rgba(232, 212, 176, .35);
+  border-radius: var(--radius);
+  background: rgba(0, 0, 0, .22);
+}
+.home-call-now-kicker {
+  margin: 0 0 .2rem;
+  color: var(--gold-soft);
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.home-call-now .home-call-now-phone {
+  margin: .1rem 0 .35rem;
+  padding: .15rem 0;
+}
+.home-call-now .hero-note {
+  color: #D5DCE6;
+  font-size: .88rem;
+  line-height: 1.45;
+  max-width: 32rem;
+}
+@media (max-width: 700px) {
+  .home-call-now { padding: .75rem .85rem; }
+  .home-call-now .home-call-now-phone { font-size: clamp(1.25rem, 6vw, 1.55rem); }
+}
+
 
 /* Compact dual strip for inner pages after page-hero alternative:
    We use full dual-hero on every page per requirements */
