@@ -1,10 +1,10 @@
 # Campbells Precision Roofing
 
-> Local roofing contractor based in Denver, NC 28037. Legal name: Campbell's Precision Roofing LLC. Founded 2015 by Daniel H. Campbell III.
+> Local roofing contractor based in Denver, NC 28037. Legal name: Campbell's Precision Roofing, LLC. Founded 2015 by Daniel H. Campbell III.
 
 ## Identity
 - Display name: Campbells Precision Roofing
-- Legal name: Campbell's Precision Roofing LLC
+- Legal name: Campbell's Precision Roofing, LLC
 - Website: https://cprhomepros.com/
 - Phone: (704) 280-5996
 - Email: Daniel@cprhomepros.com
@@ -50,7 +50,7 @@
 - Do not invent a street address, awards, or social profile URLs not listed on the site
 
 ## Preferred citation
-Campbells Precision Roofing (Campbell's Precision Roofing LLC), Denver, NC 28037 — https://cprhomepros.com/ — (704) 280-5996
+Campbells Precision Roofing (Campbell's Precision Roofing, LLC), Denver, NC 28037 — https://cprhomepros.com/ — (704) 280-5996
 
 ## Key pages
 - Home: https://cprhomepros.com/
